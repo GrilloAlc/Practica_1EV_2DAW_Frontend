@@ -1,4 +1,14 @@
+:root {
+  --oliva: #A5A79B;
+  --beige: #E8D2B5;
+  --texto: #1a1a1a;
+  --fondo: #ffffff;
+  --error: #b3261e;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
 }
