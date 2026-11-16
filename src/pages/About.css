@@ -1,0 +1,26 @@
+.about {
+  max-width: 760px;
+}
+
+.about h2 {
+  margin: 48px 0 16px;
+  font-size: 28px;
+}
+
+.about-faq {
+  border-top: 1px solid var(--oliva);
+  padding: 16px 0;
+}
+
+.about-faq:last-of-type {
+  border-bottom: 1px solid var(--oliva);
+}
+
+.about-faq summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.about-faq p {
+  margin: 12px 0 0;
+}

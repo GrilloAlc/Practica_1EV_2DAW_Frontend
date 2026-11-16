@@ -1,0 +1,46 @@
+.property-card {
+  border: 1px solid var(--oliva);
+  background: var(--fondo);
+}
+
+.property-card-photo {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--beige);
+  border-bottom: 1px solid var(--oliva);
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.property-card-body {
+  padding: 20px;
+}
+
+.property-card-label {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.property-card-title {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.property-card-price {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.property-card-specs {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--oliva);
+  font-size: 13px;
+}

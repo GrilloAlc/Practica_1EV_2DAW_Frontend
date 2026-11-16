@@ -1,24 +1,20 @@
+import { Link } from 'react-router-dom';
 import './PropertyCard.css';
+import type { Property } from '../data/properties';
 
-interface PropertyCardProps {
-  operation: string;
-  city: string;
-  title: string;
-  price: number;
-  area: number;
-  rooms: number;
-  bathrooms: number;
-}
-
-function PropertyCard({ operation, city, title, price, area, rooms, bathrooms }: PropertyCardProps) {
+function PropertyCard({ property}: { property: Property }) {
   return (
     <article className="property-card">
-      <div className="property-card-photo">FOTO</div>
+      <img className="property-card-photo" src={property.images[0]} alt={property.title} loading="lazy" />
       <div className="property-card-body">
-        <p className="property-card-label">{operation} · {city}</p>
-        <h3 className="property-card-title">{title}</h3>
-        <p className="property-card-price">{price.toLocaleString('es-ES')} €</p>
-        <p className="property-card-specs">{area} m² · {rooms} hab. · {bathrooms} baños</p>
+        <p className="property-card-label">{property.operation} · {property.city}</p>
+        <h3 className="property-card-title">
+          <Link to={`/propiedades/${property.id}`}>{property.title}</Link>
+        </h3>
+        <p className="property-card-price">
+          {property.price.toLocaleString('es-ES')} €{property.operation === 'Alquiler' && '/mes'}
+        </p>
+        <p className="property-card-specs">{property.area} m² · {property.rooms} hab. · {property.bathrooms} {property.bathrooms === 1 ? 'baño' : 'baños'}</p>
       </div>
     </article>
   );

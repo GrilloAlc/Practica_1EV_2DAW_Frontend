@@ -3,15 +3,17 @@
   background: var(--fondo);
 }
 
+.property-card:hover {
+  border-color: var(--texto);
+}
+
 .property-card-photo {
+  display: block;
+  width: 100%;
   height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: cover;
   background: var(--beige);
   border-bottom: 1px solid var(--oliva);
-  font-size: 11px;
-  letter-spacing: 2px;
 }
 
 .property-card-body {
@@ -19,17 +21,24 @@
 }
 
 .property-card-label {
-  margin: 0 0 10px;
-  font-size: 11px;
+  margin: 0 0 8px;
+  font-size: 12px;
   font-weight: bold;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  color: #555;
 }
 
 .property-card-title {
-  margin: 0 0 20px;
-  font-size: 20px;
-  font-weight: normal;
+  margin: 0 0 16px;
+  font-size: 21px;
+}
+
+.property-card-title a {
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.property-card-title a:hover {
+  text-decoration: underline;
 }
 
 .property-card-price {

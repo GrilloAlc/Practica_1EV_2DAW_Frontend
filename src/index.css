@@ -4,11 +4,315 @@
   --texto: #1a1a1a;
   --fondo: #ffffff;
   --error: #b3261e;
+  --crema: #f7f1e8;
+  --oliva-claro: #ecede8;
+  --serif: Georgia, 'Times New Roman', serif;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, Arial, sans-serif;
   color: var(--texto);
   background: var(--fondo);
+  line-height: 1.5;
+}
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--texto);
+  outline-offset: 2px;
+}
+
+/* ---------- Layout común ---------- */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 48px 64px;
+}
+
+.page-title {
+  margin: 0 0 8px;
+  font-size: 40px;
+}
+
+.page-subtitle {
+  margin: 0 0 32px;
+  color: #555;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.page-header .page-subtitle {
+  margin: 0;
+}
+
+.breadcrumb {
+  margin: 0 0 24px;
+  font-size: 13px;
+  color: #555;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border: 1px solid var(--texto);
+  background: var(--texto);
+  color: var(--fondo);
+  font: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #000;
+}
+
+.btn-outline {
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+.btn-outline:hover {
+  background: var(--beige);
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Formularios ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--texto);
+  background: var(--fondo);
+  font: inherit;
+  font-size: 15px;
+  font-weight: normal;
+}
+
+.field textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #767676;
+}
+
+.field-error {
+  margin: 0 0 16px;
+  color: var(--error);
+  font-size: 13px;
+}
+
+.form-box {
+  max-width: 640px;
+  padding: 32px;
+  border: 1px solid var(--oliva);
+  background: var(--fondo);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-row > * {
+  min-width: 0;
+}
+
+/* ---------- Tablas ---------- */
+.table-box {
+  border: 1px solid var(--oliva);
+  background: var(--fondo);
+  overflow-x: auto;
+}
+
+.table-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--oliva);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tab {
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--oliva-claro);
+}
+
+.tab-active {
+  border-color: var(--texto);
+  background: var(--beige);
+  font-weight: bold;
+}
+
+.table-search {
+  padding: 10px 12px;
+  border: 1px solid var(--texto);
+  font: inherit;
+  min-width: 220px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  padding: 12px 16px;
+  background: var(--crema);
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 16px;
+  border-top: 1px solid var(--oliva-claro);
+}
+
+.table tbody tr:hover {
+  background: var(--crema);
+}
+
+.table a {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.table a:hover {
+  text-decoration: underline;
+}
+
+.table-foot {
+  margin: 8px 0 0;
+  text-align: right;
+  font-size: 12px;
+  color: #555;
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: #555;
+}
+
+.empty strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--texto);
+  font-size: 18px;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: var(--beige);
+  border: 1px solid var(--oliva);
+  font-size: 13px;
+  font-weight: bold;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 24px 16px 48px;
+  }
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,0 +1,30 @@
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 0;
+}
+
+.pagination button {
+  min-width: 38px;
+  height: 38px;
+  border: 1px solid var(--texto);
+  background: var(--fondo);
+  color: var(--texto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: var(--beige);
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination .pagination-active {
+  background: var(--texto);
+  color: var(--fondo);
+}
