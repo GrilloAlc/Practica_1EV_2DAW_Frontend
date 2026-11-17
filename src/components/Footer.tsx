@@ -11,7 +11,7 @@ function Footer() {
       <div>
         <strong>Enlaces</strong>
         <p>
-          <Link to="/propiedades">Propiedades</Link> · <Link to="/sobre-nosotros">Nosotros</Link> · <Link to="/sobre-nosotros">Contacto</Link>
+          <Link to="/propiedades">Propiedades</Link> · <Link to="/sobre-nosotros">Contacto y Sobre Nosotros</Link>
         </p>
       </div>
       <div>

@@ -70,7 +70,7 @@ function PropertyDetail() {
           </div>
 
           <aside className="detail-contact">
-            <p className="label">Ref. {property.id.padStart(6, '0')}</p>
+            <p className="label">Ref. {property.id}</p>
             <h2>¿Te interesa esta propiedad?</h2>
             <p>Abre una consulta y nuestro equipo responderá a todas tus dudas.</p>
             <Link to="/mis-tickets/nuevo" className="btn">Abrir ticket / consultar</Link>

@@ -1,6 +1,6 @@
-export interface Message {
+interface Message {
   author: string;
-  role: string; // 'Cliente', 'Agente' o 'Admin'
+  role: string;
   date: string;
   body: string;
 }
@@ -52,11 +52,3 @@ export const tickets: Ticket[] = [
 ];
 
 export const categories = ['Propiedad', 'Visita', 'Documentación', 'General'];
-
-export const users = [
-  { id: '1', name: 'María Ruiz', email: 'maria@correo.com', role: 'Cliente' },
-  { id: '2', name: 'Carlos Soto', email: 'carlos@correo.com', role: 'Cliente' },
-  { id: '3', name: 'Ana García', email: 'ana@inmobiliaria.es', role: 'Agente' },
-  { id: '4', name: 'Luis Pérez', email: 'luis@inmobiliaria.es', role: 'Agente' },
-  { id: '5', name: 'Admin', email: 'admin@inmobiliaria.es', role: 'Administrador' },
-];

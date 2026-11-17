@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
 
@@ -7,11 +7,12 @@ function Auth() {
   const navigate = useNavigate();
   const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    if (mode === 'register' && data.get('password') !== data.get('password2')) {
+    if (mode === 'register' && password !== password2) {
       setError('Las contraseñas no coinciden.');
       return;
     }
@@ -54,12 +55,12 @@ function Auth() {
             </label>
             <label className="field">
               Contraseña
-              <input name="password" type="password" required minLength={8} placeholder="Mínimo 8 caracteres" />
+              <input name="password" type="password" required minLength={8} placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} />
             </label>
             {mode === 'register' && (
               <label className="field">
                 Repite la contraseña
-                <input name="password2" type="password" required minLength={8} />
+                <input name="password2" type="password" required minLength={8} value={password2} onChange={(e) => setPassword2(e.target.value)} />
               </label>
             )}
             {error && <p className="field-error" role="alert">{error}</p>}

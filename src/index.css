@@ -36,7 +36,6 @@ a {
   outline-offset: 2px;
 }
 
-/* ---------- Layout común ---------- */
 .page {
   max-width: 1200px;
   margin: 0 auto;
@@ -86,7 +85,6 @@ a {
   color: #555;
 }
 
-/* ---------- Botones ---------- */
 .btn {
   display: inline-block;
   padding: 12px 24px;
@@ -114,11 +112,6 @@ a {
   background: var(--beige);
 }
 
-.btn-small {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -134,7 +127,6 @@ a {
   cursor: pointer;
 }
 
-/* ---------- Formularios ---------- */
 .field {
   display: flex;
   flex-direction: column;
@@ -190,7 +182,6 @@ a {
   min-width: 0;
 }
 
-/* ---------- Tablas ---------- */
 .table-box {
   border: 1px solid var(--oliva);
   background: var(--fondo);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { categories, priorities } from '../data/tickets';
 import Navbar from '../components/Navbar';
@@ -8,11 +8,11 @@ import Footer from '../components/Footer';
 function NewTicket() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const [descripcion, setDescripcion] = useState('');
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    if (String(data.get('descripcion')).trim().length < 10) {
+    if (descripcion.trim().length < 10) {
       setError('La descripción debe tener al menos 10 caracteres.');
       return;
     }
@@ -52,7 +52,7 @@ function NewTicket() {
           </div>
           <label className="field">
             Descripción
-            <textarea name="descripcion" required placeholder="Escribe aquí los detalles..." />
+            <textarea name="descripcion" required value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Escribe aquí los detalles..." />
           </label>
           {error && <p className="field-error" role="alert">{error}</p>}
           <button type="submit" className="btn">Enviar ticket</button>

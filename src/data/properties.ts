@@ -1,12 +1,9 @@
-// Fotos de ejemplo (aleatorias, no son casas reales).
-// Para poner las tuyas, cambia cada foto('...') por una dirección web ('https://.../casa.jpg')
-// o por un archivo de la carpeta public ('/img/casa.jpg').
 const foto = (nombre: string) => `https://picsum.photos/seed/${nombre}/800/600`;
 
 export interface Property {
   id: string;
-  operation: string; // 'Venta' o 'Alquiler'
-  type: string; // 'Piso' o 'Casa'
+  operation: string;
+  type: string;
   city: string;
   title: string;
   price: number;
@@ -15,7 +12,7 @@ export interface Property {
   bathrooms: number;
   floor: string;
   active: boolean;
-  images: string[]; // la primera es la foto principal
+  images: string[];
 }
 
 export const properties: Property[] = [

@@ -16,10 +16,17 @@ function TicketTable({ tickets, basePath, showClient, showAgent }: TicketTablePr
   const [priority, setPriority] = useState('');
   const [search, setSearch] = useState('');
 
-  const visible = tickets
-    .filter((t) => status === 'Todos' || t.status === status)
-    .filter((t) => !priority || t.priority === priority)
-    .filter((t) => (t.id + t.subject + t.client + t.agent).toLowerCase().includes(search.toLowerCase()));
+  let visible = tickets;
+
+  if (status !== 'Todos') {
+    visible = visible.filter((t) => t.status === status);
+  }
+  if (priority) {
+    visible = visible.filter((t) => t.priority === priority);
+  }
+  if (search) {
+    visible = visible.filter((t) => (t.id + t.subject + t.client + t.agent).toLowerCase().includes(search.toLowerCase()));
+  }
 
   return (
     <>
@@ -72,7 +79,7 @@ function TicketTable({ tickets, basePath, showClient, showAgent }: TicketTablePr
             <tbody>
               {visible.map((t) => (
                 <tr key={t.id}>
-                  <td><Link to={`${basePath}/${t.id}`}>#{t.id}</Link></td>
+                  <td><Link to={basePath + '/' + t.id}>#{t.id}</Link></td>
                   <td>{t.subject}</td>
                   {showClient && <td>{t.client}</td>}
                   <td>{t.category}</td>

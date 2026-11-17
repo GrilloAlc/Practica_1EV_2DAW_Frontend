@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { properties } from '../../data/properties';
 import AdminSidebar from '../../components/AdminSidebar';
@@ -9,11 +9,10 @@ function AdminPropertyForm() {
   const navigate = useNavigate();
   const property = properties.find((p) => p.id === id);
 
-  // Si estamos creando, los campos empiezan vacíos; si editamos, con los datos de la propiedad
   const empty = { title: '', operation: 'Venta', type: 'Piso', city: '', price: '', area: '', rooms: '', bathrooms: '' };
   const values = property || empty;
 
-  function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
     navigate('/admin/propiedades');
   }

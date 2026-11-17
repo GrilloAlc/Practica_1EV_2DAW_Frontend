@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { users as initialUsers } from '../../data/tickets';
+import { usuarios as initialUsers } from '../../data/usuarios';
 import AdminSidebar from '../../components/AdminSidebar';
 import './Admin.css';
 

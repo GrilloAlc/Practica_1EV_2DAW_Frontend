@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './TicketDetail.css';
 import './admin/Admin.css';
@@ -11,7 +11,6 @@ import { tickets, statuses, priorities, agents } from '../data/tickets';
 import type { Ticket } from '../data/tickets';
 import { properties } from '../data/properties';
 
-// El rol ('cliente', 'agente' o 'admin') llega desde App.tsx según la ruta
 function TicketDetail({ role }: { role: string }) {
   const { id } = useParams();
   const ticket = tickets.find((t) => t.id === id);
@@ -20,7 +19,6 @@ function TicketDetail({ role }: { role: string }) {
   if (role === 'admin') backTo = '/admin/tickets';
   if (role === 'agente') backTo = '/agente/tickets';
 
-  // Primero preparamos el contenido de la página...
   let content;
   if (!ticket || (role === 'cliente' && ticket.client !== 'María Ruiz')) {
     content = (
@@ -35,7 +33,6 @@ function TicketDetail({ role }: { role: string }) {
     content = <TicketView ticket={ticket} role={role} backTo={backTo} />;
   }
 
-  // ...y luego lo colocamos con el menú que le toca según el rol
   if (role === 'admin') {
     return (
       <div className="admin-layout">
@@ -54,7 +51,6 @@ function TicketDetail({ role }: { role: string }) {
   );
 }
 
-// Aquí el ticket ya existe seguro, así que no hace falta comprobar nada más
 function TicketView({ ticket, role, backTo }: { ticket: Ticket; role: string; backTo: string }) {
   let roleName = 'Cliente';
   let authorName = ticket.client;
@@ -81,7 +77,7 @@ function TicketView({ ticket, role, backTo }: { ticket: Ticket; role: string; ba
     setStatus(newStatus);
   }
 
-  function sendReply(e: FormEvent) {
+  function sendReply(e: SyntheticEvent) {
     e.preventDefault();
     if (!reply.trim()) return;
     setMessages([...messages, { author: authorName, role: roleName, date: 'Ahora', body: reply }]);
@@ -118,7 +114,7 @@ function TicketView({ ticket, role, backTo }: { ticket: Ticket; role: string; ba
           <h2>Historial</h2>
           {messages.map((m, i) => (
             <div key={i} className={m.role === 'Cliente' ? 'ticket-message' : 'ticket-message ticket-message-team'}>
-              <span className="avatar">{m.author.split(' ').map((w) => w[0]).join('').slice(0, 2)}</span>
+              <span className="avatar">{m.author[0]}</span>
               <div>
                 <p className="ticket-message-head">
                   <strong>{m.author}</strong> · {m.role} <span>{m.date}</span>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 import Navbar from '../components/Navbar';
@@ -10,15 +10,12 @@ import { properties } from '../data/properties';
 function Home() {
   const navigate = useNavigate();
 
-  // Lo que el usuario elige en el buscador
   const [operacion, setOperacion] = useState('Venta');
   const [tipo, setTipo] = useState('');
   const [ciudad, setCiudad] = useState('');
   const [precioMax, setPrecioMax] = useState('');
 
-  // Al buscar, vamos al listado y le pasamos los filtros en la dirección
-  // Ejemplo: /propiedades?operacion=Venta&tipo=Piso&ciudad=Madrid&precioMax=400000
-  function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
     navigate(
       '/propiedades?operacion=' + operacion +

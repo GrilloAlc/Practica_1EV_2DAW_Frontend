@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { categories as initialCategories } from '../../data/tickets';
 import AdminSidebar from '../../components/AdminSidebar';
 import './Admin.css';
@@ -8,7 +8,7 @@ function AdminCategories() {
   const [categories, setCategories] = useState(initialCategories);
   const [name, setName] = useState('');
 
-  function addCategory(e: FormEvent) {
+  function addCategory(e: SyntheticEvent) {
     e.preventDefault();
     const clean = name.trim();
     if (!clean || categories.includes(clean)) return;

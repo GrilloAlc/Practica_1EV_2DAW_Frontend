@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 function Profile() {
   const [saved, setSaved] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
     setSaved(true);
   }
