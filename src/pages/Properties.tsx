@@ -1,165 +1,170 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import './Properties.css';
 import PropertyCard from '../components/PropertyCard';
 import Pagination from '../components/Pagination';
-import { properties } from '../data/properties';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { getProperties } from '../api/properties';
+import { getErrorMessage } from '../api/client';
+import { PROPERTY_STATUSES, PROPERTY_TYPES } from '../utils/labels';
+import type { Property } from '../types';
 
 const PER_PAGE = 6;
-const emptyFilters = { operacion: '', tipo: '', ciudad: '', precioMin: '', precioMax: '', habitaciones: '' };
 
 function Properties() {
-  const [params] = useSearchParams();
-  const startFilters = {
-    operacion: params.get('operacion') || '',
-    tipo: params.get('tipo') || '',
-    ciudad: params.get('ciudad') || '',
-    precioMin: params.get('precioMin') || '',
-    precioMax: params.get('precioMax') || '',
-    habitaciones: params.get('habitaciones') || '',
-  };
+  // Los filtros aplicados se guardan en la URL
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [operacion, setOperacion] = useState(startFilters.operacion);
-  const [tipo, setTipo] = useState(startFilters.tipo);
-  const [ciudad, setCiudad] = useState(startFilters.ciudad);
-  const [precioMin, setPrecioMin] = useState(startFilters.precioMin);
-  const [precioMax, setPrecioMax] = useState(startFilters.precioMax);
-  const [habitaciones, setHabitaciones] = useState(startFilters.habitaciones);
-  const [applied, setApplied] = useState(startFilters);
-  const [sort, setSort] = useState('recientes');
-  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [status, setStatus] = useState(searchParams.get('status') || '');
+  const [type, setType] = useState(searchParams.get('type') || '');
+  const [city, setCity] = useState(searchParams.get('city') || '');
+  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
+  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
 
-  function applyFilters() {
-    setApplied({ operacion, tipo, ciudad, precioMin, precioMax, habitaciones });
-    setPage(1);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const sort = searchParams.get('sort') || 'newest';
+  const page = Number(searchParams.get('page')) || 1;
+
+  useEffect(() => {
+    async function loadProperties() {
+      try {
+        const params = Object.fromEntries(searchParams);
+        const result = await getProperties({ ...params, limit: PER_PAGE });
+        setProperties(result.data);
+        setTotal(result.total);
+        setTotalPages(result.totalPages);
+        setError('');
+      } catch (err) {
+        setError(getErrorMessage(err));
+      }
+      setLoading(false);
+    }
+    loadProperties();
+  }, [searchParams]);
+
+  // Cambia solo los valores indicados de la URL (si están vacíos se quitan)
+  function changeUrl(changes: Record<string, string>) {
+    const params = new URLSearchParams(searchParams);
+    for (const key in changes) {
+      if (changes[key]) {
+        params.set(key, changes[key]);
+      } else {
+        params.delete(key);
+      }
+    }
+    setSearchParams(params);
+  }
+
+  function applyFilters(e: SyntheticEvent) {
+    e.preventDefault();
+    changeUrl({ search, status, type, city, minPrice, maxPrice, page: '' });
   }
 
   function clearFilters() {
-    setOperacion('');
-    setTipo('');
-    setCiudad('');
-    setPrecioMin('');
-    setPrecioMax('');
-    setHabitaciones('');
-    setApplied(emptyFilters);
-    setPage(1);
+    setSearch('');
+    setStatus('');
+    setType('');
+    setCity('');
+    setMinPrice('');
+    setMaxPrice('');
+    setSearchParams({});
   }
 
-  const result = properties
-    .filter((p) => p.active)
-    .filter((p) => !applied.operacion || p.operation === applied.operacion)
-    .filter((p) => !applied.tipo || p.type === applied.tipo)
-    .filter((p) => !applied.ciudad || p.city === applied.ciudad)
-    .filter((p) => !applied.precioMin || p.price >= Number(applied.precioMin))
-    .filter((p) => !applied.precioMax || p.price <= Number(applied.precioMax))
-    .filter((p) => !applied.habitaciones || p.rooms >= Number(applied.habitaciones));
-
-  if (sort === 'precio-asc') result.sort((a, b) => a.price - b.price);
-  if (sort === 'precio-desc') result.sort((a, b) => b.price - a.price);
-
-  let totalPages = Math.ceil(result.length / PER_PAGE);
-  if (totalPages === 0) totalPages = 1;
-  const visible = result.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-
   return (
-    <>
-      <Navbar />
-      <main className="page">
-        <p className="breadcrumb"><Link to="/">Inicio</Link> / Propiedades</p>
+    <main className="page">
+      <p className="breadcrumb"><Link to="/">Inicio</Link> / Propiedades</p>
 
-        <div className="page-header">
-          <div>
-            <h1 className="page-title">Propiedades</h1>
-            <p className="page-subtitle">{result.length} resultados encontrados</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Propiedades</h1>
+          <p className="page-subtitle">{total} resultados encontrados</p>
+        </div>
+        <label className="properties-sort">
+          Ordenar
+          <select value={sort} onChange={(e) => changeUrl({ sort: e.target.value, page: '' })}>
+            <option value="newest">Más recientes</option>
+            <option value="price_asc">Precio: menor a mayor</option>
+            <option value="price_desc">Precio: mayor a menor</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="properties-layout">
+        <form className="properties-filters" onSubmit={applyFilters}>
+          <div className="properties-filters-head">
+            <strong>Filtros</strong>
+            <button type="button" className="link-button" onClick={clearFilters}>Limpiar</button>
           </div>
-          <label className="properties-sort">
-            Ordenar
-            <select value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="recientes">Más recientes</option>
-              <option value="precio-asc">Precio: menor a mayor</option>
-              <option value="precio-desc">Precio: mayor a menor</option>
+
+          <label className="field">
+            Buscar
+            <input type="search" placeholder="Título o descripción" value={search} onChange={(e) => setSearch(e.target.value)} />
+          </label>
+          <label className="field">
+            Estado
+            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="">Todos</option>
+              {PROPERTY_STATUSES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
           </label>
-        </div>
+          <label className="field">
+            Tipo de propiedad
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="">Todos</option>
+              {PROPERTY_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </label>
+          <div className="form-row">
+            <label className="field">
+              Precio mín.
+              <input type="number" min="0" placeholder="Mín." value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+            </label>
+            <label className="field">
+              Precio máx.
+              <input type="number" min="0" placeholder="Máx." value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+            </label>
+          </div>
+          <label className="field">
+            Ciudad
+            <input placeholder="Todas" value={city} onChange={(e) => setCity(e.target.value)} />
+          </label>
+          <button type="submit" className="btn properties-apply">Aplicar filtros</button>
+        </form>
 
-        <div className="properties-layout">
-          <aside className="properties-filters">
-            <div className="properties-filters-head">
-              <strong>Filtros</strong>
-              <button className="link-button" onClick={clearFilters}>Limpiar</button>
+        <section>
+          {loading && <p>Cargando...</p>}
+          {error && <p className="field-error">{error}</p>}
+
+          {!loading && !error && properties.length === 0 && (
+            <div className="empty table-box">
+              <strong>No hay propiedades con esos filtros</strong>
+              Prueba a cambiar los filtros o pulsa en Limpiar.
             </div>
+          )}
 
-            <label className="field">
-              Operación
-              <select name="operacion" value={operacion} onChange={(e) => setOperacion(e.target.value)}>
-                <option value="">Todas</option>
-                <option value="Venta">Comprar</option>
-                <option value="Alquiler">Alquilar</option>
-              </select>
-            </label>
-            <label className="field">
-              Tipo de propiedad
-              <select name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
-                <option value="">Todos</option>
-                <option value="Piso">Piso</option>
-                <option value="Casa">Casa</option>
-              </select>
-            </label>
-            <div className="form-row">
-              <label className="field">
-                Precio mín.
-                <input type="number" name="precioMin" min="0" placeholder="Mín." value={precioMin} onChange={(e) => setPrecioMin(e.target.value)} />
-              </label>
-              <label className="field">
-                Precio máx.
-                <input type="number" name="precioMax" min="0" placeholder="Máx." value={precioMax} onChange={(e) => setPrecioMax(e.target.value)} />
-              </label>
-            </div>
-            <label className="field">
-              Habitaciones
-              <select name="habitaciones" value={habitaciones} onChange={(e) => setHabitaciones(e.target.value)}>
-                <option value="">Cualquiera</option>
-                <option value="1">1 o más</option>
-                <option value="2">2 o más</option>
-                <option value="3">3 o más</option>
-                <option value="4">4 o más</option>
-              </select>
-            </label>
-            <label className="field">
-              Ciudad
-              <select name="ciudad" value={ciudad} onChange={(e) => setCiudad(e.target.value)}>
-                <option value="">Todas</option>
-                <option value="Madrid">Madrid</option>
-                <option value="Barcelona">Barcelona</option>
-                <option value="Valencia">Valencia</option>
-              </select>
-            </label>
-            <button className="btn properties-apply" onClick={applyFilters}>Aplicar filtros</button>
-          </aside>
-
-          <section>
-            {visible.length === 0 ? (
-              <div className="empty table-box">
-                <strong>No hay propiedades con esos filtros</strong>
-                Prueba a cambiar los filtros o pulsa en Limpiar.
+          {properties.length > 0 && (
+            <>
+              <div className="properties-grid">
+                {properties.map((p) => (
+                  <PropertyCard key={p._id} property={p} />
+                ))}
               </div>
-            ) : (
-              <>
-                <div className="properties-grid">
-                  {visible.map((p) => (
-                    <PropertyCard key={p.id} property={p} />
-                  ))}
-                </div>
-                <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-              </>
-            )}
-          </section>
-        </div>
-      </main>
-      <Footer />
-    </>
+              <Pagination currentPage={page} totalPages={totalPages} onPageChange={(p) => changeUrl({ page: String(p) })} />
+            </>
+          )}
+        </section>
+      </div>
+    </main>
   );
 }
 

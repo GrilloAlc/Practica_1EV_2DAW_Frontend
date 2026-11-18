@@ -89,3 +89,11 @@
     font-size: 36px;
   }
 }
+
+.home-search input {
+  padding: 12px;
+  border: 1px solid var(--texto);
+  background: var(--fondo);
+  font: inherit;
+  font-weight: normal;
+}

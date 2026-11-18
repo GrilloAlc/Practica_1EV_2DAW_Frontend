@@ -1,85 +1,85 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './PropertyDetail.css';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { properties } from '../data/properties';
-
-const features = ['Ascensor', 'Armarios empotrados', 'Calefacción', 'Balcón', 'Exterior', 'Buen estado'];
+import { getProperty } from '../api/properties';
+import { getErrorMessage } from '../api/client';
+import { formatPrice, propertyImage } from '../utils/labels';
+import type { Property } from '../types';
 
 function PropertyDetail() {
   const { id } = useParams();
-  const property = properties.find((p) => p.id === id);
+  const [property, setProperty] = useState<Property | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadProperty() {
+      try {
+        const result = await getProperty(id!);
+        setProperty(result);
+      } catch (err) {
+        setError(getErrorMessage(err));
+      }
+    }
+    loadProperty();
+  }, [id]);
 
   if (!property) {
     return (
-      <>
-        <Navbar />
-        <main className="page">
+      <main className="page">
+        {error ? (
           <div className="empty table-box">
             <strong>No hemos encontrado esta propiedad</strong>
-            Puede que ya no esté disponible. <Link to="/propiedades">Volver al listado</Link>
+            {error} <Link to="/propiedades">Volver al listado</Link>
           </div>
-        </main>
-        <Footer />
-      </>
+        ) : (
+          <p>Cargando...</p>
+        )}
+      </main>
     );
   }
 
+  const address = property.address;
+
   return (
-    <>
-      <Navbar />
-      <main className="page">
-        <p className="breadcrumb">
-          <Link to="/">Inicio</Link> / <Link to="/propiedades">Propiedades</Link> / {property.title}
-        </p>
+    <main className="page">
+      <p className="breadcrumb">
+        <Link to="/">Inicio</Link> / <Link to="/propiedades">Propiedades</Link> / {property.title}
+      </p>
 
-        <div className="detail-gallery">
-          <img className="detail-photo detail-photo-main" src={property.images[0]} alt={property.title} />
-          <img className="detail-photo" src={property.images[1]} alt={property.title} />
-          <img className="detail-photo" src={property.images[2]} alt={property.title} />
-        </div>
+      <div className="detail-gallery detail-gallery-single">
+        <img className="detail-photo detail-photo-main" src={propertyImage(property)} alt={property.title} />
+      </div>
 
-        <div className="detail-layout">
-          <div>
-            <p className="label">{property.operation} · {property.city}</p>
-            <h1 className="page-title">{property.title}</h1>
-            <p className="detail-price">
-              {property.price.toLocaleString('es-ES')} €{property.operation === 'Alquiler' && '/mes'}
-            </p>
+      <div className="detail-layout">
+        <div>
+          <p className="label">{property.status} · {address.city}</p>
+          <h1 className="page-title">{property.title}</h1>
+          <p className="detail-price">{formatPrice(property)}</p>
 
-            <div className="detail-stats">
-              <div><strong>{property.area}</strong><span>m² construidos</span></div>
-              <div><strong>{property.rooms}</strong><span>Habitaciones</span></div>
-              <div><strong>{property.bathrooms}</strong><span>Baños</span></div>
-              <div><strong>{property.floor}</strong><span>Planta</span></div>
-            </div>
-
-            <h2>Descripción</h2>
-            <p>
-              Vivienda amplia y luminosa situada en una zona céntrica y bien comunicada. Cuenta con salón comedor,
-              cocina independiente y dormitorios exteriores.
-            </p>
-            <p>El edificio dispone de ascensor y la vivienda se encuentra en buen estado de conservación.</p>
-
-            <h2>Características</h2>
-            <ul className="detail-features">
-              {features.map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
+          <div className="detail-stats">
+            <div><strong>{property.area}</strong><span>m² construidos</span></div>
+            <div><strong>{property.type}</strong><span>Tipo</span></div>
+            <div><strong>{address.city}</strong><span>Ciudad</span></div>
+            <div><strong>{address.postalCode}</strong><span>Código postal</span></div>
           </div>
 
-          <aside className="detail-contact">
-            <p className="label">Ref. {property.id}</p>
-            <h2>¿Te interesa esta propiedad?</h2>
-            <p>Abre una consulta y nuestro equipo responderá a todas tus dudas.</p>
-            <Link to="/mis-tickets/nuevo" className="btn">Abrir ticket / consultar</Link>
-            <p className="detail-note">Normalmente respondemos en menos de 24 horas.</p>
-          </aside>
+          <h2>Descripción</h2>
+          <p>{property.description}</p>
+
+          <h2>Ubicación</h2>
+          <p>{address.street} {address.number}, {address.postalCode} {address.city} ({address.province})</p>
         </div>
-      </main>
-      <Footer />
-    </>
+
+        <aside className="detail-contact">
+          <h2>¿Te interesa esta propiedad?</h2>
+          <p>Abre una consulta y nuestro equipo responderá a todas tus dudas.</p>
+          <Link to={'/mis-tickets/nuevo?asunto=' + encodeURIComponent('Consulta sobre: ' + property.title)} className="btn">
+            Abrir ticket / consultar
+          </Link>
+          <p className="detail-note">Normalmente respondemos en menos de 24 horas.</p>
+        </aside>
+      </div>
+    </main>
   );
 }
 

@@ -1,76 +1,84 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import StatCard from '../../components/StatCard';
-import StatusBadge from '../../components/StatusBadge';
-import { tickets } from '../../data/tickets';
-import AdminSidebar from '../../components/AdminSidebar';
-import './Admin.css';
+import { getTicketStats, getTickets } from '../../api/tickets';
+import { getErrorMessage } from '../../api/client';
+import { priorityLabels, statusLabels } from '../../utils/labels';
+import type { Ticket, TicketStats } from '../../types';
 
 function AdminDashboard() {
-  const count = (s: string) => tickets.filter((t) => t.status === s).length;
-  const pending = tickets.filter((t) => t.status === 'Abierto' || t.status === 'En curso');
+  const [stats, setStats] = useState<TicketStats | null>(null);
+  const [unassigned, setUnassigned] = useState<Ticket[]>([]);
+  const [error, setError] = useState('');
 
-  const open = count('Abierto');
-  const inProgress = count('En curso');
-  const done = count('Resuelto') + count('Cerrado');
-
-  const bars = [
-    { label: 'Abiertos', value: open },
-    { label: 'En curso', value: inProgress },
-    { label: 'Resueltos / cerrados', value: done },
-  ];
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const statsResult = await getTicketStats();
+        const ticketsResult = await getTickets({ unassigned: true, limit: 10 });
+        setStats(statsResult);
+        setUnassigned(ticketsResult.data);
+      } catch (err) {
+        setError(getErrorMessage(err));
+      }
+    }
+    loadData();
+  }, []);
 
   return (
-    <div className="admin-layout">
-      <AdminSidebar />
-      <main className="admin-main">
-        <div className="page">
-          <p className="label">Administración</p>
-          <h1 className="page-title">Resumen</h1>
-          <p className="page-subtitle">Esto es lo que está pasando.</p>
+    <main className="page">
+      <p className="label">Administración</p>
+      <h1 className="page-title">Resumen</h1>
+      <p className="page-subtitle">Esto es lo que está pasando.</p>
 
+      {error && <p className="field-error">{error}</p>}
+      {!stats && !error && <p>Cargando...</p>}
+
+      {stats && (
+        <>
           <div className="admin-stats">
-            <StatCard label="Total de tickets" value={tickets.length} />
-            <StatCard label="Abiertos" value={open} />
-            <StatCard label="En curso" value={inProgress} />
-            <StatCard label="Resueltos / cerrados" value={done} />
+            <div className="stat-card">
+              <p className="stat-card-label">Total de tickets</p>
+              <p className="stat-card-value">{stats.total}</p>
+            </div>
+            <div className="stat-card">
+              <p className="stat-card-label">Abiertos</p>
+              <p className="stat-card-value">{stats.abiertos}</p>
+            </div>
+            <div className="stat-card">
+              <p className="stat-card-label">En curso</p>
+              <p className="stat-card-value">{stats.enCurso}</p>
+            </div>
+            <div className="stat-card">
+              <p className="stat-card-label">Resueltos / cerrados</p>
+              <p className="stat-card-value">{stats.resueltos + stats.cerrados}</p>
+            </div>
           </div>
 
           <div className="page-header">
-            <h2 className="admin-section-title">Tickets pendientes</h2>
+            <h2 className="admin-section-title">Tickets sin asignar</h2>
             <Link to="/admin/tickets" className="btn btn-outline">Ver todos</Link>
           </div>
           <div className="table-box">
             <table className="table">
               <thead>
-                <tr><th>ID</th><th>Asunto</th><th>Cliente</th><th>Prioridad</th><th>Estado</th><th>Agente</th></tr>
+                <tr><th>Código</th><th>Asunto</th><th>Cliente</th><th>Prioridad</th><th>Estado</th></tr>
               </thead>
               <tbody>
-                {pending.map((t) => (
-                  <tr key={t.id}>
-                    <td><Link to={`/admin/tickets/${t.id}`}>#{t.id}</Link></td>
+                {unassigned.map((t) => (
+                  <tr key={t._id}>
+                    <td><Link to={`/admin/tickets/${t._id}`}>{t.code}</Link></td>
                     <td>{t.subject}</td>
-                    <td>{t.client}</td>
-                    <td>{t.priority}</td>
-                    <td><StatusBadge status={t.status} /></td>
-                    <td>{t.agent}</td>
+                    <td>{t.customer.name}</td>
+                    <td>{priorityLabels[t.priority]}</td>
+                    <td><span className="status-badge">{statusLabels[t.status]}</span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-          <h2 className="admin-section-title" style={{ marginTop: 32 }}>Distribución por estado</h2>
-          <div className="admin-bars">
-            {bars.map((b) => (
-              <div key={b.label} className="admin-bar">
-                {b.label}: {b.value}
-                <div style={{ width: `${(b.value / tickets.length) * 100}%` }} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-    </div>
+        </>
+      )}
+    </main>
   );
 }
 

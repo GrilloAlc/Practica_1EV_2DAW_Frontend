@@ -307,3 +307,13 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--texto);
+  background: var(--fondo);
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}

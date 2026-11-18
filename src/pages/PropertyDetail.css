@@ -114,3 +114,7 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.detail-gallery-single {
+  grid-template-columns: 1fr;
+}
