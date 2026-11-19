@@ -17,8 +17,7 @@ export async function getProperties(params: Record<string, string | number>): Pr
     return paginate(list, params);
   }
 
-  const res = await api.get('/properties', { params });
-  return res.data;
+  return api.get('/properties', params);
 }
 
 export async function getProperty(id: string): Promise<Property> {
@@ -28,8 +27,7 @@ export async function getProperty(id: string): Promise<Property> {
     return property;
   }
 
-  const res = await api.get('/properties/' + id);
-  return res.data;
+  return api.get('/properties/' + id);
 }
 
 export async function createProperty(data: Partial<Property>): Promise<Property> {
@@ -39,8 +37,7 @@ export async function createProperty(data: Partial<Property>): Promise<Property>
     return property;
   }
 
-  const res = await api.post('/properties', data);
-  return res.data;
+  return api.post('/properties', data);
 }
 
 export async function updateProperty(id: string, data: Partial<Property>): Promise<Property> {
@@ -50,8 +47,7 @@ export async function updateProperty(id: string, data: Partial<Property>): Promi
     return property;
   }
 
-  const res = await api.put('/properties/' + id, data);
-  return res.data;
+  return api.put('/properties/' + id, data);
 }
 
 // No borra la propiedad, la desactiva

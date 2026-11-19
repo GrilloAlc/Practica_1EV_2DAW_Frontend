@@ -9,8 +9,7 @@ export async function login(email: string, password: string) {
     return { token: 'token-falso', user };
   }
 
-  const res = await api.post('/auth/login', { email, password });
-  return res.data;
+  return api.post('/auth/login', { email, password });
 }
 
 export async function register(data: { name: string; email: string; password: string; phone?: string }) {
@@ -20,6 +19,5 @@ export async function register(data: { name: string; email: string; password: st
     return { token: 'token-falso', user };
   }
 
-  const res = await api.post('/auth/register', data);
-  return res.data;
+  return api.post('/auth/register', data);
 }

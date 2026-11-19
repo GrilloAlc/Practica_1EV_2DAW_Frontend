@@ -19,8 +19,7 @@ export async function getTickets(params: { limit?: number; unassigned?: boolean 
     return paginate(list, params);
   }
 
-  const res = await api.get('/tickets', { params });
-  return res.data;
+  return api.get('/tickets', params);
 }
 
 export async function getTicket(id: string): Promise<{ ticket: Ticket; messages: Message[] }> {
@@ -30,8 +29,7 @@ export async function getTicket(id: string): Promise<{ ticket: Ticket; messages:
     return { ticket, messages };
   }
 
-  const res = await api.get('/tickets/' + id);
-  return res.data;
+  return api.get('/tickets/' + id);
 }
 
 // La prioridad no la elige el cliente: el backend pone MEDIA y luego la cambia el agente o el admin
@@ -53,8 +51,7 @@ export async function createTicket(data: { subject: string; description: string;
     return ticket;
   }
 
-  const res = await api.post('/tickets', data);
-  return res.data;
+  return api.post('/tickets', data);
 }
 
 export async function addMessage(id: string, body: string): Promise<Message> {
@@ -71,8 +68,7 @@ export async function addMessage(id: string, body: string): Promise<Message> {
     return message;
   }
 
-  const res = await api.post('/tickets/' + id + '/messages', { body });
-  return res.data;
+  return api.post('/tickets/' + id + '/messages', { body });
 }
 
 export async function assignTicket(id: string, agentId: string) {
@@ -127,6 +123,5 @@ export async function getTicketStats(): Promise<TicketStats> {
     };
   }
 
-  const res = await api.get('/stats/tickets');
-  return res.data;
+  return api.get('/stats/tickets');
 }

@@ -9,8 +9,7 @@ export async function getUsers(params: { role?: string; limit?: number }): Promi
     return paginate(list, params);
   }
 
-  const res = await api.get('/users', { params });
-  return res.data;
+  return api.get('/users', params);
 }
 
 export async function updateUser(id: string, data: Partial<User>): Promise<User> {
@@ -20,8 +19,7 @@ export async function updateUser(id: string, data: Partial<User>): Promise<User>
     return user;
   }
 
-  const res = await api.put('/users/' + id, data);
-  return res.data;
+  return api.put('/users/' + id, data);
 }
 
 export async function updateMe(data: { name: string; phone: string }): Promise<User> {
@@ -29,6 +27,5 @@ export async function updateMe(data: { name: string; phone: string }): Promise<U
     return updateUser(getLoggedUser()._id, data);
   }
 
-  const res = await api.put('/users/me', data);
-  return res.data;
+  return api.put('/users/me', data);
 }
