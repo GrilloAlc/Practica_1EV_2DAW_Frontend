@@ -14,23 +14,26 @@ async function request(method: string, url: string, body?: unknown): Promise<any
     headers.Authorization = 'Bearer ' + token;
   }
 
-  const res = await fetch('/api' + url, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  const options: RequestInit = { method: method, headers: headers };
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
 
-  // Algunas respuestas (por ejemplo un DELETE) pueden venir vacías
-  const text = await res.text();
+  const res = await fetch('/api' + url, options);
+
+  // Algunas respuestas (por ejemplo un DELETE) vienen vacías y no tienen JSON
   let data;
   try {
-    data = text ? JSON.parse(text) : null;
+    data = await res.json();
   } catch {
     data = null;
   }
 
   if (!res.ok) {
-    throw new Error(data?.message || DEFAULT_ERROR);
+    if (data && data.message) {
+      throw new Error(data.message);
+    }
+    throw new Error(DEFAULT_ERROR);
   }
   return data;
 }
@@ -38,15 +41,15 @@ async function request(method: string, url: string, body?: unknown): Promise<any
 // Convierte { page: 1, city: 'Madrid' } en "?page=1&city=Madrid"
 function toQuery(params?: Record<string, unknown>) {
   if (!params) return '';
-  const query = new URLSearchParams();
+  const parts: string[] = [];
   for (const key in params) {
     const value = params[key];
     if (value !== undefined && value !== null && value !== '') {
-      query.append(key, String(value));
+      parts.push(key + '=' + encodeURIComponent(String(value)));
     }
   }
-  const text = query.toString();
-  return text ? '?' + text : '';
+  if (parts.length === 0) return '';
+  return '?' + parts.join('&');
 }
 
 export const api = {
