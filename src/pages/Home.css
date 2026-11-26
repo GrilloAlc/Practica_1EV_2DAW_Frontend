@@ -11,6 +11,8 @@
 }
 
 .home-hero-title {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -19,14 +21,40 @@
   letter-spacing: -0.035em;
 }
 
-.home-hero-title span {
+.home-hero-title > span {
   display: block;
   animation: home-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-.home-hero-title span + span {
+.home-hero-title > span + span {
   padding-left: 0.9em;
   animation-delay: 0.12s;
+}
+
+/* Anillo de copa sobre la palabra "catar", como si alguien hubiera dejado la copa encima */
+.home-hero-cata {
+  position: relative;
+  display: inline-block;
+}
+
+.home-hero-ring {
+  position: absolute;
+  z-index: -1;
+  top: -0.38em;
+  right: -0.62em;
+  width: 1.6em;
+  height: 1.6em;
+  color: var(--acento);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: home-ring 1.2s 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes home-ring {
+  from {
+    opacity: 0;
+    transform: scale(0.94) rotate(-6deg);
+  }
 }
 
 @keyframes home-rise {
@@ -356,7 +384,7 @@
     grid-template-columns: 1fr;
     align-items: start;
   }
-  .home-hero-title span + span {
+  .home-hero-title > span + span {
     padding-left: 0.6em;
   }
   .home-doors {
@@ -394,7 +422,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-hero-title span {
+  .home-hero-title > span,
+  .home-hero-ring {
     animation: none;
   }
   .home-story-photo img,
