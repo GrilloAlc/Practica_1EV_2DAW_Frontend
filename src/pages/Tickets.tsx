@@ -7,6 +7,15 @@ import { TICKET_PRIORITIES, TICKET_STATUSES, categoryLabels, formatDate, priorit
 import type { Ticket } from '../types';
 import { TableSkeleton } from '../components/Skeleton';
 
+// Quita personas repetidas (o vacías) y las ordena por nombre
+function uniquePeople(people: ({ _id: string; name: string } | null)[]) {
+  const byId = new Map<string, { _id: string; name: string }>();
+  for (const p of people) {
+    if (p) byId.set(p._id, p);
+  }
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+}
+
 // Lista compartida por cliente, agente y admin. Las columnas cambian según el rol
 function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const { user } = useAuth();
@@ -19,6 +28,8 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const [status, setStatus] = useState('');
   const [priority, setPriority] = useState('');
   const [search, setSearch] = useState('');
+  const [customerId, setCustomerId] = useState('');
+  const [agentId, setAgentId] = useState('');
 
   useEffect(() => {
     async function loadTickets() {
@@ -32,7 +43,19 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
     loadTickets();
   }, []);
 
+  // Clientes y agentes que aparecen en las consultas, para los filtros del admin (sin repetir)
+  const customers = uniquePeople(tickets.map((t) => t.customer));
+  const agents = uniquePeople(tickets.map((t) => t.agent));
+
   let visible = tickets;
+  if (customerId) {
+    visible = visible.filter((t) => t.customer._id === customerId);
+  }
+  if (agentId === 'sin-asignar') {
+    visible = visible.filter((t) => !t.agent);
+  } else if (agentId) {
+    visible = visible.filter((t) => t.agent?._id === agentId);
+  }
   if (status) {
     visible = visible.filter((t) => t.status === status);
   }
@@ -75,6 +98,19 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                 <option key={p} value={p}>{priorityLabels[p]}</option>
               ))}
             </select>
+            {isAdmin && (
+              <>
+                <select className="table-search" aria-label="Filtrar por cliente" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
+                  <option value="">Todos los clientes</option>
+                  {customers.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                </select>
+                <select className="table-search" aria-label="Filtrar por agente" value={agentId} onChange={(e) => setAgentId(e.target.value)}>
+                  <option value="">Todos los agentes</option>
+                  <option value="sin-asignar">Sin asignar</option>
+                  {agents.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
+                </select>
+              </>
+            )}
             <input className="table-search" type="search" aria-label="Buscar consulta" placeholder="Código, asunto o nombre…" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
         </div>
@@ -91,7 +127,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
             ) : (
               <>
                 <strong>Ninguna consulta coincide</strong>
-                Cambia el estado, la prioridad o el texto de búsqueda.
+                {isAdmin ? 'Cambia el estado, la prioridad, el cliente, el agente o el texto de búsqueda.' : 'Cambia el estado, la prioridad o el texto de búsqueda.'}
               </>
             )}
           </div>
