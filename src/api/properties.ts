@@ -87,11 +87,14 @@ export async function reactivateProperty(id: string) {
   await api.put('/properties/' + id + '/reactivate');
 }
 
-// Para pantallas de admin: GET /api/properties/:id no devuelve las desactivadas,
-// así que se busca en el listado completo
+// Para el formulario de edición del admin. El backend no tiene ruta para ver las desactivadas,
+// así que solo se pueden editar las activas (reactívala primero desde la lista)
 export async function getPropertyForAdmin(id: string): Promise<Property> {
-  const list = await getProperties();
-  const property = list.find((p) => p._id === id);
-  if (!property) throw new Error('Propiedad no encontrada');
-  return property;
+  if (USE_FAKE_DATA) {
+    const property = fakeProperties.find((p) => p._id === id);
+    if (!property) throw new Error('Propiedad no encontrada');
+    return property;
+  }
+
+  return api.get('/properties/' + id);
 }

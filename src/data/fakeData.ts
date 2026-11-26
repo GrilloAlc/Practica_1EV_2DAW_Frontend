@@ -93,22 +93,22 @@ const luis = { _id: '4', name: 'Luis Pérez' };
 
 export const fakeTickets: Ticket[] = [
   {
-    _id: '1', code: 'TK-1048', subject: 'Consulta sobre piso centro', category: 'CONSULTA_PROPIEDAD', priority: 'ALTA', status: 'ABIERTO',
+    _id: '1', code: 'TK-1048', subject: 'Consulta sobre piso centro', category: 'CONSULTA_PROPIEDAD', priority: 3, status: 'ABIERTO',
     customer: maria, agent: ana, reopenRequested: false, createdAt: '2025-05-12T10:32:00', updatedAt: '2025-05-12T12:14:00',
     description: 'Hola, me gustaría saber si el piso luminoso del centro sigue disponible y si sería posible concertar una visita esta semana.',
   },
   {
-    _id: '2', code: 'TK-1036', subject: 'Visita a un chalet residencial', category: 'SOLICITUD_VISITA', priority: 'MEDIA', status: 'EN_CURSO',
+    _id: '2', code: 'TK-1036', subject: 'Visita a un chalet residencial', category: 'SOLICITUD_VISITA', priority: 2, status: 'EN_CURSO',
     customer: carlos, agent: ana, reopenRequested: false, createdAt: '2025-05-09T09:10:00', updatedAt: '2025-05-09T12:40:00',
     description: 'Quiero visitar el chalet en zona residencial el próximo sábado.',
   },
   {
-    _id: '3', code: 'TK-1019', subject: 'Documentación compraventa', category: 'DOCUMENTACION', priority: 'BAJA', status: 'RESUELTO',
+    _id: '3', code: 'TK-1019', subject: 'Documentación compraventa', category: 'DOCUMENTACION', priority: 1, status: 'RESUELTO',
     customer: maria, agent: luis, reopenRequested: false, createdAt: '2025-04-28T17:45:00', updatedAt: '2025-04-30T10:05:00',
     description: '¿Qué documentos necesito para la compraventa?',
   },
   {
-    _id: '4', code: 'TK-0987', subject: 'Información sobre alquiler', category: 'CONSULTA_PROPIEDAD', priority: 'MEDIA', status: 'CERRADO',
+    _id: '4', code: 'TK-0987', subject: 'Información sobre alquiler', category: 'CONSULTA_PROPIEDAD', priority: 2, status: 'CERRADO',
     customer: maria, agent: luis, reopenRequested: false, createdAt: '2025-04-15T11:00:00', updatedAt: '2025-04-18T16:30:00',
     description: '¿Se admiten mascotas en el piso del metro?',
   },

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getTicketStats, getTickets } from '../../api/tickets';
 import { getErrorMessage } from '../../api/client';
-import { priorityLabels, statusLabels } from '../../utils/labels';
+import { priorityClass, priorityLabels, statusLabels } from '../../utils/labels';
 import type { Ticket, TicketStats } from '../../types';
 import { TableSkeleton } from '../../components/Skeleton';
 
@@ -72,7 +72,7 @@ function AdminDashboard() {
                     <td className="cell-code"><Link to={`/admin/tickets/${t._id}`}>{t.code}</Link></td>
                     <td>{t.subject}</td>
                     <td>{t.customer.name}</td>
-                    <td><span className={'priority priority-' + t.priority.toLowerCase()}>{priorityLabels[t.priority]}</span></td>
+                    <td><span className={priorityClass(t.priority)}>{priorityLabels[t.priority]}</span></td>
                     <td><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
                   </tr>
                 ))}

@@ -543,9 +543,23 @@ img {
 
 .table-foot {
   margin: 14px 0 0;
-  text-align: right;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px 24px;
   font-size: 13px;
   color: var(--pizarra);
+}
+
+.table-foot p {
+  margin: 0;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .cell-muted {
