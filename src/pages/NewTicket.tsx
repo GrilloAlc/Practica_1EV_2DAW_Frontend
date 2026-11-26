@@ -11,7 +11,9 @@ function NewTicket() {
 
   // El asunto puede venir ya escrito desde una propiedad (?asunto=...)
   const [subject, setSubject] = useState(searchParams.get('asunto') || '');
-  const [category, setCategory] = useState('CONSULTA_PROPIEDAD');
+  const [category, setCategory] = useState(
+    TICKET_CATEGORIES.includes(searchParams.get('categoria') || '') ? searchParams.get('categoria')! : 'CONSULTA_PROPIEDAD',
+  );
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
 
@@ -32,14 +34,15 @@ function NewTicket() {
 
   return (
     <main className="page">
-      <p className="breadcrumb"><Link to="/mis-tickets">Mis tickets</Link> / Nuevo ticket</p>
-      <h1 className="page-title">Nuevo ticket</h1>
-      <p className="page-subtitle">Cuéntanos qué necesitas y te responderemos lo antes posible.</p>
+      <p className="breadcrumb"><Link to="/mis-tickets">Mis consultas</Link> / Nueva consulta</p>
+      <h1 className="page-title">Nueva consulta</h1>
+      <p className="page-subtitle">Cuéntanos qué necesitas. Un agente te responde, normalmente en menos de 24 horas.</p>
 
+      <div className="new-ticket">
       <form className="form-box" onSubmit={handleSubmit}>
         <label className="field">
           Asunto
-          <input name="subject" required maxLength={200} placeholder="Ej: Consulta sobre piso en el centro" value={subject} onChange={(e) => setSubject(e.target.value)} />
+          <input name="subject" required maxLength={200} placeholder="Por ejemplo: visita al piso de la calle Mayor" value={subject} onChange={(e) => setSubject(e.target.value)} />
         </label>
         <label className="field">
           Categoría
@@ -51,11 +54,22 @@ function NewTicket() {
         </label>
         <label className="field">
           Descripción
-          <textarea name="description" required maxLength={2000} placeholder="Escribe aquí los detalles..." value={description} onChange={(e) => setDescription(e.target.value)} />
+          <textarea name="description" required maxLength={2000} placeholder="Qué quieres saber, cuándo te viene bien una visita, cómo prefieres que te contactemos…" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <span className="field-help">{description.length} / 2000 caracteres. Mínimo 10.</span>
         </label>
         {error && <p className="field-error" role="alert">{error}</p>}
-        <button type="submit" className="btn">Enviar ticket</button>
+        <button type="submit" className="btn btn-acento">Enviar consulta</button>
       </form>
+
+      <aside className="new-ticket-help">
+        <h2>Qué pasa después</h2>
+        <ol>
+          <li>Tu consulta queda abierta y registrada.</li>
+          <li>Se asigna a un agente, que te responde por escrito.</li>
+          <li>Ves cada respuesta en «Mis consultas» y puedes contestar.</li>
+        </ol>
+      </aside>
+      </div>
     </main>
   );
 }

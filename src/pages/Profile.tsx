@@ -3,6 +3,8 @@ import type { SyntheticEvent } from 'react';
 import { useAuth } from '../context/useAuth';
 import { updateMe } from '../api/users';
 import { getErrorMessage } from '../api/client';
+import { roleLabels } from '../utils/labels';
+import './Profile.css';
 
 function Profile() {
   const { user, updateUser } = useAuth();
@@ -25,26 +27,34 @@ function Profile() {
 
   return (
     <main className="page">
-      <p className="label">Área personal</p>
-      <h1 className="page-title">Mi perfil</h1>
-      <p className="page-subtitle">Actualiza tus datos básicos.</p>
+      <div className="profile-head">
+        <span className="profile-avatar" aria-hidden="true">{user!.name[0]}</span>
+        <div>
+          <h1 className="page-title">{user!.name}</h1>
+          <p className="profile-role">{roleLabels[user!.role]} · {user!.email}</p>
+        </div>
+      </div>
 
       <form className="form-box" onSubmit={handleSubmit} onChange={() => setSaved(false)}>
+        <h2 className="form-box-title">Tus datos</h2>
         <label className="field">
           Nombre
-          <input name="name" required value={name} onChange={(e) => setName(e.target.value)} />
+          <input name="name" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
         </label>
         <label className="field">
           Correo electrónico
-          <input name="email" type="email" value={user!.email} disabled />
+          <input name="email" type="email" value={user!.email} disabled aria-describedby="email-help" />
+          <span id="email-help" className="field-help">El correo no se puede cambiar. Si lo necesitas, abre un ticket.</span>
         </label>
         <label className="field">
           Teléfono
-          <input name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input name="phone" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </label>
         {error && <p className="field-error" role="alert">{error}</p>}
-        <button type="submit" className="btn">Guardar cambios</button>
-        {saved && <p role="status">Cambios guardados.</p>}
+        <div className="form-actions">
+          <button type="submit" className="btn">Guardar cambios</button>
+          {saved && <p className="form-ok" role="status">Cambios guardados</p>}
+        </div>
       </form>
     </main>
   );

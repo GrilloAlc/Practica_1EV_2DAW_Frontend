@@ -1,26 +1,181 @@
-.about {
-  max-width: 760px;
+/* Nosotros: cabecera rosada, pasos grandes en serif, preguntas y contacto */
+
+.about-inner {
+  padding-left: var(--margen);
+  padding-right: var(--margen);
 }
 
-.about h2 {
-  margin: 48px 0 16px;
-  font-size: 28px;
+.about-hero {
+  padding: clamp(64px, 10vw, 140px) 0;
+  background: var(--acento-suave);
+}
+
+.about-hero h1 {
+  max-width: 16ch;
+  margin: 0 0 24px;
+  font-size: clamp(44px, 7vw, 104px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--acento-oscuro);
+}
+
+.about-hero p {
+  max-width: 52ch;
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.about-steps {
+  padding-top: clamp(64px, 9vw, 120px);
+  padding-bottom: clamp(64px, 9vw, 120px);
+}
+
+.about-steps h2,
+.about-columns h2 {
+  margin: 0 0 40px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--tinta);
+  font-size: clamp(32px, 4vw, 52px);
+}
+
+/* Es una secuencia de verdad (buscar → preguntar → seguir), por eso va numerada */
+.about-step-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(28px, 4vw, 56px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.about-step {
+  counter-increment: paso;
+}
+
+.about-step::before {
+  content: counter(paso);
+  display: block;
+  margin-bottom: 12px;
+  font-family: var(--font-serif);
+  font-size: clamp(64px, 7vw, 96px);
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  line-height: 1;
+  color: var(--acento);
+}
+
+.about-step h3 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+
+.about-step p {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--pizarra);
+}
+
+.about-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;
+  padding-bottom: clamp(80px, 10vw, 140px);
 }
 
 .about-faq {
-  border-top: 1px solid var(--oliva);
-  padding: 16px 0;
-}
-
-.about-faq:last-of-type {
-  border-bottom: 1px solid var(--oliva);
+  border-bottom: 1px solid var(--linea);
 }
 
 .about-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 0;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  list-style: none;
   cursor: pointer;
-  font-weight: bold;
+}
+
+.about-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.about-faq summary::after {
+  content: '+';
+  flex-shrink: 0;
+  font-family: var(--font);
+  font-size: 26px;
+  font-weight: 450;
+  line-height: 1;
+  color: var(--acento);
+}
+
+.about-faq[open] summary::after {
+  content: '−';
+}
+
+.about-faq summary:hover {
+  color: var(--acento);
 }
 
 .about-faq p {
-  margin: 12px 0 0;
+  max-width: 64ch;
+  margin: 0 0 22px;
+  font-size: 17px;
+  color: var(--pizarra);
+}
+
+.about-contact {
+  padding: 32px;
+  background: var(--tinta);
+  color: #fff;
+}
+
+.about-columns .about-contact h2 {
+  margin-bottom: 24px;
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+  font-size: 32px;
+}
+
+.about-contact dl {
+  margin: 0 0 28px;
+}
+
+.about-contact dt {
+  font-size: 13px;
+  color: #a39f97;
+}
+
+.about-contact dd {
+  margin: 2px 0 16px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-variation-settings: var(--opsz);
+}
+
+.about-contact a {
+  color: #fff;
+  text-decoration-color: #d48a99;
+  text-underline-offset: 4px;
+}
+
+.about-contact .about-contact-btn {
+  width: 100%;
+  color: #fff;
+}
+
+@media (max-width: 860px) {
+  .about-step-list {
+    grid-template-columns: 1fr;
+  }
+  .about-columns {
+    grid-template-columns: 1fr;
+  }
 }

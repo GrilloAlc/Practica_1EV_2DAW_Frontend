@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getUsers, updateUser } from '../../api/users';
+import { changeRole, getUsers, setUserActive } from '../../api/users';
 import { getErrorMessage } from '../../api/client';
 import { ROLES, roleLabels } from '../../utils/labels';
 import type { User } from '../../types';
@@ -11,8 +11,7 @@ function AdminUsers() {
   useEffect(() => {
     async function loadUsers() {
       try {
-        const result = await getUsers({ limit: 50 });
-        setUsers(result.data);
+        setUsers(await getUsers({ limit: 50 }));
       } catch (err) {
         setError(getErrorMessage(err));
       }
@@ -20,10 +19,25 @@ function AdminUsers() {
     loadUsers();
   }, []);
 
-  async function changeUser(id: string, changes: Partial<User>) {
+  // PUT /users/:id/role
+  async function updateRole(id: string, role: string) {
     try {
-      await updateUser(id, changes);
-      setUsers(users.map((u) => (u._id === id ? { ...u, ...changes } : u)));
+      await changeRole(id, role);
+      setUsers(users.map((u) => (u._id === id ? { ...u, role } : u)));
+      setError('');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  }
+
+  // PUT /users/:id/activate o /deactivate. Desactivar pide confirmación
+  async function toggleActive(user: User) {
+    if (user.isActive && !window.confirm(`¿Seguro que quieres desactivar a ${user.name}? No podrá usar su cuenta.`)) {
+      return;
+    }
+    try {
+      await setUserActive(user._id, !user.isActive);
+      setUsers(users.map((u) => (u._id === user._id ? { ...u, isActive: !u.isActive } : u)));
       setError('');
     } catch (err) {
       setError(getErrorMessage(err));
@@ -32,7 +46,6 @@ function AdminUsers() {
 
   return (
     <main className="page">
-      <p className="label">Gestión</p>
       <h1 className="page-title">Usuarios y roles</h1>
       <p className="page-subtitle">Cambia el rol de cada usuario o desactiva su cuenta.</p>
 
@@ -46,18 +59,23 @@ function AdminUsers() {
           <tbody>
             {users.map((u) => (
               <tr key={u._id} className={u.isActive ? '' : 'admin-inactive'}>
-                <td>{u.name}</td>
-                <td>{u.email}</td>
                 <td>
-                  <select aria-label={`Rol de ${u.name}`} value={u.role} onChange={(e) => changeUser(u._id, { role: e.target.value })}>
+                  <span className="admin-user">
+                    <span className="avatar" aria-hidden="true">{u.name[0]}</span>
+                    <strong>{u.name}</strong>
+                  </span>
+                </td>
+                <td className="cell-muted">{u.email}</td>
+                <td>
+                  <select aria-label={`Rol de ${u.name}`} value={u.role} onChange={(e) => updateRole(u._id, e.target.value)}>
                     {ROLES.map((r) => (
                       <option key={r} value={r}>{roleLabels[r]}</option>
                     ))}
                   </select>
                 </td>
-                <td><span className="status-badge">{u.isActive ? 'Activo' : 'Inactivo'}</span></td>
+                <td><span className={u.isActive ? 'status-badge status-on' : 'status-badge status-off'}>{u.isActive ? 'Activo' : 'Inactivo'}</span></td>
                 <td>
-                  <button className="link-button" onClick={() => changeUser(u._id, { isActive: !u.isActive })}>
+                  <button className="link-button" onClick={() => toggleActive(u)}>
                     {u.isActive ? 'Desactivar' : 'Activar'}
                   </button>
                 </td>

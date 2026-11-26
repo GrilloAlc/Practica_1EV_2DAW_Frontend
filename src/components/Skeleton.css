@@ -1,0 +1,118 @@
+.skeleton {
+  display: block;
+  border-radius: 0;
+  background: linear-gradient(90deg, #f2f0ec 0%, #e7e4de 40%, #f2f0ec 80%);
+  background-size: 300% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 6px;
+}
+
+/* Anuncio horizontal */
+.skeleton-card {
+  display: grid;
+  grid-template-columns: minmax(240px, 46%) 1fr;
+  gap: 32px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.skeleton-card-photo {
+  min-height: 220px;
+  border-radius: 0;
+}
+
+.skeleton-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Tarjeta vertical del inicio */
+.skeleton-tile {
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.skeleton-tile-photo {
+  aspect-ratio: 4 / 3;
+  border-radius: 0;
+}
+
+.skeleton-tile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 18px;
+}
+
+/* Ficha */
+.skeleton-detail-photo {
+  height: min(56vh, 520px);
+  min-height: 260px;
+  margin-bottom: 32px;
+  border-radius: 0;
+}
+
+.skeleton-detail {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 56px;
+}
+
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-gap {
+  margin: 16px 0;
+}
+
+/* Tabla */
+.skeleton-table {
+  border-top: 1px solid var(--tinta);
+}
+
+.skeleton-table-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.skeleton-table-row + .skeleton-table-row {
+  border-top: 1px solid var(--linea);
+}
+
+@media (max-width: 900px) {
+  .skeleton-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .skeleton-card {
+    grid-template-columns: 1fr;
+  }
+  .skeleton-card-photo {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+}

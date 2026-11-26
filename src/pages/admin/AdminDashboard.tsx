@@ -4,6 +4,7 @@ import { getTicketStats, getTickets } from '../../api/tickets';
 import { getErrorMessage } from '../../api/client';
 import { priorityLabels, statusLabels } from '../../utils/labels';
 import type { Ticket, TicketStats } from '../../types';
+import { TableSkeleton } from '../../components/Skeleton';
 
 function AdminDashboard() {
   const [stats, setStats] = useState<TicketStats | null>(null);
@@ -16,7 +17,7 @@ function AdminDashboard() {
         const statsResult = await getTicketStats();
         const ticketsResult = await getTickets({ unassigned: true, limit: 10 });
         setStats(statsResult);
-        setUnassigned(ticketsResult.data);
+        setUnassigned(ticketsResult);
       } catch (err) {
         setError(getErrorMessage(err));
       }
@@ -26,18 +27,17 @@ function AdminDashboard() {
 
   return (
     <main className="page">
-      <p className="label">Administración</p>
       <h1 className="page-title">Resumen</h1>
-      <p className="page-subtitle">Esto es lo que está pasando.</p>
+      <p className="page-subtitle">Estado de los tickets y consultas que esperan agente.</p>
 
       {error && <p className="field-error">{error}</p>}
-      {!stats && !error && <p>Cargando...</p>}
+      {!stats && !error && <TableSkeleton rows={4} />}
 
       {stats && (
         <>
           <div className="admin-stats">
-            <div className="stat-card">
-              <p className="stat-card-label">Total de tickets</p>
+            <div className="stat-card stat-card-main">
+              <p className="stat-card-label">Tickets en total</p>
               <p className="stat-card-value">{stats.total}</p>
             </div>
             <div className="stat-card">
@@ -55,10 +55,13 @@ function AdminDashboard() {
           </div>
 
           <div className="page-header">
-            <h2 className="admin-section-title">Tickets sin asignar</h2>
-            <Link to="/admin/tickets" className="btn btn-outline">Ver todos</Link>
+            <h2 className="admin-section-title">Esperan agente ({unassigned.length})</h2>
+            <Link to="/admin/tickets" className="btn btn-outline">Ver todos los tickets</Link>
           </div>
           <div className="table-box">
+            {unassigned.length === 0 ? (
+              <div className="empty"><strong>Todos los tickets tienen agente</strong>No hay nada pendiente de asignar.</div>
+            ) : (
             <table className="table">
               <thead>
                 <tr><th>Código</th><th>Asunto</th><th>Cliente</th><th>Prioridad</th><th>Estado</th></tr>
@@ -66,15 +69,16 @@ function AdminDashboard() {
               <tbody>
                 {unassigned.map((t) => (
                   <tr key={t._id}>
-                    <td><Link to={`/admin/tickets/${t._id}`}>{t.code}</Link></td>
+                    <td className="cell-code"><Link to={`/admin/tickets/${t._id}`}>{t.code}</Link></td>
                     <td>{t.subject}</td>
                     <td>{t.customer.name}</td>
-                    <td>{priorityLabels[t.priority]}</td>
-                    <td><span className="status-badge">{statusLabels[t.status]}</span></td>
+                    <td><span className={'priority priority-' + t.priority.toLowerCase()}>{priorityLabels[t.priority]}</span></td>
+                    <td><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            )}
           </div>
         </>
       )}

@@ -1,14 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState, ViewTransition } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import './PropertyDetail.css';
 import { getProperty } from '../api/properties';
 import { getErrorMessage } from '../api/client';
-import { formatPrice, propertyImage } from '../utils/labels';
+import { formatNumber, formatPrice, propertyImage } from '../utils/labels';
 import type { Property } from '../types';
+import MortgageCalculator from '../components/MortgageCalculator';
+import { DetailSkeleton } from '../components/Skeleton';
 
 function PropertyDetail() {
   const { id } = useParams();
-  const [property, setProperty] = useState<Property | null>(null);
+  const location = useLocation();
+  // Si se llega desde un anuncio, ya tenemos la vivienda: se pinta al instante y la foto
+  // hace la transición desde la tarjeta. Después se pide al servidor por si ha cambiado.
+  const passed = (location.state as { property?: Property } | null)?.property;
+  const [property, setProperty] = useState<Property | null>(passed && passed._id === id ? passed : null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -28,55 +34,110 @@ function PropertyDetail() {
       <main className="page">
         {error ? (
           <div className="empty table-box">
-            <strong>No hemos encontrado esta propiedad</strong>
-            {error} <Link to="/propiedades">Volver al listado</Link>
+            <strong>Esta vivienda ya no está publicada</strong>
+            {error} <Link to="/propiedades">Ver otras viviendas</Link>
           </div>
         ) : (
-          <p>Cargando...</p>
+          <DetailSkeleton />
         )}
       </main>
     );
   }
 
   const address = property.address;
+  const isRent = property.status === 'Disponible para alquilar' || property.status === 'Alquilada';
+  const pricePerM2 = property.area && !isRent ? Math.round(property.price / property.area) : null;
+  const contactUrl = '/mis-tickets/nuevo?asunto=' + encodeURIComponent('Consulta sobre: ' + property.title);
+  const visitUrl = '/mis-tickets/nuevo?categoria=SOLICITUD_VISITA&asunto=' + encodeURIComponent('Quiero visitar: ' + property.title);
+  const coords = address.coordinates;
+  // Con coordenadas se marca el punto exacto; si no, se busca la dirección en OpenStreetMap
+  const mapUrl = coords
+    ? `https://www.openstreetmap.org/?mlat=${coords.lat}&mlon=${coords.lng}#map=17/${coords.lat}/${coords.lng}`
+    : 'https://www.openstreetmap.org/search?query=' + encodeURIComponent(`${address.street} ${address.number || ''}, ${address.city}`);
 
   return (
-    <main className="page">
+    <main className="page detail">
       <p className="breadcrumb">
-        <Link to="/">Inicio</Link> / <Link to="/propiedades">Propiedades</Link> / {property.title}
+        <Link to="/">Inicio</Link> / <Link to="/propiedades">Casas</Link> /{' '}
+        <Link to={'/propiedades?city=' + encodeURIComponent(address.city)}>{address.city}</Link>
       </p>
 
-      <div className="detail-gallery detail-gallery-single">
-        <img className="detail-photo detail-photo-main" src={propertyImage(property)} alt={property.title} />
+      <div className="detail-photo">
+        <ViewTransition name={`foto-${property._id}`} share="morph" default="none">
+          <img src={propertyImage(property)} alt={property.title} width={1200} height={800} fetchPriority="high" />
+        </ViewTransition>
+        <span className="detail-photo-badge">{property.status}</span>
       </div>
 
       <div className="detail-layout">
-        <div>
-          <p className="label">{property.status} · {address.city}</p>
-          <h1 className="page-title">{property.title}</h1>
-          <p className="detail-price">{formatPrice(property)}</p>
+        <div className="detail-main">
+          <header className="detail-head">
+            <p className="detail-city">{address.city}</p>
+            <h1 className="detail-title">{property.title}</h1>
+            <p className="detail-place">
+              {address.street} {address.number}, {address.city} ({address.province})
+            </p>
+            <p className="detail-price">
+              {formatPrice(property)}
+              {pricePerM2 && <span>{formatNumber(pricePerM2)} €/m²</span>}
+            </p>
+          </header>
 
-          <div className="detail-stats">
-            <div><strong>{property.area}</strong><span>m² construidos</span></div>
-            <div><strong>{property.type}</strong><span>Tipo</span></div>
-            <div><strong>{address.city}</strong><span>Ciudad</span></div>
-            <div><strong>{address.postalCode}</strong><span>Código postal</span></div>
-          </div>
+          <dl className="detail-facts">
+            <div>
+              <dt>Tipo</dt>
+              <dd>{property.type}</dd>
+            </div>
+            {property.area ? (
+              <div>
+                <dt>Superficie</dt>
+                <dd>{property.area} m²</dd>
+              </div>
+            ) : null}
+            <div>
+              <dt>Operación</dt>
+              <dd>{isRent ? 'Alquiler' : 'Venta'}</dd>
+            </div>
+            <div>
+              <dt>Código postal</dt>
+              <dd>{address.postalCode}</dd>
+            </div>
+          </dl>
 
-          <h2>Descripción</h2>
-          <p>{property.description}</p>
+          <section className="detail-section">
+            <h2>La casa</h2>
+            <p className="detail-description">{property.description}</p>
+          </section>
 
-          <h2>Ubicación</h2>
-          <p>{address.street} {address.number}, {address.postalCode} {address.city} ({address.province})</p>
+          {!isRent && <MortgageCalculator price={property.price} />}
+
+          <section className="detail-section">
+            <h2>Dónde está</h2>
+            <p>
+              {address.street} {address.number}
+              <br />
+              {address.postalCode} {address.city}, {address.province}
+            </p>
+            <a
+              className="link-button"
+              href={mapUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver en el mapa
+            </a>
+          </section>
         </div>
 
         <aside className="detail-contact">
-          <h2>¿Te interesa esta propiedad?</h2>
-          <p>Abre una consulta y nuestro equipo responderá a todas tus dudas.</p>
-          <Link to={'/mis-tickets/nuevo?asunto=' + encodeURIComponent('Consulta sobre: ' + property.title)} className="btn">
-            Abrir ticket / consultar
-          </Link>
-          <p className="detail-note">Normalmente respondemos en menos de 24 horas.</p>
+          <p className="detail-contact-price">{formatPrice(property)}</p>
+          <h2>¿Quieres verla?</h2>
+          <p>Escríbenos y un agente te responde por escrito, normalmente en menos de 24 horas.</p>
+          <Link to={contactUrl} className="btn btn-acento detail-contact-btn">Preguntar por esta casa</Link>
+          <Link to={visitUrl} className="btn btn-outline detail-contact-btn">Pedir una visita</Link>
+          <p className="detail-contact-phone">
+            O llámanos al <a href="tel:+34644717199">644 7171 99</a>
+          </p>
         </aside>
       </div>
     </main>

@@ -1,0 +1,53 @@
+/* Página no encontrada: texto a la izquierda y una foto grande a la derecha */
+
+.not-found {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+  min-height: calc(100vh - 220px);
+}
+
+.not-found .page-title {
+  max-width: 12ch;
+  margin-bottom: 20px;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.not-found-phone {
+  margin: 32px 0 0;
+  font-size: 15px;
+  color: var(--pizarra);
+}
+
+.not-found-phone a {
+  color: var(--tinta);
+  text-decoration-color: var(--acento);
+  text-underline-offset: 4px;
+}
+
+.not-found-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 72vh;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--niebla);
+}
+
+@media (max-width: 900px) {
+  .not-found {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .not-found-photo {
+    aspect-ratio: 3 / 2;
+    order: -1;
+  }
+}

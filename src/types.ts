@@ -23,6 +23,7 @@ export interface Property {
     city: string;
     province: string;
     postalCode: string;
+    coordinates?: { lat: number; lng: number };
   };
 }
 
@@ -34,8 +35,8 @@ export interface Ticket {
   category: string;
   priority: string;
   status: string;
-  customer: { _id: string; name: string };
-  agent: { _id: string; name: string } | null;
+  customer: { _id: string; name: string; email?: string };
+  agent: { _id: string; name: string; email?: string } | null;
   reopenRequested: boolean;
   createdAt: string;
 }
@@ -44,15 +45,8 @@ export interface Message {
   _id: string;
   body: string;
   createdAt: string;
-  author: { _id: string; name: string; role: string };
-}
-
-export interface Paginated<T> {
-  data: T[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
+  // El backend solo devuelve nombre y email del autor
+  author: { _id: string; name: string; email?: string; role?: string };
 }
 
 export interface TicketStats {
@@ -62,4 +56,5 @@ export interface TicketStats {
   pendienteCliente: number;
   resueltos: number;
   cerrados: number;
+  sinAsignar?: number;
 }

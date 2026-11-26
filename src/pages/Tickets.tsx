@@ -5,6 +5,7 @@ import { getErrorMessage } from '../api/client';
 import { useAuth } from '../context/useAuth';
 import { TICKET_PRIORITIES, TICKET_STATUSES, categoryLabels, formatDate, priorityLabels, statusLabels } from '../utils/labels';
 import type { Ticket } from '../types';
+import { TableSkeleton } from '../components/Skeleton';
 
 // Lista compartida por cliente, agente y admin. Las columnas cambian según el rol
 function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
@@ -22,8 +23,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   useEffect(() => {
     async function loadTickets() {
       try {
-        const result = await getTickets({ limit: 50 });
-        setTickets(result.data);
+        setTickets(await getTickets({ limit: 50 }));
       } catch (err) {
         setError(getErrorMessage(err));
       }
@@ -53,10 +53,9 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
           <h1 className="page-title">{title}</h1>
           <p className="page-subtitle">{subtitle}</p>
         </div>
-        {isCustomer && <Link to="/mis-tickets/nuevo" className="btn">+ Nuevo ticket</Link>}
+        {isCustomer && <Link to="/mis-tickets/nuevo" className="btn btn-acento">Nueva consulta</Link>}
       </div>
 
-      {loading && <p>Cargando...</p>}
       {error && <p className="field-error">{error}</p>}
 
       <div className="table-box">
@@ -76,14 +75,25 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                 <option key={p} value={p}>{priorityLabels[p]}</option>
               ))}
             </select>
-            <input className="table-search" type="search" aria-label="Buscar ticket" placeholder="Buscar ticket..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input className="table-search" type="search" aria-label="Buscar consulta" placeholder="Código, asunto o nombre…" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
         </div>
 
-        {visible.length === 0 ? (
+        {loading ? (
+          <TableSkeleton />
+        ) : visible.length === 0 ? (
           <div className="empty">
-            <strong>Sin resultados</strong>
-            No hay tickets que coincidan con esa búsqueda.
+            {tickets.length === 0 && !loading ? (
+              <>
+                <strong>{isCustomer ? 'Aún no has hecho ninguna consulta' : 'Todavía no hay consultas'}</strong>
+                {isCustomer ? <>Cuando preguntes por una casa, la verás aquí. <Link to="/propiedades">Buscar casas</Link></> : 'Cuando entre una consulta aparecerá aquí.'}
+              </>
+            ) : (
+              <>
+                <strong>Ninguna consulta coincide</strong>
+                Cambia el estado, la prioridad o el texto de búsqueda.
+              </>
+            )}
           </div>
         ) : (
           <table className="table">
@@ -103,21 +113,21 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
               {visible.map((t) => (
                 <tr key={t._id}>
                   {/* Enlace relativo: lleva al detalle dentro de la ruta actual */}
-                  <td><Link to={t._id}>{t.code}</Link></td>
+                  <td className="cell-code"><Link to={t._id}>{t.code}</Link></td>
                   <td>{t.subject}</td>
                   {!isCustomer && <td>{t.customer.name}</td>}
-                  <td>{categoryLabels[t.category]}</td>
-                  <td>{priorityLabels[t.priority]}</td>
-                  <td><span className="status-badge">{statusLabels[t.status]}</span></td>
-                  {isAdmin && <td>{t.agent ? t.agent.name : 'Sin asignar'}</td>}
-                  <td>{formatDate(t.createdAt)}</td>
+                  <td className="cell-muted">{categoryLabels[t.category]}</td>
+                  <td><span className={'priority priority-' + t.priority.toLowerCase()}>{priorityLabels[t.priority]}</span></td>
+                  <td><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
+                  {isAdmin && <td className={t.agent ? '' : 'cell-muted'}>{t.agent ? t.agent.name : 'Sin asignar'}</td>}
+                  <td className="cell-muted cell-code">{formatDate(t.createdAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
-      <p className="table-foot">Mostrando {visible.length} de {tickets.length} tickets</p>
+      <p className="table-foot">{visible.length} de {tickets.length} {isCustomer ? "consultas" : "tickets"}</p>
     </main>
   );
 }

@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './TicketDetail.css';
-import { addMessage, assignTicket, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
+import { addMessage, assignTicket, getMessages, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
 import { getUsers } from '../api/users';
 import { getErrorMessage } from '../api/client';
 import { useAuth } from '../context/useAuth';
 import type { Message, Ticket, User } from '../types';
+import { TableSkeleton } from '../components/Skeleton';
 import {
   TICKET_PRIORITIES,
   TICKET_STATUSES,
@@ -34,9 +35,10 @@ function TicketDetail() {
   useEffect(() => {
     async function loadTicket() {
       try {
-        const result = await getTicket(id!);
-        setTicket(result.ticket);
-        setMessages(result.messages);
+        // El ticket y sus mensajes se piden por separado
+        const [ticketData, messageList] = await Promise.all([getTicket(id!), getMessages(id!)]);
+        setTicket(ticketData);
+        setMessages(messageList);
       } catch (err) {
         setLoadError(getErrorMessage(err));
       }
@@ -47,8 +49,7 @@ function TicketDetail() {
   useEffect(() => {
     async function loadAgents() {
       try {
-        const result = await getUsers({ role: 'AGENTE', limit: 50 });
-        setAgents(result.data);
+        setAgents(await getUsers({ role: 'AGENTE', isActive: true }));
       } catch {
         setAgents([]);
       }
@@ -62,7 +63,7 @@ function TicketDetail() {
     return (
       <main className="page">
         <div className="empty table-box">
-          <strong>No hemos podido abrir este ticket</strong>
+          <strong>No se ha podido abrir esta consulta</strong>
           {loadError} <Link to=".." relative="path">Volver</Link>
         </div>
       </main>
@@ -70,7 +71,7 @@ function TicketDetail() {
   }
 
   if (!ticket) {
-    return <main className="page"><p>Cargando...</p></main>;
+    return <main className="page"><TableSkeleton rows={4} /></main>;
   }
 
   async function changeStatus(status: string) {
@@ -117,8 +118,9 @@ function TicketDetail() {
   async function sendReply(e: SyntheticEvent) {
     e.preventDefault();
     try {
-      const message = await addMessage(ticket!._id, reply);
-      setMessages([...messages, message]);
+      await addMessage(ticket!, reply);
+      // Se vuelven a pedir para tener el autor con su nombre
+      setMessages(await getMessages(ticket!._id));
       setReply('');
       setError('');
     } catch (err) {
@@ -131,12 +133,14 @@ function TicketDetail() {
   return (
     <main className="page">
       {/* ".." vuelve a la lista de la que se viene */}
-      <p className="breadcrumb"><Link to=".." relative="path">← Volver a tickets</Link></p>
+      <p className="breadcrumb"><Link to=".." relative="path">{isCustomer ? 'Volver a mis consultas' : 'Volver a la lista'}</Link></p>
 
       <div className="ticket-head">
         <div>
           <p className="ticket-meta">
-            <span className="status-badge">{statusLabels[ticket.status]}</span> {ticket.code} · Creado el {formatDate(ticket.createdAt)}
+            <span className={'status-badge status-' + ticket.status.toLowerCase()}>{statusLabels[ticket.status]}</span>
+            <span className="cell-code">{ticket.code}</span>
+            <span>Creado el {formatDate(ticket.createdAt)}</span>
           </p>
           <h1 className="page-title">{ticket.subject}</h1>
         </div>
@@ -153,18 +157,18 @@ function TicketDetail() {
       </div>
 
       {error && <p className="field-error" role="alert">{error}</p>}
-      {ticket.reopenRequested && ticket.status === 'RESUELTO' && <p>Se ha solicitado reabrir este ticket.</p>}
+      {ticket.reopenRequested && ticket.status === 'RESUELTO' && <p className="notice">Se ha pedido reabrir este ticket.</p>}
 
       <div className="ticket-layout">
         <section className="ticket-box">
-          <h2>Historial</h2>
+          <h2>Conversación</h2>
 
           {/* La descripción del ticket se muestra como primer mensaje */}
           <div className="ticket-message">
             <span className="avatar">{ticket.customer.name[0]}</span>
             <div>
               <p className="ticket-message-head">
-                <strong>{ticket.customer.name}</strong> · Cliente <span>{formatDate(ticket.createdAt)}</span>
+                <strong>{ticket.customer.name}</strong> <span className="ticket-role">Cliente</span> <span className="ticket-date">{formatDate(ticket.createdAt)}</span>
               </p>
               <p>{ticket.description}</p>
             </div>
@@ -175,7 +179,7 @@ function TicketDetail() {
               <span className="avatar">{m.author.name[0]}</span>
               <div>
                 <p className="ticket-message-head">
-                  <strong>{m.author.name}</strong> · {roleLabels[m.author.role]} <span>{formatDate(m.createdAt)}</span>
+                  <strong>{m.author.name}</strong> {m.author.role && <span className="ticket-role">{roleLabels[m.author.role]}</span>} <span className="ticket-date">{formatDate(m.createdAt)}</span>
                 </p>
                 <p>{m.body}</p>
               </div>
@@ -183,12 +187,12 @@ function TicketDetail() {
           ))}
 
           {closed ? (
-            <p className="ticket-closed">Este ticket está cerrado.</p>
+            <p className="ticket-closed">Esta consulta está cerrada. Si necesitas algo más, abre una nueva.</p>
           ) : (
             <form onSubmit={sendReply}>
               <label className="field">
-                Escribir respuesta
-                <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Escribe aquí tu mensaje..." />
+                Tu respuesta
+                <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Escribe aquí tu mensaje…" />
               </label>
               <button type="submit" className="btn" disabled={!reply.trim()}>Enviar respuesta</button>
             </form>
@@ -196,7 +200,7 @@ function TicketDetail() {
         </section>
 
         <aside className="ticket-box">
-          <h2>Datos del ticket</h2>
+          <h2>Detalles</h2>
           <dl className="ticket-data">
             <dt>Categoría</dt>
             <dd>{categoryLabels[ticket.category]}</dd>
@@ -210,7 +214,7 @@ function TicketDetail() {
                 <select aria-label="Prioridad" value={ticket.priority} onChange={(e) => changePriority(e.target.value)}>
                   {TICKET_PRIORITIES.map((p) => <option key={p} value={p}>{priorityLabels[p]}</option>)}
                 </select>
-              ) : priorityLabels[ticket.priority]}
+              ) : <span className={'priority priority-' + ticket.priority.toLowerCase()}>{priorityLabels[ticket.priority]}</span>}
             </dd>
 
             <dt>Estado</dt>

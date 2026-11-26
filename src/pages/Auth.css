@@ -1,6 +1,8 @@
+/* Acceso: foto a un lado, formulario editorial al otro */
+
 .auth {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -8,72 +10,130 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 48px;
-  background: var(--beige);
-  border-right: 1px solid var(--oliva);
+  padding: 36px var(--margen) 56px;
+  background:
+    linear-gradient(180deg, rgba(38, 36, 31, 0.35) 0%, rgba(38, 36, 31, 0.1) 40%, rgba(79, 23, 36, 0.85) 100%),
+    url('/images/acceso.jpg') center / cover,
+    var(--tinta);
+  color: #fff;
 }
 
 .auth-logo {
-  font-weight: bold;
-  letter-spacing: 3px;
+  align-self: flex-start;
   text-decoration: none;
 }
 
+.auth-side-text {
+  max-width: 520px;
+}
+
 .auth-side h1 {
-  max-width: 460px;
-  margin: 0;
-  font-size: 40px;
+  margin: 0 0 16px;
+  font-size: clamp(34px, 4vw, 56px);
+  line-height: 1.05;
 }
 
 .auth-side p {
   margin: 0;
-  font-size: 14px;
+  font-size: 17px;
+  opacity: 0.9;
 }
 
 .auth-main {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: 48px var(--margen);
 }
 
 .auth-box {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
 }
 
+.auth-back {
+  display: inline-block;
+  margin-bottom: 40px;
+  font-size: 14px;
+  color: var(--pizarra);
+  text-decoration: underline;
+  text-decoration-color: var(--acento);
+  text-underline-offset: 4px;
+}
+
+.auth-back:hover {
+  color: var(--acento);
+}
+
+/* Pestañas en serif, como el buscador del inicio */
 .auth-tabs {
-  margin-bottom: 32px;
+  display: flex;
+  gap: 28px;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.auth-tab {
+  margin-bottom: -1px;
+  padding: 0 0 10px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  color: var(--pizarra);
+  cursor: pointer;
+}
+
+.auth-tab:hover {
+  color: var(--acento);
+}
+
+.auth-tab.is-active {
+  border-bottom-color: var(--acento);
+  color: var(--tinta);
 }
 
 .auth-box h2 {
   margin: 0 0 8px;
-  font-size: 30px;
+  font-size: 40px;
 }
 
 .auth-box > p {
-  margin: 0 0 24px;
+  margin: 0 0 32px;
+  color: var(--pizarra);
 }
 
 .auth-submit {
   width: 100%;
+  margin-top: 8px;
 }
 
 .auth-legal {
-  margin-top: 24px;
-  font-size: 12px;
-  color: #555;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--pizarra);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 860px) {
   .auth {
     grid-template-columns: 1fr;
   }
   .auth-side {
-    gap: 24px;
-    padding: 24px;
+    gap: 56px;
+    padding: 20px 16px 32px;
+    background:
+      linear-gradient(180deg, rgba(38, 36, 31, 0.6) 0%, rgba(79, 23, 36, 0.88) 100%),
+      url('/images/acceso.jpg') center / cover,
+      var(--tinta);
   }
-  .auth-side h1 {
-    font-size: 28px;
+  .auth-main {
+    align-items: flex-start;
+    padding: 32px 16px 56px;
+  }
+  .auth-back {
+    margin-bottom: 24px;
   }
 }

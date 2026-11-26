@@ -4,7 +4,6 @@ import { TICKET_CATEGORIES, categoryLabels } from '../../utils/labels';
 function AdminCategories() {
   return (
     <main className="page">
-      <p className="label">Gestión</p>
       <h1 className="page-title">Categorías</h1>
       <p className="page-subtitle">Tipos de solicitud que pueden elegir los clientes.</p>
 
@@ -17,7 +16,7 @@ function AdminCategories() {
             {TICKET_CATEGORIES.map((c) => (
               <tr key={c}>
                 <td>{categoryLabels[c]}</td>
-                <td>{c}</td>
+                <td className="cell-muted cell-code">{c}</td>
               </tr>
             ))}
           </tbody>

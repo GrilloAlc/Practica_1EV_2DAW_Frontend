@@ -1,90 +1,140 @@
+/* Detalle de una consulta: la conversación como cartas, los detalles a un lado */
+
 .ticket-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--texto);
+  gap: 24px;
+  margin-bottom: 40px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--tinta);
 }
 
 .ticket-head .page-title {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
+  font-size: clamp(34px, 4.5vw, 60px);
 }
 
 .ticket-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px 20px;
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
+  color: var(--pizarra);
 }
 
 .ticket-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
 .ticket-layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: clamp(32px, 5vw, 72px);
   align-items: start;
 }
 
-.ticket-box {
-  padding: 24px;
-  border: 1px solid var(--oliva);
-  background: var(--fondo);
-}
-
 .ticket-box h2 {
-  margin: 0 0 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--oliva);
-  font-size: 22px;
+  margin: 0 0 28px;
+  font-size: 30px;
 }
 
-.ticket-box h3 {
-  margin: 24px 0 8px;
-  font-size: 16px;
+.ticket-layout aside {
+  position: sticky;
+  top: 108px;
+  padding: 28px;
+  background: var(--niebla);
 }
 
-.ticket-message {
-  display: flex;
-  gap: 16px;
+.ticket-layout aside h2 {
+  font-size: 26px;
   margin-bottom: 20px;
 }
 
+/* Cada mensaje es una carta: nombre en serif, fecha y texto */
+.ticket-message {
+  display: flex;
+  gap: 18px;
+  padding: 24px 0;
+  border-top: 1px solid var(--linea);
+}
+
+.ticket-message > div {
+  flex: 1;
+  min-width: 0;
+}
+
 .ticket-message-team {
-  padding: 16px;
-  background: var(--crema);
-  border: 1px solid var(--oliva);
+  margin: 0 -24px;
+  padding: 24px;
+  border-top-color: transparent;
+  border-left: 2px solid var(--acento);
+  background: var(--acento-suave);
+}
+
+.ticket-message-team .avatar {
+  background: var(--acento);
+  color: #fff;
 }
 
 .ticket-message p {
-  margin: 4px 0 0;
+  margin: 0;
+  max-width: 68ch;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
-.ticket-message-head {
+.ticket-message .ticket-message-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+}
+
+.ticket-message-head strong {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+}
+
+.ticket-role {
   font-size: 13px;
+  color: var(--acento);
 }
 
-.ticket-message-head span {
-  margin-left: 8px;
-  color: #555;
+.ticket-date {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--pizarra);
 }
 
 .ticket-closed {
-  padding: 16px;
-  background: var(--oliva-claro);
+  margin: 24px 0 0;
+  padding: 18px;
+  border-top: 1px solid var(--linea);
   text-align: center;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-variation-settings: var(--opsz);
+  color: var(--pizarra);
 }
 
 .ticket-box form {
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid var(--texto);
+  margin-top: 16px;
+  padding-top: 28px;
+  border-top: 1px solid var(--tinta);
+}
+
+.ticket-box form textarea {
+  min-height: 130px;
 }
 
 .ticket-data {
@@ -92,36 +142,58 @@
 }
 
 .ticket-data dt {
-  margin-top: 16px;
-  font-size: 12px;
-  color: #555;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.ticket-data dt:first-child {
+  margin-top: 0;
 }
 
 .ticket-data dd {
-  margin: 2px 0 0;
-  font-weight: bold;
+  margin: 4px 0 0;
+  font-size: 16px;
 }
 
 .ticket-data select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid var(--texto);
-  background: var(--fondo);
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--tinta);
+  border-radius: 0;
+  background: transparent;
   font: inherit;
+  font-size: 16px;
+  color: var(--tinta);
 }
 
-.ticket-log {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 13px;
+.ticket-data select:focus {
+  border-bottom: 2px solid var(--acento);
+  outline: none;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .ticket-layout {
     grid-template-columns: 1fr;
+  }
+  .ticket-layout aside {
+    position: static;
+    order: -1;
   }
   .ticket-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 500px) {
+  .ticket-message .avatar {
+    display: none;
+  }
+  .ticket-message-team {
+    margin: 0 -16px;
+    padding: 20px 16px;
   }
 }

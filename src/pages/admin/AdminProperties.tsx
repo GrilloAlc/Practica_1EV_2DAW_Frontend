@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { deleteProperty, getProperties, updateProperty } from '../../api/properties';
+import { deactivateProperty, getProperties, reactivateProperty } from '../../api/properties';
 import { getErrorMessage } from '../../api/client';
 import { formatPrice, propertyImage } from '../../utils/labels';
 import type { Property } from '../../types';
@@ -14,9 +14,8 @@ function AdminProperties() {
   useEffect(() => {
     async function loadProperties() {
       try {
-        // 'all' para incluir también las desactivadas
-        const result = await getProperties({ isActive: 'all', limit: 50 });
-        setList(result.data);
+        // El listado del backend incluye también las desactivadas
+        setList(await getProperties());
       } catch (err) {
         setError(getErrorMessage(err));
       }
@@ -27,9 +26,12 @@ function AdminProperties() {
   async function toggleActive(property: Property) {
     try {
       if (property.isActive) {
-        await deleteProperty(property._id);
+        if (!window.confirm(`¿Seguro que quieres desactivar «${property.title}»? Dejará de verse en la web.`)) {
+          return;
+        }
+        await deactivateProperty(property._id);
       } else {
-        await updateProperty(property._id, { isActive: true });
+        await reactivateProperty(property._id);
       }
       setList(list.map((p) => (p._id === property._id ? { ...p, isActive: !p.isActive } : p)));
       setError('');
@@ -56,11 +58,10 @@ function AdminProperties() {
     <main className="page">
       <div className="page-header">
         <div>
-          <p className="label">Gestión</p>
           <h1 className="page-title">Propiedades</h1>
           <p className="page-subtitle">Administra el catálogo de inmuebles.</p>
         </div>
-        <Link to="/admin/propiedades/nueva" className="btn">+ Nueva propiedad</Link>
+        <Link to="/admin/propiedades/nueva" className="btn">Añadir propiedad</Link>
       </div>
 
       {error && <p className="field-error" role="alert">{error}</p>}
@@ -78,11 +79,11 @@ function AdminProperties() {
               Inactivas ({inactiveCount})
             </button>
           </div>
-          <input className="table-search" type="search" aria-label="Buscar propiedad" placeholder="Buscar propiedad..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <input className="table-search" type="search" aria-label="Buscar propiedad" placeholder="Buscar por título…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
         {visible.length === 0 ? (
-          <div className="empty"><strong>Sin resultados</strong>No hay propiedades que coincidan.</div>
+          <div className="empty"><strong>Ninguna propiedad coincide</strong>Cambia el filtro o el texto de búsqueda.</div>
         ) : (
           <table className="table">
             <thead>
@@ -91,12 +92,17 @@ function AdminProperties() {
             <tbody>
               {visible.map((p) => (
                 <tr key={p._id} className={p.isActive ? '' : 'admin-inactive'}>
-                  <td><img className="admin-thumb" src={propertyImage(p)} alt="" />{p.title}</td>
+                  <td>
+                    <span className="admin-property">
+                      <img className="admin-thumb" src={propertyImage(p)} alt="" width={64} height={48} loading="lazy" />
+                      <strong>{p.title}</strong>
+                    </span>
+                  </td>
                   <td>{p.type}</td>
-                  <td>{p.status}</td>
+                  <td className="cell-muted">{p.status}</td>
                   <td>{p.address.city}</td>
-                  <td>{formatPrice(p)}</td>
-                  <td><span className="status-badge">{p.isActive ? 'Activa' : 'Inactiva'}</span></td>
+                  <td className="cell-code"><strong>{formatPrice(p)}</strong></td>
+                  <td><span className={p.isActive ? 'status-badge status-on' : 'status-badge status-off'}>{p.isActive ? 'Activa' : 'Inactiva'}</span></td>
                   <td>
                     <div className="admin-actions">
                       <Link to={`/admin/propiedades/${p._id}/editar`}>Editar</Link>

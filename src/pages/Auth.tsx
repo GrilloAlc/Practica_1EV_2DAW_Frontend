@@ -3,6 +3,7 @@ import type { SyntheticEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Auth.css';
 import { useAuth } from '../context/useAuth';
+import { Logo } from '../components/Layout';
 import { getErrorMessage } from '../api/client';
 
 function Auth() {
@@ -51,55 +52,61 @@ function Auth() {
   return (
     <div className="auth">
       <div className="auth-side">
-        <Link to="/" className="auth-logo">INMOBILIARIA</Link>
-        <h1>Tu espacio para encontrar y gestionar tu próximo hogar.</h1>
-        <p>Atención personalizada · Consultas centralizadas · Seguimiento sencillo</p>
+        <Link to="/" className="auth-logo" aria-label="CataHome, ir al inicio">
+          <Logo light />
+        </Link>
+        <div className="auth-side-text">
+          <h1>Guarda tus consultas y sigue cada respuesta en un solo sitio.</h1>
+          <p>Con tu cuenta puedes preguntar por cualquier casa, pedir visitas y ver en qué punto está cada solicitud.</p>
+        </div>
       </div>
 
       <div className="auth-main">
         <div className="auth-box">
-          <div className="tabs auth-tabs">
-            <button className={mode === 'login' ? 'tab tab-active' : 'tab'} onClick={() => changeMode('login')}>Iniciar sesión</button>
-            <button className={mode === 'register' ? 'tab tab-active' : 'tab'} onClick={() => changeMode('register')}>Crear cuenta</button>
+          <Link to="/" className="auth-back">Volver a la web</Link>
+
+          <div className="auth-tabs" role="tablist" aria-label="Acceso">
+            <button type="button" role="tab" aria-selected={mode === 'login'} className={mode === 'login' ? 'auth-tab is-active' : 'auth-tab'} onClick={() => changeMode('login')}>Iniciar sesión</button>
+            <button type="button" role="tab" aria-selected={mode === 'register'} className={mode === 'register' ? 'auth-tab is-active' : 'auth-tab'} onClick={() => changeMode('register')}>Crear cuenta</button>
           </div>
 
-          <h2>{mode === 'login' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}</h2>
-          <p>{mode === 'login' ? 'Introduce tus datos para acceder.' : 'Solo te llevará un minuto.'}</p>
+          <h2>{mode === 'login' ? 'Entra en tu cuenta' : 'Crea tu cuenta'}</h2>
+          <p>{mode === 'login' ? 'Usa el correo y la contraseña con los que te registraste.' : 'Solo te pedimos lo necesario para poder responderte.'}</p>
 
           <form onSubmit={handleSubmit}>
             {mode === 'register' && (
               <label className="field">
                 Nombre
-                <input name="name" required placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} />
+                <input name="name" required autoComplete="name" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} />
               </label>
             )}
             <label className="field">
               Correo electrónico
-              <input name="email" type="email" required placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input name="email" type="email" required autoComplete="email" spellCheck={false} placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </label>
             {mode === 'register' && (
               <label className="field">
                 Teléfono (opcional)
-                <input name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <input name="phone" type="tel" autoComplete="tel" placeholder="600 000 000" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </label>
             )}
             <label className="field">
               Contraseña
-              <input name="password" type="password" required minLength={8} placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input name="password" type="password" required minLength={8} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} />
             </label>
             {mode === 'register' && (
               <label className="field">
                 Repite la contraseña
-                <input name="password2" type="password" required minLength={8} value={password2} onChange={(e) => setPassword2(e.target.value)} />
+                <input name="password2" type="password" required minLength={8} autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)} />
               </label>
             )}
             {error && <p className="field-error" role="alert">{error}</p>}
-            <button type="submit" className="btn auth-submit">
+            <button type="submit" className="btn btn-acento auth-submit">
               {mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
             </button>
           </form>
 
-          <p className="auth-legal">Al continuar, aceptas los Términos y la Política de privacidad.</p>
+          <p className="auth-legal">Al continuar aceptas los términos de uso y la política de privacidad.</p>
         </div>
       </div>
     </div>

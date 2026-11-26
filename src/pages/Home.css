@@ -1,99 +1,404 @@
+/* Inicio de CataHome: portada editorial, carrusel, accesos y casas como páginas de revista */
+
+/* ---------- Portada ---------- */
+
 .home-hero {
-  padding: 72px 48px;
-  background: var(--beige);
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: end;
+  padding: clamp(40px, 7vw, 110px) var(--margen) clamp(40px, 5vw, 72px);
 }
 
-.home-hero h1 {
-  max-width: 640px;
-  margin: 8px 0 16px;
-  font-size: 52px;
-}
-
-.home-search {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 16px;
-  max-width: 1100px;
-  margin-top: 40px;
-  padding: 20px;
-  background: var(--fondo);
-  border: 1px solid var(--oliva);
-}
-
-.home-search label {
+.home-hero-title {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-width: 160px;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: bold;
+  margin: 0;
+  font-size: clamp(52px, 9vw, 148px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
 }
 
-.home-search select {
-  padding: 12px;
-  border: 1px solid var(--texto);
-  background: var(--fondo);
-  font: inherit;
-  font-weight: normal;
+.home-hero-title span {
+  display: block;
+  animation: home-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-.home-search .btn {
-  padding: 14px 32px;
+.home-hero-title span + span {
+  padding-left: 0.9em;
+  animation-delay: 0.12s;
 }
 
-.home-featured {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 64px 48px;
+@keyframes home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.25em);
+  }
 }
 
-.home-featured-header {
+.home-hero-lead {
+  max-width: 40ch;
+  margin: 0 0 32px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--pizarra);
+}
+
+/* Buscador sin cajas: solo líneas */
+.home-search {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 24px;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.home-featured-header h2,
-.home-help h2 {
-  margin: 8px 0 0;
-  font-size: 34px;
+.home-search-ops {
+  display: flex;
+  gap: 28px;
 }
 
-.home-grid {
+.home-search-ops button {
+  padding: 0 0 6px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  color: var(--pizarra);
+  cursor: pointer;
+}
+
+.home-search-ops button:hover {
+  color: var(--acento);
+}
+
+.home-search-ops button.is-active {
+  border-bottom-color: var(--acento);
+  color: var(--tinta);
+}
+
+.home-search-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
 
-.home-help {
-  padding: 64px 48px;
-  text-align: center;
-  background: var(--oliva-claro);
-  border-top: 1px solid var(--oliva);
+.home-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--pizarra);
 }
 
-.home-help .btn {
-  margin-top: 24px;
-}
-
-@media (max-width: 700px) {
-  .home-hero,
-  .home-featured,
-  .home-help {
-    padding: 40px 16px;
-  }
-  .home-hero h1 {
-    font-size: 36px;
-  }
-}
-
-.home-search input {
-  padding: 12px;
-  border: 1px solid var(--texto);
-  background: var(--fondo);
+.home-field input,
+.home-field select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--tinta);
+  border-radius: 0;
+  background: transparent;
   font: inherit;
-  font-weight: normal;
+  font-size: 17px;
+  color: var(--tinta);
+}
+
+.home-field input::placeholder {
+  color: #a19d96;
+}
+
+.home-field input:focus,
+.home-field select:focus {
+  border-bottom: 2px solid var(--acento);
+  outline: none;
+}
+
+.home-search-submit {
+  align-self: flex-start;
+  min-height: 52px;
+  margin-top: 8px;
+  padding: 0 32px;
+}
+
+.home-cover-skeleton {
+  height: min(78vh, 820px);
+  border-radius: 0;
+}
+
+/* ---------- Tres accesos ---------- */
+
+.home-doors {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: clamp(56px, 8vw, 104px) var(--margen) clamp(80px, 11vw, 150px);
+  border-top: 1px solid var(--tinta);
+}
+
+.home-door {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 28px 28px 32px 0;
+  color: var(--tinta);
+  text-decoration: none;
+  transition: background-color 0.25s, padding 0.25s;
+}
+
+.home-door + .home-door {
+  padding-left: 28px;
+  border-left: 1px solid var(--linea);
+}
+
+.home-door-title {
+  font-family: var(--font-serif);
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  line-height: 1;
+}
+
+.home-door-text {
+  max-width: 30ch;
+  font-size: 15px;
+  color: var(--pizarra);
+}
+
+.home-door:hover {
+  background: var(--acento-suave);
+  padding-left: 20px;
+}
+
+.home-door + .home-door:hover {
+  padding-left: 44px;
+}
+
+.home-door:hover .home-door-title {
+  color: var(--acento);
+}
+
+/* ---------- Recién llegadas: cada casa como una página de revista ---------- */
+
+.home-latest {
+  padding: 0 var(--margen);
+}
+
+.home-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: clamp(40px, 6vw, 80px);
+}
+
+.home-section-head h2 {
+  margin: 0;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1;
+}
+
+.home-link {
+  font-size: 15px;
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--acento);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: color 0.2s;
+}
+
+.home-link:hover {
+  color: var(--acento);
+}
+
+.home-empty {
+  color: var(--pizarra);
+}
+
+.home-story {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 80px);
+  align-items: center;
+  margin-bottom: clamp(72px, 10vw, 140px);
+}
+
+.home-story:nth-of-type(even) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+}
+
+.home-story:nth-of-type(even) .home-story-photo {
+  order: 2;
+}
+
+.home-story-photo {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--niebla);
+}
+
+.home-story-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.home-story:hover .home-story-photo img {
+  transform: scale(1.03);
+}
+
+.home-story-text {
+  max-width: 420px;
+}
+
+.home-story-place {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--acento);
+}
+
+.home-story-text h3 {
+  margin: 0 0 20px;
+  font-size: clamp(30px, 3.4vw, 46px);
+  line-height: 1.05;
+}
+
+.home-story-text h3 a {
+  text-decoration: none;
+}
+
+.home-story-text h3 a:hover {
+  color: var(--acento);
+}
+
+.home-story-price {
+  margin: 0 0 28px;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+}
+
+.home-story-facts {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 32px;
+  margin: 0 0 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--linea);
+}
+
+.home-story-facts dt {
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.home-story-facts dd {
+  margin: 2px 0 0;
+  font-size: 16px;
+}
+
+/* ---------- Promesa ---------- */
+
+.home-promise {
+  padding: clamp(72px, 10vw, 140px) var(--margen);
+  background: var(--acento-suave);
+}
+
+.home-promise p {
+  max-width: 22ch;
+  margin: 0 auto;
+  font-family: var(--font-serif);
+  font-size: clamp(34px, 5vw, 68px);
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--acento-oscuro);
+}
+
+/* ---------- Propietarios ---------- */
+
+.home-owner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(80px, 10vw, 140px) var(--margen);
+}
+
+.home-owner h2 {
+  max-width: 16ch;
+  margin: 0 0 16px;
+  font-size: clamp(34px, 4.5vw, 60px);
+  line-height: 1.05;
+}
+
+.home-owner p {
+  margin: 0 0 24px;
+  font-size: 18px;
+  color: var(--pizarra);
+}
+
+/* ---------- Móvil ---------- */
+
+@media (max-width: 860px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .home-hero-title span + span {
+    padding-left: 0.6em;
+  }
+  .home-doors {
+    grid-template-columns: 1fr;
+  }
+  .home-door,
+  .home-door + .home-door {
+    padding: 22px 0;
+    border-left: none;
+  }
+  .home-door + .home-door {
+    border-top: 1px solid var(--linea);
+  }
+  .home-door:hover,
+  .home-door + .home-door:hover {
+    padding-left: 12px;
+  }
+  .home-story,
+  .home-story:nth-of-type(even) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .home-story:nth-of-type(even) .home-story-photo {
+    order: 0;
+  }
+  .home-cover-skeleton {
+    height: 60vh;
+  }
+}
+
+@media (max-width: 420px) {
+  .home-story-facts {
+    gap: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-title span {
+    animation: none;
+  }
+  .home-story-photo img,
+  .home-door {
+    transition: none;
+  }
 }

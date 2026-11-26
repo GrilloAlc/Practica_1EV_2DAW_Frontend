@@ -1,28 +1,71 @@
 // Datos falsos para usar mientras el backend no funcione (ver USE_FAKE_DATA en api/client.ts)
 import type { Message, Property, Ticket, User } from '../types';
 
-const photo = (name: string) => `https://picsum.photos/seed/${name}/800/600`;
+// Fotos guardadas en public/images/propiedades
+const photo = (name: string) => `/images/propiedades/${name}.jpg`;
 
-const description =
-  'Vivienda amplia y luminosa situada en una zona céntrica y bien comunicada. Cuenta con salón comedor, cocina independiente y dormitorios exteriores.';
-
-const madrid = { street: 'Calle Mayor', number: '10', city: 'Madrid', province: 'Madrid', postalCode: '28013' };
-const barcelona = { street: 'Carrer de Mallorca', number: '25', city: 'Barcelona', province: 'Barcelona', postalCode: '08008' };
-const valencia = { street: 'Calle de Colón', number: '5', city: 'Valencia', province: 'Valencia', postalCode: '46004' };
-
+// Cada casa con su dirección (calle real, código postal y coordenadas) y su propia descripción
 export const fakeProperties: Property[] = [
-  { _id: '1', title: 'Piso luminoso en el centro', description, type: 'Piso', status: 'En venta', price: 325000, area: 98, image: photo('p1a'), isActive: true, address: madrid },
-  { _id: '2', title: 'Casa con jardín privado', description, type: 'Casa', status: 'En venta', price: 485000, area: 176, image: photo('p2a'), isActive: true, address: madrid },
-  { _id: '3', title: 'Ático con terraza', description, type: 'Piso', status: 'En venta', price: 410000, area: 112, image: photo('p3a'), isActive: true, address: madrid },
-  { _id: '4', title: 'Apartamento reformado', description, type: 'Piso', status: 'En venta', price: 245000, area: 74, image: photo('p4a'), isActive: true, address: barcelona },
-  { _id: '5', title: 'Chalet en zona residencial', description, type: 'Casa', status: 'En venta', price: 595000, area: 220, image: photo('p5a'), isActive: true, address: valencia },
-  { _id: '6', title: 'Estudio cerca del parque', description, type: 'Piso', status: 'En venta', price: 185000, area: 48, image: photo('p6a'), isActive: true, address: madrid },
-  { _id: '7', title: 'Piso amueblado junto al metro', description, type: 'Piso', status: 'Disponible para alquilar', price: 1100, area: 70, image: photo('p7a'), isActive: true, address: madrid },
-  { _id: '8', title: 'Loft diáfano en el Born', description, type: 'Piso', status: 'Disponible para alquilar', price: 1450, area: 65, image: photo('p8a'), isActive: true, address: barcelona },
-  { _id: '9', title: 'Casa adosada con patio', description, type: 'Casa', status: 'Disponible para alquilar', price: 1300, area: 130, image: photo('p9a'), isActive: true, address: valencia },
-  { _id: '10', title: 'Piso con vistas al mar', description, type: 'Piso', status: 'En venta', price: 360000, area: 95, image: photo('p10a'), isActive: true, address: valencia },
-  { _id: '11', title: 'Casa de pueblo rehabilitada', description, type: 'Casa', status: 'En venta', price: 520000, area: 190, image: photo('p11a'), isActive: false, address: barcelona },
-  { _id: '12', title: 'Dúplex con terraza', description, type: 'Piso', status: 'Disponible para alquilar', price: 1800, area: 120, image: photo('p12a'), isActive: true, address: madrid },
+  {
+    _id: '1', title: 'Piso luminoso en el centro', type: 'Piso', status: 'En venta', price: 325000, area: 98, image: photo('piso-luminoso-centro'), isActive: true,
+    address: { street: 'Calle de Atocha', number: '34', city: 'Madrid', province: 'Madrid', postalCode: '28012', coordinates: { lat: 40.4123, lng: -3.6997 } },
+    description: 'Tercera planta con ascensor y cuatro balcones a la calle. Entra sol toda la mañana en el salón y en los dos dormitorios.\n\nSuelos de tarima, techos altos y cocina independiente. A cinco minutos andando de la Puerta del Sol.',
+  },
+  {
+    _id: '2', title: 'Casa con jardín privado', type: 'Casa', status: 'En venta', price: 485000, area: 176, image: photo('casa-jardin-privado'), isActive: true,
+    address: { street: 'Calle de Arturo Soria', number: '210', city: 'Madrid', province: 'Madrid', postalCode: '28043', coordinates: { lat: 40.4561, lng: -3.6531 } },
+    description: 'Casa de dos plantas con un jardín de 120 m² y árboles ya crecidos. Cuatro dormitorios, tres baños y un garaje para dos coches.\n\nCalle tranquila, con colegios y el metro a diez minutos.',
+  },
+  {
+    _id: '3', title: 'Ático con terraza', type: 'Piso', status: 'En venta', price: 410000, area: 112, image: photo('atico-terraza'), isActive: true,
+    address: { street: 'Calle de Velázquez', number: '57', city: 'Madrid', province: 'Madrid', postalCode: '28001', coordinates: { lat: 40.4297, lng: -3.6836 } },
+    description: 'Última planta en el barrio de Salamanca con una terraza de 35 m² que da a los tejados. El salón se abre por completo a la terraza.\n\nDos dormitorios, dos baños y portero físico.',
+  },
+  {
+    _id: '4', title: 'Apartamento reformado', type: 'Piso', status: 'En venta', price: 245000, area: 74, image: photo('apartamento-reformado'), isActive: true,
+    address: { street: 'Carrer de Sants', number: '120', city: 'Barcelona', province: 'Barcelona', postalCode: '08028', coordinates: { lat: 41.3757, lng: 2.1339 } },
+    description: 'Reformado entero el año pasado: instalación eléctrica, ventanas con doble cristal y cocina abierta al salón.\n\nDos dormitorios y un baño con plato de ducha. Listo para entrar a vivir.',
+  },
+  {
+    _id: '5', title: 'Chalet en zona residencial', type: 'Casa', status: 'En venta', price: 595000, area: 220, image: photo('chalet-zona-residencial'), isActive: true,
+    address: { street: 'Carrer de Sant Sebastià', number: '18', city: 'Rocafort', province: 'Valencia', postalCode: '46111', coordinates: { lat: 39.5308, lng: -0.4103 } },
+    description: 'Chalet independiente en una parcela de 600 m² con piscina y porche. Cinco dormitorios, uno de ellos en la planta baja.\n\nA quince minutos de Valencia en coche y con el metro en el pueblo.',
+  },
+  {
+    _id: '6', title: 'Estudio cerca del parque', type: 'Piso', status: 'En venta', price: 185000, area: 48, image: photo('estudio-cerca-parque'), isActive: true,
+    address: { street: 'Calle de Alfonso XII', number: '12', city: 'Madrid', province: 'Madrid', postalCode: '28014', coordinates: { lat: 40.4185, lng: -3.6882 } },
+    description: 'Estudio exterior frente al Retiro, con la zona de dormir separada por una puerta corredera.\n\nCocina equipada y armarios empotrados. Buena opción como primera casa o para alquilar.',
+  },
+  {
+    _id: '7', title: 'Piso amueblado junto al metro', type: 'Piso', status: 'Disponible para alquilar', price: 1100, area: 70, image: photo('piso-amueblado-metro'), isActive: true,
+    address: { street: 'Calle de Bravo Murillo', number: '150', city: 'Madrid', province: 'Madrid', postalCode: '28020', coordinates: { lat: 40.4562, lng: -3.7039 } },
+    description: 'Se alquila amueblado y con electrodomésticos. Dos dormitorios, salón con balcón y calefacción central.\n\nLa boca de metro de Estrecho está a pocos pasos del portal.',
+  },
+  {
+    _id: '8', title: 'Loft diáfano en el Born', type: 'Piso', status: 'Disponible para alquilar', price: 1450, area: 65, image: photo('loft-born'), isActive: true,
+    address: { street: 'Carrer de la Princesa', number: '30', city: 'Barcelona', province: 'Barcelona', postalCode: '08003', coordinates: { lat: 41.3856, lng: 2.1806 } },
+    description: 'Antiguo taller convertido en loft, con vigas de madera y cuatro metros de altura. Todo es un espacio abierto, salvo el baño.\n\nA un paso del Parc de la Ciutadella y del mercado de Santa Caterina.',
+  },
+  {
+    _id: '9', title: 'Casa adosada con patio', type: 'Casa', status: 'Disponible para alquilar', price: 1300, area: 130, image: photo('casa-adosada-patio'), isActive: true,
+    address: { street: 'Carrer de Sueca', number: '40', city: 'Valencia', province: 'Valencia', postalCode: '46006', coordinates: { lat: 39.4618, lng: -0.3741 } },
+    description: 'Casa adosada en Russafa con un patio trasero donde cabe una mesa para seis. Tres dormitorios en la planta de arriba.\n\nSe aceptan mascotas. Contrato mínimo de un año.',
+  },
+  {
+    _id: '10', title: 'Piso con vistas al mar', type: 'Piso', status: 'En venta', price: 360000, area: 95, image: photo('piso-vistas-mar'), isActive: true,
+    address: { street: 'Passeig de Neptú', number: '20', city: 'Valencia', province: 'Valencia', postalCode: '46011', coordinates: { lat: 39.4629, lng: -0.3238 } },
+    description: 'Primera línea de la playa de la Malva-rosa. Desde el salón y el dormitorio principal se ve el mar.\n\nTres dormitorios, terraza acristalada y plaza de garaje incluida en el precio.',
+  },
+  {
+    _id: '11', title: 'Casa de pueblo rehabilitada', type: 'Casa', status: 'En venta', price: 520000, area: 190, image: photo('casa-pueblo-rehabilitada'), isActive: false,
+    address: { street: 'Carrer Major', number: '8', city: "Sant Sadurní d'Anoia", province: 'Barcelona', postalCode: '08770', coordinates: { lat: 41.4251, lng: 1.7858 } },
+    description: 'Casa de piedra del siglo XIX rehabilitada respetando muros y bóvedas. Bodega en el sótano y patio con una parra.\n\nRodeada de viñedos, a cuarenta minutos de Barcelona.',
+  },
+  {
+    _id: '12', title: 'Dúplex con terraza', type: 'Piso', status: 'Disponible para alquilar', price: 1800, area: 120, image: photo('duplex-terraza'), isActive: true,
+    address: { street: 'Calle de Ponzano', number: '40', city: 'Madrid', province: 'Madrid', postalCode: '28003', coordinates: { lat: 40.4398, lng: -3.6992 } },
+    description: 'Dúplex en Chamberí: abajo, salón y cocina; arriba, dos dormitorios y una terraza de 20 m².\n\nSin muebles. Calle llena de restaurantes y a dos minutos del metro de Ríos Rosas.',
+  },
 ];
 
 export const fakeUsers: (User & { password: string })[] = [
@@ -88,15 +131,9 @@ export function getLoggedUser(): User {
   return JSON.parse(localStorage.getItem('user')!);
 }
 
-// Devuelve la lista con el mismo formato paginado que el backend
-export function paginate<T>(list: T[], params: { page?: number | string; limit?: number | string }) {
+// Devuelve una página de la lista, como hace el backend con page y limit
+export function pageOf<T>(list: T[], params: { page?: number | string; limit?: number | string }, defaultLimit: number) {
   const page = Number(params.page) || 1;
-  const limit = Number(params.limit) || 10;
-  return {
-    data: list.slice((page - 1) * limit, page * limit),
-    page,
-    limit,
-    total: list.length,
-    totalPages: Math.max(1, Math.ceil(list.length / limit)),
-  };
+  const limit = Number(params.limit) || defaultLimit;
+  return list.slice((page - 1) * limit, page * limit);
 }

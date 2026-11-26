@@ -1,31 +1,48 @@
 import { api, USE_FAKE_DATA } from './client';
-import { fakeUsers, getLoggedUser, paginate } from '../data/fakeData';
-import type { Paginated, User } from '../types';
+import { fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
+import type { User } from '../types';
 
-export async function getUsers(params: { role?: string; limit?: number }): Promise<Paginated<User>> {
+// GET /api/users (ADMIN) → array, máximo 50
+export async function getUsers(params: { role?: string; isActive?: boolean; page?: number; limit?: number } = {}): Promise<User[]> {
   if (USE_FAKE_DATA) {
     let list = fakeUsers;
     if (params.role) list = list.filter((u) => u.role === params.role);
-    return paginate(list, params);
+    if (params.isActive !== undefined) list = list.filter((u) => u.isActive === params.isActive);
+    return pageOf(list, params, 50);
   }
 
   return api.get('/users', params);
 }
 
-export async function updateUser(id: string, data: Partial<User>): Promise<User> {
+// PUT /api/users/me → { name, phone }
+export async function updateMe(data: { name: string; phone: string }): Promise<User> {
   if (USE_FAKE_DATA) {
-    const user = fakeUsers.find((u) => u._id === id)!;
+    const user = fakeUsers.find((u) => u._id === getLoggedUser()._id)!;
     Object.assign(user, data);
     return user;
   }
 
-  return api.put('/users/' + id, data);
+  return api.put('/users/me', data);
 }
 
-export async function updateMe(data: { name: string; phone: string }): Promise<User> {
+// PUT /api/users/:id/role (ADMIN)
+export async function changeRole(id: string, role: string): Promise<User> {
   if (USE_FAKE_DATA) {
-    return updateUser(getLoggedUser()._id, data);
+    const user = fakeUsers.find((u) => u._id === id)!;
+    user.role = role;
+    return user;
   }
 
-  return api.put('/users/me', data);
+  return api.put('/users/' + id + '/role', { role });
+}
+
+// PUT /api/users/:id/activate y /deactivate (ADMIN)
+export async function setUserActive(id: string, active: boolean): Promise<User> {
+  if (USE_FAKE_DATA) {
+    const user = fakeUsers.find((u) => u._id === id)!;
+    user.isActive = active;
+    return user;
+  }
+
+  return api.put('/users/' + id + (active ? '/activate' : '/deactivate'));
 }

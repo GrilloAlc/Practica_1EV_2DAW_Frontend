@@ -1,34 +1,67 @@
+import { Link } from 'react-router-dom';
 import './About.css';
 
+const steps = [
+  { title: 'Encuentra la casa', text: 'Filtra por operación, ciudad, tipo y precio, y ordena por precio o por fecha.' },
+  { title: 'Pregunta o pide una visita', text: 'Desde la ficha abres una consulta, que se asigna a un agente.' },
+  { title: 'Sigue la respuesta', text: 'En «Mis consultas» ves en qué punto está cada una y hablas con tu agente por escrito.' },
+];
+
 const faqs = [
-  { q: '¿Cómo abro una consulta sobre una propiedad?', a: 'Entra en la ficha de la propiedad y pulsa «Abrir ticket / consultar». Necesitas haber iniciado sesión.' },
-  { q: '¿Cuánto tardan en responder?', a: 'Normalmente en menos de 24 horas laborables. Puedes seguir el estado desde «Mis tickets».' },
-  { q: '¿Puedo reabrir un ticket resuelto?', a: 'Sí. Desde el detalle del ticket puedes solicitar la reapertura o confirmar el cierre.' },
-  { q: '¿Cómo cambio mis datos personales?', a: 'Desde tu perfil puedes editar tu nombre, correo y teléfono.' },
+  { q: '¿Cómo pregunto por una casa?', a: 'Entra en su ficha y pulsa «Preguntar por esta casa». Necesitas haber iniciado sesión.' },
+  { q: '¿Cuánto tardáis en responder?', a: 'Normalmente menos de 24 horas laborables. Puedes ver el estado en «Mis consultas».' },
+  { q: '¿Puedo reabrir una consulta resuelta?', a: 'Sí. Dentro de la consulta puedes pedir que se reabra o confirmar que está cerrada.' },
+  { q: '¿Cómo cambio mis datos?', a: 'Desde tu perfil puedes cambiar tu nombre y tu teléfono.' },
+  { q: 'Quiero vender o alquilar mi casa, ¿qué hago?', a: 'Abre una consulta contándonos cómo es y te respondemos por escrito.' },
 ];
 
 function About() {
   return (
-    <main className="page about">
-      <p className="label">Sobre nosotros</p>
-      <h1 className="page-title">Una inmobiliaria cercana y transparente.</h1>
-      <p>
-        Somos un equipo que acompaña a las personas en la compra y el alquiler de su vivienda. Reunimos un catálogo
-        de propiedades seleccionadas y un sistema de atención por tickets para que cada consulta tenga seguimiento y respuesta.
-      </p>
+    <main className="about">
+      <section className="about-hero">
+        <div className="about-inner">
+          <h1>Una inmobiliaria que responde por escrito</h1>
+          <p>
+            Ayudamos a comprar, vender y alquilar casa. Cada consulta tiene su agente y queda por escrito, así nunca
+            tienes que preguntar dos veces lo mismo.
+          </p>
+        </div>
+      </section>
 
-      <h2>Preguntas frecuentes</h2>
-      {faqs.map((f) => (
-        <details key={f.q} className="about-faq">
-          <summary>{f.q}</summary>
-          <p>{f.a}</p>
-        </details>
-      ))}
+      <section className="about-inner about-steps" aria-labelledby="about-steps-title">
+        <h2 id="about-steps-title">Cómo funciona</h2>
+        <ol className="about-step-list">
+          {steps.map((s) => (
+            <li key={s.title} className="about-step">
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-      <h2>Contacto</h2>
-      <p>
-        <a href="mailto:info@inmobiliaria.es">info@inmobiliaria.es</a> · 900 000 000
-      </p>
+      <div className="about-inner about-columns">
+        <section aria-labelledby="about-faq-title">
+          <h2 id="about-faq-title">Preguntas frecuentes</h2>
+          {faqs.map((f) => (
+            <details key={f.q} className="about-faq">
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </section>
+
+        <aside className="about-contact" aria-labelledby="about-contact-title">
+          <h2 id="about-contact-title">Contacto</h2>
+          <dl>
+            <dt>Correo</dt>
+            <dd><a href="mailto:info@inmobiliaria.es">info@inmobiliaria.es</a></dd>
+            <dt>Teléfono</dt>
+            <dd><a href="tel:+34644717199">644 7171 99</a></dd>
+          </dl>
+          <Link to="/mis-tickets/nuevo" className="btn btn-acento about-contact-btn">Escribir una consulta</Link>
+        </aside>
+      </div>
     </main>
   );
 }

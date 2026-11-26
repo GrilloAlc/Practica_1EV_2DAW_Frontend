@@ -1,45 +1,73 @@
 import { api, USE_FAKE_DATA } from './client';
-import { fakeMessages, fakeTickets, fakeUsers, getLoggedUser, paginate } from '../data/fakeData';
-import type { Message, Paginated, Ticket, TicketStats } from '../types';
+import { fakeMessages, fakeTickets, fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
+import type { Message, Ticket, TicketStats } from '../types';
 
 function findFakeTicket(id: string) {
   const ticket = fakeTickets.find((t) => t._id === id);
-  if (!ticket) throw new Error('Ticket no encontrado.');
+  if (!ticket) throw new Error('Ticket no encontrado');
   return ticket;
 }
 
-// Cada usuario recibe solo los tickets que puede ver según su rol
-export async function getTickets(params: { limit?: number; unassigned?: boolean }): Promise<Paginated<Ticket>> {
+// GET /api/tickets → array. El backend ya filtra según el rol:
+// cliente/propietario ve los suyos, agente los asignados y admin todos
+export async function getTickets(params: { status?: string; priority?: string; unassigned?: boolean; page?: number; limit?: number } = {}): Promise<Ticket[]> {
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
     let list = fakeTickets;
     if (user.role === 'CLIENTE' || user.role === 'PROPIETARIO') list = list.filter((t) => t.customer._id === user._id);
     if (user.role === 'AGENTE') list = list.filter((t) => t.agent?._id === user._id);
+    if (params.status) list = list.filter((t) => t.status === params.status);
+    if (params.priority) list = list.filter((t) => t.priority === params.priority);
     if (params.unassigned) list = list.filter((t) => !t.agent);
-    return paginate(list, params);
+    return pageOf(list, params, 10);
   }
 
   return api.get('/tickets', params);
 }
 
-export async function getTicket(id: string): Promise<{ ticket: Ticket; messages: Message[] }> {
+// GET /api/tickets/:id
+export async function getTicket(id: string): Promise<Ticket> {
   if (USE_FAKE_DATA) {
-    const ticket = findFakeTicket(id);
-    const messages = fakeMessages.filter((m) => m.ticket === id);
-    return { ticket, messages };
+    return findFakeTicket(id);
   }
 
   return api.get('/tickets/' + id);
 }
 
-// La prioridad no la elige el cliente: el backend pone MEDIA y luego la cambia el agente o el admin
+// GET /api/ticket-messages/:ticketId (el id es el del ticket)
+export async function getMessages(ticketId: string): Promise<Message[]> {
+  if (USE_FAKE_DATA) {
+    return fakeMessages.filter((m) => m.ticket === ticketId);
+  }
+
+  return api.get('/ticket-messages/' + ticketId);
+}
+
+// POST /api/ticket-messages → { ticketCode, body }
+export async function addMessage(ticket: Ticket, body: string) {
+  if (USE_FAKE_DATA) {
+    const user = getLoggedUser();
+    fakeMessages.push({
+      _id: String(Date.now()),
+      ticket: ticket._id,
+      body,
+      createdAt: new Date().toISOString(),
+      author: { _id: user._id, name: user.name },
+    });
+    return;
+  }
+
+  await api.post('/ticket-messages', { ticketCode: ticket.code, body });
+}
+
+// POST /api/tickets → { subject, description, category }. El backend pone estado, cliente y prioridad
 export async function createTicket(data: { subject: string; description: string; category: string }): Promise<Ticket> {
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
     const ticket = {
       ...data,
       _id: String(Date.now()),
-      code: 'TK-' + (2000 + fakeTickets.length),
+      code: 'TK-' + String(fakeTickets.length).padStart(4, '0'),
       customer: { _id: user._id, name: user.name },
       agent: null,
       priority: 'MEDIA',
@@ -54,23 +82,7 @@ export async function createTicket(data: { subject: string; description: string;
   return api.post('/tickets', data);
 }
 
-export async function addMessage(id: string, body: string): Promise<Message> {
-  if (USE_FAKE_DATA) {
-    const user = getLoggedUser();
-    const message = {
-      _id: String(Date.now()),
-      ticket: id,
-      body,
-      createdAt: new Date().toISOString(),
-      author: { _id: user._id, name: user.name, role: user.role },
-    };
-    fakeMessages.push(message);
-    return message;
-  }
-
-  return api.post('/tickets/' + id + '/messages', { body });
-}
-
+// PUT /api/tickets/:id/assign (ADMIN) → { agentId }
 export async function assignTicket(id: string, agentId: string) {
   if (USE_FAKE_DATA) {
     const agent = fakeUsers.find((u) => u._id === agentId)!;
@@ -78,27 +90,30 @@ export async function assignTicket(id: string, agentId: string) {
     return;
   }
 
-  await api.patch('/tickets/' + id + '/assign', { agentId });
+  await api.put('/tickets/' + id + '/assign', { agentId });
 }
 
+// PUT /api/tickets/:id/priority (AGENTE asignado o ADMIN) → { priority }
 export async function updatePriority(id: string, priority: string) {
   if (USE_FAKE_DATA) {
     findFakeTicket(id).priority = priority;
     return;
   }
 
-  await api.patch('/tickets/' + id + '/priority', { priority });
+  await api.put('/tickets/' + id + '/priority', { priority });
 }
 
+// PUT /api/tickets/:id/status → { status }
 export async function updateStatus(id: string, status: string) {
   if (USE_FAKE_DATA) {
     findFakeTicket(id).status = status;
     return;
   }
 
-  await api.patch('/tickets/' + id + '/status', { status });
+  await api.put('/tickets/' + id + '/status', { status });
 }
 
+// POST /api/tickets/:id/reopen (cliente dueño del ticket)
 export async function reopenTicket(id: string) {
   if (USE_FAKE_DATA) {
     findFakeTicket(id).reopenRequested = true;
@@ -108,6 +123,7 @@ export async function reopenTicket(id: string) {
   await api.post('/tickets/' + id + '/reopen');
 }
 
+// GET /api/stats/tickets (ADMIN)
 export async function getTicketStats(): Promise<TicketStats> {
   if (USE_FAKE_DATA) {
     function count(status: string) {
@@ -120,6 +136,7 @@ export async function getTicketStats(): Promise<TicketStats> {
       pendienteCliente: count('PENDIENTE_CLIENTE'),
       resueltos: count('RESUELTO'),
       cerrados: count('CERRADO'),
+      sinAsignar: fakeTickets.filter((t) => !t.agent).length,
     };
   }
 
