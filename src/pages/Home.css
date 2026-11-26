@@ -6,8 +6,9 @@
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
   gap: clamp(32px, 6vw, 96px);
-  align-items: end;
-  padding: clamp(40px, 7vw, 110px) var(--margen) clamp(40px, 5vw, 72px);
+  /* La última línea del subtítulo y el texto del botón quedan a la misma altura */
+  align-items: last baseline;
+  padding: clamp(32px, 4.5vw, 72px) var(--margen) clamp(40px, 5vw, 72px);
 }
 
 .home-hero-title {
@@ -15,8 +16,9 @@
   flex-direction: column;
   margin: 0;
   font-size: clamp(52px, 9vw, 148px);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
+  /* Las dos líneas al ras; con 0,98 la "g" de "Elegir" no toca la línea de abajo */
+  line-height: 0.98;
+  letter-spacing: -0.022em;
 }
 
 .home-hero-title > span {
@@ -25,20 +27,20 @@
 }
 
 .home-hero-title > span + span {
-  padding-left: 0.9em;
   animation-delay: 0.12s;
 }
 
+/* Sube desde un estado ya visible: si la animación no llega a correr, el titular se lee igual */
 @keyframes home-rise {
   from {
-    opacity: 0;
-    transform: translateY(0.25em);
+    opacity: 0.35;
+    transform: translateY(0.18em);
   }
 }
 
 .home-hero-lead {
-  max-width: 40ch;
-  margin: 0 0 32px;
+  max-width: 34ch;
+  margin: clamp(28px, 3vw, 48px) 0 0;
   font-size: 18px;
   line-height: 1.6;
   color: var(--pizarra);
@@ -109,7 +111,7 @@
 }
 
 .home-field input::placeholder {
-  color: #a19d96;
+  color: var(--pizarra);
 }
 
 .home-field input:focus,
@@ -130,55 +132,36 @@
   border-radius: 0;
 }
 
-/* ---------- Tres accesos ---------- */
+/* ---------- Hablar con una persona ---------- */
 
-.home-doors {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.home-talk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 48px;
   margin: clamp(56px, 8vw, 104px) var(--margen) clamp(80px, 11vw, 150px);
+  padding-top: 28px;
   border-top: 1px solid var(--tinta);
 }
 
-.home-door {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 28px 28px 32px 0;
-  color: var(--tinta);
-  text-decoration: none;
-  transition: background-color 0.25s, padding 0.25s;
-}
-
-.home-door + .home-door {
-  padding-left: 28px;
-  border-left: 1px solid var(--linea);
-}
-
-.home-door-title {
-  font-family: var(--font-serif);
+.home-talk h2 {
+  margin: 0 0 8px;
   font-size: clamp(30px, 3.4vw, 44px);
-  font-weight: 600;
-  font-variation-settings: var(--opsz);
-  line-height: 1;
+  line-height: 1.05;
 }
 
-.home-door-text {
-  max-width: 30ch;
-  font-size: 15px;
+.home-talk p {
+  margin: 0;
+  font-size: 17px;
   color: var(--pizarra);
 }
 
-.home-door:hover {
-  background: var(--acento-suave);
-  padding-left: 20px;
-}
-
-.home-door + .home-door:hover {
-  padding-left: 44px;
-}
-
-.home-door:hover .home-door-title {
-  color: var(--acento);
+.home-talk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 28px;
 }
 
 /* ---------- Recién llegadas: cada casa como una página de revista ---------- */
@@ -356,23 +339,8 @@
     grid-template-columns: 1fr;
     align-items: start;
   }
-  .home-hero-title > span + span {
-    padding-left: 0.6em;
-  }
-  .home-doors {
-    grid-template-columns: 1fr;
-  }
-  .home-door,
-  .home-door + .home-door {
-    padding: 22px 0;
-    border-left: none;
-  }
-  .home-door + .home-door {
-    border-top: 1px solid var(--linea);
-  }
-  .home-door:hover,
-  .home-door + .home-door:hover {
-    padding-left: 12px;
+  .home-hero-title {
+    font-size: clamp(52px, 16vw, 96px);
   }
   .home-story,
   .home-story:nth-of-type(even) {
@@ -397,8 +365,7 @@
   .home-hero-title > span {
     animation: none;
   }
-  .home-story-photo img,
-  .home-door {
+  .home-story-photo img {
     transition: none;
   }
 }

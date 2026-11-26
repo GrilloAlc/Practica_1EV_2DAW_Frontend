@@ -319,7 +319,7 @@ img {
 
 .field input::placeholder,
 .field textarea::placeholder {
-  color: #a19d96;
+  color: var(--pizarra);
 }
 
 .field-error {

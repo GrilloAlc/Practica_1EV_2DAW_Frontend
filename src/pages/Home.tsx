@@ -4,9 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 import '../components/Skeleton.css';
 import { getProperties } from '../api/properties';
-import { PROPERTY_TYPES, formatPrice, propertyImage } from '../utils/labels';
+import { PROPERTY_TYPES, formatNumber, formatPrice, propertyImage } from '../utils/labels';
 import HeroCarousel from '../components/HeroCarousel';
 import type { Property } from '../types';
+
+// Topes de precio del buscador: en venta, el precio total; en alquiler, lo que se paga al mes
+const SALE_CAPS = [200000, 300000, 500000, 750000, 1000000, 2000000];
+const RENT_CAPS = [800, 1200, 1500, 2000, 3000];
 
 const OPERATIONS = [
   { value: 'En venta', label: 'Comprar' },
@@ -24,6 +28,7 @@ function Home() {
   const [priceMax, setPriceMax] = useState('');
   const [properties, setProperties] = useState<Property[]>(homeCache || []);
   const [loading, setLoading] = useState(!homeCache);
+  const isRent = status === 'Disponible para alquilar';
 
   useEffect(() => {
     async function load() {
@@ -57,16 +62,17 @@ function Home() {
   return (
     <main className="home">
       <section className="home-hero">
-        <h1 className="home-hero-title">
-          <span>Elegir casa,</span>
-          <span>sin prisa.</span>
-        </h1>
-
-        <div className="home-hero-side">
+        <div className="home-hero-main">
+          <h1 className="home-hero-title">
+            <span>Elegir casa,</span>
+            <span>sin prisa.</span>
+          </h1>
           <p className="home-hero-lead">
             Se mira, se pregunta y se vuelve a mirar. Como un buen vino, una casa se elige con calma.
           </p>
+        </div>
 
+        <div className="home-hero-side">
           <form className="home-search" onSubmit={handleSubmit}>
             <div className="home-search-ops" role="radiogroup" aria-label="Operación">
               {OPERATIONS.map((op) => (
@@ -76,7 +82,10 @@ function Home() {
                   role="radio"
                   aria-checked={status === op.value}
                   className={status === op.value ? 'is-active' : ''}
-                  onClick={() => setStatus(op.value)}
+                  onClick={() => {
+                    setStatus(op.value);
+                    setPriceMax('');
+                  }}
                 >
                   {op.label}
                 </button>
@@ -95,8 +104,15 @@ function Home() {
                 </select>
               </label>
               <label className="home-field">
-                <span>Precio hasta</span>
-                <input type="number" min="0" step="10000" inputMode="numeric" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder="Sin límite" />
+                <span>{isRent ? 'Alquiler hasta' : 'Precio hasta'}</span>
+                <select value={priceMax} onChange={(e) => setPriceMax(e.target.value)}>
+                  <option value="">Sin límite</option>
+                  {(isRent ? RENT_CAPS : SALE_CAPS).map((cap) => (
+                    <option key={cap} value={cap}>
+                      {formatNumber(cap)} €{isRent ? ' al mes' : ''}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
             <button type="submit" className="btn btn-acento home-search-submit">Buscar casas</button>
@@ -106,21 +122,17 @@ function Home() {
 
       {loading ? <div className="home-cover-skeleton skeleton" aria-hidden="true" /> : <HeroCarousel properties={cover} />}
 
-      {/* Tres puertas de entrada: lo que se puede hacer en la web */}
-      <nav className="home-doors" aria-label="¿Qué quieres hacer?">
-        <Link to="/propiedades?status=En+venta" className="home-door">
-          <span className="home-door-title">Comprar</span>
-          <span className="home-door-text">Casas, pisos, locales y terrenos en venta.</span>
-        </Link>
-        <Link to="/propiedades?status=Disponible+para+alquilar" className="home-door">
-          <span className="home-door-title">Alquilar</span>
-          <span className="home-door-text">Viviendas disponibles para entrar a vivir.</span>
-        </Link>
-        <Link to="/mis-tickets/nuevo" className="home-door">
-          <span className="home-door-title">Vender</span>
-          <span className="home-door-text">Cuéntanos cómo es tu casa y la presentamos.</span>
-        </Link>
-      </nav>
+      {/* Comprar y Alquilar ya están en el menú y en el buscador: aquí, hablar con una persona */}
+      <section className="home-talk" aria-labelledby="home-talk-title">
+        <div>
+          <h2 id="home-talk-title">¿Prefieres hablarlo con alguien?</h2>
+          <p>Te atiende una persona del equipo, por teléfono o por escrito.</p>
+        </div>
+        <div className="home-talk-actions">
+          <a href="tel:+34644717199" className="btn btn-outline">Llamar al 644 7171 99</a>
+          <Link to="/mis-tickets/nuevo" className="home-link">Escribir una consulta</Link>
+        </div>
+      </section>
 
       <section className="home-latest" aria-labelledby="home-latest-title">
         <div className="home-section-head">
@@ -174,7 +186,7 @@ function Home() {
       <section className="home-owner">
         <h2>¿Vendes una casa que merece otra mirada?</h2>
         <p>Cuéntanos cómo es y la presentamos como se merece.</p>
-        <Link to="/mis-tickets/nuevo" className="btn">Contar mi casa</Link>
+        <Link to={'/mis-tickets/nuevo?asunto=' + encodeURIComponent('Quiero vender mi casa')} className="btn btn-acento">Contar mi casa</Link>
       </section>
     </main>
   );
