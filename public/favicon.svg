@@ -1,10 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Favicon de CataHome: el símbolo (C con tejado) en crema sobre vino -->
-  <rect width="32" height="32" rx="3" fill="#6e2233"/>
-  <svg x="2.5" y="2.5" width="27" height="27" viewBox="4.6 3.6 24.8 24.8">
-  <mask id="m"><rect width="32" height="32" fill="#fff"/><path d="M21 10.4L32 5.2v21.6l-11-5.2zM24.5 4h8v24h-8z" fill="#000"/></mask>
-  <path d="M16.6 4.6a11.4 11.4 0 1 0 0 22.8a11.4 11.4 0 1 0 0-22.8zM18.4 6.1a6.6 9.9 0 1 0 0 19.8a6.6 9.9 0 1 0 0-19.8z" fill="#f7eef0" fill-rule="evenodd" mask="url(#m)"/>
-  <path d="M23.2 5.9h1.3v5.2h-1.3zM23.2 20.9h1.3v5.2h-1.3z" fill="#f7eef0"/>
-  <path d="M12.2 20.2L19 13.4l6.8 6.8" fill="none" stroke="#f7eef0" stroke-width="3.2" stroke-linejoin="miter"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>CataHome</title>
+  <rect width="256" height="256" rx="24" fill="#6e2233"/>
+  <path fill="#f7eef0" d="M185.83 49.36 A94.00 94.00 0 1 0 185.83 202.64 L185.83 182.03 L185.83 182.03 A54.42 81.63 0 1 1 185.83 69.97 L185.83 69.97 Z M185.83 42.72 L197.38 42.72 L197.38 79.82 L185.83 79.82 Z M185.83 172.18 L197.38 172.18 L197.38 209.28 L185.83 209.28 Z"/>
+  <path fill="#f7eef0" d="M103.60 145.19 L161.09 87.69 L218.59 145.19 L197.60 166.18 L161.09 129.67 L124.59 166.18 Z"/>
 </svg>

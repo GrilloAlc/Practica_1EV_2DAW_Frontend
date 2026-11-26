@@ -1,7 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="4.6 3.6 24.8 24.8">
-  <!-- Símbolo de CataHome para fondos oscuros -->
-  <mask id="m"><rect width="32" height="32" fill="#fff"/><path d="M21 10.4L32 5.2v21.6l-11-5.2zM24.5 4h8v24h-8z" fill="#000"/></mask>
-  <path d="M16.6 4.6a11.4 11.4 0 1 0 0 22.8a11.4 11.4 0 1 0 0-22.8zM18.4 6.1a6.6 9.9 0 1 0 0 19.8a6.6 9.9 0 1 0 0-19.8z" fill="#ffffff" fill-rule="evenodd" mask="url(#m)"/>
-  <path d="M23.2 5.9h1.3v5.2h-1.3zM23.2 20.9h1.3v5.2h-1.3z" fill="#ffffff"/>
-  <path d="M12.2 20.2L19 13.4l6.8 6.8" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="miter"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>CataHome</title>
+  <path fill="#ffffff" d="M194.44 37.94 A108.00 108.00 0 1 0 194.44 214.06 L194.44 190.37 L194.44 190.37 A62.53 93.79 0 1 1 194.44 61.63 L194.44 61.63 Z M194.44 30.32 L207.71 30.32 L207.71 72.95 L194.44 72.95 Z M194.44 179.05 L207.71 179.05 L207.71 221.68 L194.44 221.68 Z"/>
+  <path fill="#ffffff" d="M99.97 148.05 L166.02 81.99 L232.08 148.05 L207.97 172.16 L166.02 130.22 L124.08 172.16 Z"/>
 </svg>

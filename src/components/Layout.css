@@ -23,10 +23,10 @@
 /* El símbolo ocupa el sitio de la C: misma altura que las mayúsculas y apoyado en la línea base */
 .logo-symbol {
   flex: none;
-  width: 0.9em;
-  height: 0.9em;
-  margin-right: -0.07em;
-  transform: translateY(0.12em);
+  width: 0.8em;
+  height: 0.83em;
+  margin-right: 0.02em;
+  transform: translateY(0.084em);
 }
 
 /* ---------- Menú superior ---------- */
