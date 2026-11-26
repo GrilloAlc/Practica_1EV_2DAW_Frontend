@@ -2,6 +2,31 @@ import { api, ApiError, USE_FAKE_DATA } from './client';
 import { fakeHistory, fakeMessages, fakeTickets, fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
 import type { Page, Ticket, TicketDetailData, TicketStats } from '../types';
 
+// La prioridad siempre como número (1, 2 o 3), aunque llegue como texto ("2")
+// o con el formato antiguo ("BAJA", "MEDIA", "ALTA") de tickets creados antes del cambio
+const OLD_PRIORITIES: Record<string, number> = { BAJA: 1, MEDIA: 2, ALTA: 3 };
+
+export function toPriority(value: unknown): number {
+  const n = Number(value);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return OLD_PRIORITIES[String(value).toUpperCase()] || 2;
+}
+
+// Si un usuario ya no existe, el backend devuelve null en su lugar: se muestra así en vez de fallar
+const MISSING_USER = { _id: '', name: 'Usuario eliminado' };
+
+function normalizeTicket(t: Ticket): Ticket {
+  return { ...t, priority: toPriority(t.priority), customer: t.customer || MISSING_USER, agent: t.agent || null };
+}
+
+function normalizeDetail(d: TicketDetailData): TicketDetailData {
+  return {
+    ticket: normalizeTicket(d.ticket),
+    messages: (d.messages || []).map((m) => ({ ...m, author: m.author || MISSING_USER })),
+    history: (d.history || []).map((h) => ({ ...h, changedBy: h.changedBy || MISSING_USER })),
+  };
+}
+
 // Imita al backend: 404 si no existe y 403 si el cliente no es el dueño o el agente no está asignado
 function findFakeTicket(id: string) {
   const ticket = fakeTickets.find((t) => t._id === id);
@@ -51,11 +76,12 @@ export async function getTicketsPage(filters: TicketFilters = {}): Promise<Page<
   }
 
   // El backend espera "true" como texto, y sin el parámetro si no se filtra
-  return api.page('/tickets', {
+  const res: Page<Ticket> = await api.page('/tickets', {
     ...filters,
     unassigned: filters.unassigned ? 'true' : undefined,
     reopenRequested: filters.reopenRequested ? 'true' : undefined,
   });
+  return { ...res, data: res.data.map(normalizeTicket) };
 }
 
 // Solo la lista, para pantallas que no necesitan paginar
@@ -74,7 +100,7 @@ export async function getTicket(id: string): Promise<TicketDetailData> {
     };
   }
 
-  return api.get('/tickets/' + id);
+  return normalizeDetail(await api.get('/tickets/' + id));
 }
 
 // POST /api/ticket-messages → { ticketId, body }

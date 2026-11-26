@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "lanzar": "npm install && npm run build && npm run dev"
+    "lanzar": "npm install && npm run build && npm run dev",
+    "subir-casas": "node scripts/subir-casas.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",

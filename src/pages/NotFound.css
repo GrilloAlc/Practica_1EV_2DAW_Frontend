@@ -51,3 +51,23 @@
     order: -1;
   }
 }
+
+/* Pantalla de error general: sin menú (puede que el fallo esté en él), solo el logo */
+.route-error {
+  min-height: 100vh;
+  padding-top: 28px;
+}
+
+.route-error-logo {
+  display: inline-block;
+  margin: 0 clamp(20px, 5vw, 64px);
+  font-size: 28px;
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.route-error .not-found {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+  padding-top: clamp(48px, 10vh, 120px);
+}

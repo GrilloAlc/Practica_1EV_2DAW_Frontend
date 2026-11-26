@@ -18,7 +18,8 @@ function HeroCarousel({ properties }: { properties: Property[] }) {
 
   if (total === 0) return null;
 
-  const current = properties[index];
+  // "% total" por si la lista cambia de tamaño y el índice se queda fuera
+  const current = properties[index % total];
 
   function go(next: number) {
     setIndex((next + total) % total);

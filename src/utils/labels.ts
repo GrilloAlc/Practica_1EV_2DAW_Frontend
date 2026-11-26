@@ -33,7 +33,7 @@ export const priorityLabels: Record<number, string> = {
 // Clases CSS de la etiqueta de prioridad (priority-baja, priority-media, priority-alta)
 export function priorityClass(priority: number) {
   const names: Record<number, string> = { 1: 'baja', 2: 'media', 3: 'alta' };
-  return 'priority priority-' + (names[priority] || 'media');
+  return 'priority priority-' + (names[Number(priority)] || 'media');
 }
 
 export const categoryLabels: Record<string, string> = {

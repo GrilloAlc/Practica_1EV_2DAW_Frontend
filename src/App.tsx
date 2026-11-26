@@ -16,12 +16,13 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminProperties from './pages/admin/AdminProperties';
 import AdminPropertyForm from './pages/admin/AdminPropertyForm';
 import NotFound from './pages/NotFound';
+import RouteError from './components/RouteError';
 
 // Se usa createBrowserRouter (y no <BrowserRouter>) para poder controlar cuándo cambia de página
 // (ver el final del archivo) y para recuperar el scroll con <ScrollRestoration>
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<Root />}>
+    <Route element={<Root />} errorElement={<RouteError />}>
       <Route path="/acceso" element={<Auth />} />
 
       <Route element={<PublicLayout />}>
