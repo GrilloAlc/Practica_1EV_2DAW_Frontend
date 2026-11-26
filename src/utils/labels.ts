@@ -58,6 +58,11 @@ export function formatDate(date: string) {
   return new Date(date).toLocaleDateString('es-ES');
 }
 
+// Fecha con hora, para el historial: "12/5/2025, 10:32"
+export function formatDateTime(date: string) {
+  return new Date(date).toLocaleString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 // Foto de respaldo para cada tipo de inmueble (public/images/tipos)
 const TYPE_IMAGES: Record<string, string> = {
   Piso: '/images/tipos/piso.jpg',

@@ -1,10 +1,16 @@
-import { api, USE_FAKE_DATA } from './client';
-import { fakeMessages, fakeTickets, fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
-import type { Message, Ticket, TicketStats } from '../types';
+import { api, ApiError, USE_FAKE_DATA } from './client';
+import { fakeHistory, fakeMessages, fakeTickets, fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
+import type { Message, StatusChange, Ticket, TicketStats } from '../types';
 
+// Imita al backend: 404 si no existe y 403 si el cliente no es el dueño o el agente no está asignado
 function findFakeTicket(id: string) {
   const ticket = fakeTickets.find((t) => t._id === id);
-  if (!ticket) throw new Error('Ticket no encontrado');
+  if (!ticket) throw new ApiError('Ticket no encontrado', 404);
+  const user = getLoggedUser();
+  const isCustomer = user.role === 'CLIENTE' || user.role === 'PROPIETARIO';
+  if ((isCustomer && ticket.customer._id !== user._id) || (user.role === 'AGENTE' && ticket.agent?._id !== user._id)) {
+    throw new ApiError('No tienes permiso para ver este ticket', 403);
+  }
   return ticket;
 }
 
@@ -54,6 +60,7 @@ export async function addMessage(ticket: Ticket, body: string) {
       createdAt: new Date().toISOString(),
       author: { _id: user._id, name: user.name },
     });
+    findFakeTicket(ticket._id).updatedAt = new Date().toISOString();
     return;
   }
 
@@ -74,8 +81,10 @@ export async function createTicket(data: { subject: string; description: string;
       status: 'ABIERTO',
       reopenRequested: false,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     fakeTickets.push(ticket);
+    fakeHistory.push({ _id: String(Date.now()), ticket: ticket._id, oldStatus: null, newStatus: 'ABIERTO', changedAt: ticket.createdAt, changedBy: { _id: user._id, name: user.name } });
     return ticket;
   }
 
@@ -86,7 +95,9 @@ export async function createTicket(data: { subject: string; description: string;
 export async function assignTicket(id: string, agentId: string) {
   if (USE_FAKE_DATA) {
     const agent = fakeUsers.find((u) => u._id === agentId)!;
-    findFakeTicket(id).agent = { _id: agent._id, name: agent.name };
+    const ticket = findFakeTicket(id);
+    ticket.agent = { _id: agent._id, name: agent.name };
+    ticket.updatedAt = new Date().toISOString();
     return;
   }
 
@@ -96,7 +107,9 @@ export async function assignTicket(id: string, agentId: string) {
 // PUT /api/tickets/:id/priority (AGENTE asignado o ADMIN) → { priority }
 export async function updatePriority(id: string, priority: string) {
   if (USE_FAKE_DATA) {
-    findFakeTicket(id).priority = priority;
+    const ticket = findFakeTicket(id);
+    ticket.priority = priority;
+    ticket.updatedAt = new Date().toISOString();
     return;
   }
 
@@ -106,7 +119,12 @@ export async function updatePriority(id: string, priority: string) {
 // PUT /api/tickets/:id/status → { status }
 export async function updateStatus(id: string, status: string) {
   if (USE_FAKE_DATA) {
-    findFakeTicket(id).status = status;
+    const ticket = findFakeTicket(id);
+    const user = getLoggedUser();
+    const now = new Date().toISOString();
+    fakeHistory.push({ _id: String(Date.now()), ticket: id, oldStatus: ticket.status, newStatus: status, changedAt: now, changedBy: { _id: user._id, name: user.name } });
+    ticket.status = status;
+    ticket.updatedAt = now;
     return;
   }
 
@@ -121,6 +139,16 @@ export async function reopenTicket(id: string) {
   }
 
   await api.post('/tickets/' + id + '/reopen');
+}
+
+// GET /api/ticket-history/:id → cambios de estado del ticket, del más reciente al más antiguo.
+// Ahora el backend solo se lo da al ADMIN
+export async function getStatusHistory(ticketId: string): Promise<StatusChange[]> {
+  if (USE_FAKE_DATA) {
+    return fakeHistory.filter((h) => h.ticket === ticketId).sort((a, b) => b.changedAt.localeCompare(a.changedAt));
+  }
+
+  return api.get('/ticket-history/' + ticketId);
 }
 
 // GET /api/stats/tickets (ADMIN)

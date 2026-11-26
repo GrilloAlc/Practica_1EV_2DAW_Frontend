@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './TicketDetail.css';
-import { addMessage, assignTicket, getMessages, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
+import { addMessage, assignTicket, getMessages, getStatusHistory, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
 import { getUsers } from '../api/users';
-import { getErrorMessage } from '../api/client';
+import { getErrorMessage, getErrorStatus } from '../api/client';
 import { useAuth } from '../context/useAuth';
-import type { Message, Ticket, User } from '../types';
+import type { Message, StatusChange, Ticket, User } from '../types';
 import { TableSkeleton } from '../components/Skeleton';
 import {
   TICKET_PRIORITIES,
   TICKET_STATUSES,
   categoryLabels,
   formatDate,
+  formatDateTime,
   priorityLabels,
   roleLabels,
   statusLabels,
@@ -29,7 +30,9 @@ function TicketDetail() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [agents, setAgents] = useState<User[]>([]);
   const [reply, setReply] = useState('');
+  const [history, setHistory] = useState<StatusChange[]>([]);
   const [loadError, setLoadError] = useState('');
+  const [loadStatus, setLoadStatus] = useState<number | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -41,10 +44,25 @@ function TicketDetail() {
         setMessages(messageList);
       } catch (err) {
         setLoadError(getErrorMessage(err));
+        setLoadStatus(getErrorStatus(err));
       }
     }
     loadTicket();
   }, [id]);
+
+  // Historial de estados: el backend (GET /api/ticket-history/:id) solo se lo da al ADMIN
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        setHistory(await getStatusHistory(id!));
+      } catch {
+        setHistory([]);
+      }
+    }
+    if (isAdmin) {
+      loadHistory();
+    }
+  }, [id, isAdmin]);
 
   useEffect(() => {
     async function loadAgents() {
@@ -59,12 +77,31 @@ function TicketDetail() {
     }
   }, [isAdmin]);
 
+  // 403: la consulta es de otra persona. 404: no existe. Otro error: se muestra el del servidor
   if (loadError) {
+    const backText = isCustomer ? 'Ver mis consultas' : 'Volver a la lista';
     return (
       <main className="page">
-        <div className="empty table-box">
-          <strong>No se ha podido abrir esta consulta</strong>
-          {loadError} <Link to=".." relative="path">Volver</Link>
+        <div className="ticket-denied">
+          {loadStatus === 403 ? (
+            <>
+              <h1 className="page-title">No tienes acceso a esta consulta.</h1>
+              <p className="page-subtitle">
+                Cada consulta solo la ven quien la escribió, el agente que la atiende y la administración.
+              </p>
+            </>
+          ) : loadStatus === 404 ? (
+            <>
+              <h1 className="page-title">Esta consulta no existe.</h1>
+              <p className="page-subtitle">Puede que el enlace esté mal copiado o que la consulta se haya borrado.</p>
+            </>
+          ) : (
+            <>
+              <h1 className="page-title">No se ha podido abrir esta consulta.</h1>
+              <p className="page-subtitle">{loadError}</p>
+            </>
+          )}
+          <Link to=".." relative="path" className="btn">{backText}</Link>
         </div>
       </main>
     );
@@ -77,8 +114,11 @@ function TicketDetail() {
   async function changeStatus(status: string) {
     try {
       await updateStatus(ticket!._id, status);
-      setTicket({ ...ticket!, status });
+      setTicket({ ...ticket!, status, updatedAt: new Date().toISOString() });
       setError('');
+      if (isAdmin) {
+        setHistory(await getStatusHistory(ticket!._id));
+      }
     } catch (err) {
       setError(getErrorMessage(err));
     }
@@ -87,7 +127,7 @@ function TicketDetail() {
   async function changePriority(priority: string) {
     try {
       await updatePriority(ticket!._id, priority);
-      setTicket({ ...ticket!, priority });
+      setTicket({ ...ticket!, priority, updatedAt: new Date().toISOString() });
       setError('');
     } catch (err) {
       setError(getErrorMessage(err));
@@ -98,7 +138,7 @@ function TicketDetail() {
     try {
       await assignTicket(ticket!._id, agentId);
       const agent = agents.find((a) => a._id === agentId)!;
-      setTicket({ ...ticket!, agent: { _id: agent._id, name: agent.name } });
+      setTicket({ ...ticket!, agent: { _id: agent._id, name: agent.name }, updatedAt: new Date().toISOString() });
       setError('');
     } catch (err) {
       setError(getErrorMessage(err));
@@ -121,6 +161,7 @@ function TicketDetail() {
       await addMessage(ticket!, reply);
       // Se vuelven a pedir para tener el autor con su nombre
       setMessages(await getMessages(ticket!._id));
+      setTicket({ ...ticket!, updatedAt: new Date().toISOString() });
       setReply('');
       setError('');
     } catch (err) {
@@ -141,6 +182,7 @@ function TicketDetail() {
             <span className={'status-badge status-' + ticket.status.toLowerCase()}>{statusLabels[ticket.status]}</span>
             <span className="cell-code">{ticket.code}</span>
             <span>Creado el {formatDate(ticket.createdAt)}</span>
+            {ticket.updatedAt && <span>Actualizado el {formatDateTime(ticket.updatedAt)}</span>}
           </p>
           <h1 className="page-title">{ticket.subject}</h1>
         </div>
@@ -236,6 +278,26 @@ function TicketDetail() {
               ) : ticket.agent ? ticket.agent.name : 'Sin asignar'}
             </dd>
           </dl>
+
+          {isAdmin && (
+            <section className="ticket-history" aria-labelledby="ticket-history-title">
+              <h3 id="ticket-history-title">Historial de estados</h3>
+              {history.length === 0 ? (
+                <p className="cell-muted">Todavía no hay cambios de estado.</p>
+              ) : (
+                <ol>
+                  {history.map((h) => (
+                    <li key={h._id}>
+                      <strong>
+                        {h.oldStatus ? `De ${statusLabels[h.oldStatus]} a ${statusLabels[h.newStatus]}` : `Creada como ${statusLabels[h.newStatus]}`}
+                      </strong>
+                      <span>{h.changedBy.name} · {formatDateTime(h.changedAt)}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+          )}
         </aside>
       </div>
     </main>

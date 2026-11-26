@@ -1,5 +1,5 @@
 // Datos falsos para usar mientras el backend no funcione (ver USE_FAKE_DATA en api/client.ts)
-import type { Message, Property, Ticket, User } from '../types';
+import type { Message, Property, StatusChange, Ticket, User } from '../types';
 
 // Fotos guardadas en public/images/propiedades
 const photo = (name: string) => `/images/propiedades/${name}.jpg`;
@@ -94,22 +94,22 @@ const luis = { _id: '4', name: 'Luis Pérez' };
 export const fakeTickets: Ticket[] = [
   {
     _id: '1', code: 'TK-1048', subject: 'Consulta sobre piso centro', category: 'CONSULTA_PROPIEDAD', priority: 'ALTA', status: 'ABIERTO',
-    customer: maria, agent: ana, reopenRequested: false, createdAt: '2025-05-12T10:32:00',
+    customer: maria, agent: ana, reopenRequested: false, createdAt: '2025-05-12T10:32:00', updatedAt: '2025-05-12T12:14:00',
     description: 'Hola, me gustaría saber si el piso luminoso del centro sigue disponible y si sería posible concertar una visita esta semana.',
   },
   {
     _id: '2', code: 'TK-1036', subject: 'Visita a un chalet residencial', category: 'SOLICITUD_VISITA', priority: 'MEDIA', status: 'EN_CURSO',
-    customer: carlos, agent: ana, reopenRequested: false, createdAt: '2025-05-09T09:10:00',
+    customer: carlos, agent: ana, reopenRequested: false, createdAt: '2025-05-09T09:10:00', updatedAt: '2025-05-09T12:40:00',
     description: 'Quiero visitar el chalet en zona residencial el próximo sábado.',
   },
   {
     _id: '3', code: 'TK-1019', subject: 'Documentación compraventa', category: 'DOCUMENTACION', priority: 'BAJA', status: 'RESUELTO',
-    customer: maria, agent: luis, reopenRequested: false, createdAt: '2025-04-28T17:45:00',
+    customer: maria, agent: luis, reopenRequested: false, createdAt: '2025-04-28T17:45:00', updatedAt: '2025-04-30T10:05:00',
     description: '¿Qué documentos necesito para la compraventa?',
   },
   {
     _id: '4', code: 'TK-0987', subject: 'Información sobre alquiler', category: 'CONSULTA_PROPIEDAD', priority: 'MEDIA', status: 'CERRADO',
-    customer: maria, agent: luis, reopenRequested: false, createdAt: '2025-04-15T11:00:00',
+    customer: maria, agent: luis, reopenRequested: false, createdAt: '2025-04-15T11:00:00', updatedAt: '2025-04-18T16:30:00',
     description: '¿Se admiten mascotas en el piso del metro?',
   },
 ];
@@ -123,6 +123,20 @@ export const fakeMessages: (Message & { ticket: string })[] = [
     _id: '2', ticket: '3', createdAt: '2025-04-29T09:20:00', author: { ...luis, role: 'AGENTE' },
     body: 'Te hemos enviado por correo la lista completa. Dime si tienes dudas.',
   },
+];
+
+
+// Cambios de estado de cada ticket (en el backend se guardan solos al cambiar el estado)
+export const fakeHistory: (StatusChange & { ticket: string })[] = [
+  { _id: '1', ticket: '1', oldStatus: null, newStatus: 'ABIERTO', changedAt: '2025-05-12T10:32:00', changedBy: maria },
+  { _id: '2', ticket: '2', oldStatus: null, newStatus: 'ABIERTO', changedAt: '2025-05-09T09:10:00', changedBy: carlos },
+  { _id: '3', ticket: '2', oldStatus: 'ABIERTO', newStatus: 'EN_CURSO', changedAt: '2025-05-09T12:40:00', changedBy: ana },
+  { _id: '4', ticket: '3', oldStatus: null, newStatus: 'ABIERTO', changedAt: '2025-04-28T17:45:00', changedBy: maria },
+  { _id: '5', ticket: '3', oldStatus: 'ABIERTO', newStatus: 'EN_CURSO', changedAt: '2025-04-29T09:15:00', changedBy: luis },
+  { _id: '6', ticket: '3', oldStatus: 'EN_CURSO', newStatus: 'RESUELTO', changedAt: '2025-04-30T10:05:00', changedBy: luis },
+  { _id: '7', ticket: '4', oldStatus: null, newStatus: 'ABIERTO', changedAt: '2025-04-15T11:00:00', changedBy: maria },
+  { _id: '8', ticket: '4', oldStatus: 'ABIERTO', newStatus: 'RESUELTO', changedAt: '2025-04-16T13:20:00', changedBy: luis },
+  { _id: '9', ticket: '4', oldStatus: 'RESUELTO', newStatus: 'CERRADO', changedAt: '2025-04-18T16:30:00', changedBy: maria },
 ];
 
 

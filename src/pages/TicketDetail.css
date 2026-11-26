@@ -197,3 +197,49 @@
     padding: 20px 16px;
   }
 }
+
+/* Historial de estados (solo admin): lista del cambio más reciente al más antiguo */
+.ticket-history {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--linea);
+}
+
+.ticket-history h3 {
+  margin: 0 0 16px;
+  font-size: 22px;
+}
+
+.ticket-history ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticket-history li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0 10px 16px;
+  border-left: 1px solid var(--acento);
+}
+
+.ticket-history li strong {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.ticket-history li span {
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+/* Consulta ajena o que no existe */
+.ticket-denied {
+  max-width: 640px;
+  padding: clamp(32px, 8vw, 96px) 0;
+}
+
+.ticket-denied .page-title {
+  margin-bottom: 16px;
+}

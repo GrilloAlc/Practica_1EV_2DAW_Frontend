@@ -3,6 +3,21 @@ export const USE_FAKE_DATA = true;
 
 const DEFAULT_ERROR = 'Ha ocurrido un error, inténtalo de nuevo.';
 
+// Error de la API con su código HTTP (403, 404…), para que cada pantalla pueda explicar qué ha pasado
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+// Código HTTP de un error, si lo tiene
+export function getErrorStatus(error: unknown) {
+  return error instanceof ApiError ? error.status : null;
+}
+
 // Hace una petición al backend con fetch.
 // Las peticiones a /api las manda Vite a http://localhost:3000 (ver vite.config.ts).
 // Según DOCUMENTACION_API_FRONTEND.md, unas respuestas son JSON y otras texto plano,
@@ -40,12 +55,12 @@ async function request(method: string, url: string, body?: unknown): Promise<any
       localStorage.removeItem('user');
     }
     if (data && typeof data === 'object' && data.message) {
-      throw new Error(data.message);
+      throw new ApiError(data.message, res.status);
     }
     if (typeof data === 'string' && data) {
-      throw new Error(data);
+      throw new ApiError(data, res.status);
     }
-    throw new Error(DEFAULT_ERROR);
+    throw new ApiError(DEFAULT_ERROR, res.status);
   }
   return data;
 }

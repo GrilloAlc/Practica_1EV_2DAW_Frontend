@@ -39,6 +39,16 @@ export interface Ticket {
   agent: { _id: string; name: string; email?: string } | null;
   reopenRequested: boolean;
   createdAt: string;
+  updatedAt?: string;
+}
+
+// Una entrada de GET /api/ticket-history/:id (cambio de estado de un ticket)
+export interface StatusChange {
+  _id: string;
+  oldStatus: string | null;
+  newStatus: string;
+  changedAt: string;
+  changedBy: { _id: string; name: string; email?: string; role?: string };
 }
 
 export interface Message {
