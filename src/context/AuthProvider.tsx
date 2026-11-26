@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AuthContext } from './useAuth';
 import * as authApi from '../api/auth';
+import { SESSION_EXPIRED } from '../api/client';
 import type { User } from '../types';
 
 // Recupera la sesión guardada al recargar la página
@@ -15,6 +16,23 @@ function getSavedUser(): User | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(getSavedUser());
+
+  // La sesión también se acaba sin pulsar Salir: cuando el token caduca (el backend responde 401)
+  // o cuando se cierra en otra pestaña. En los dos casos la web deja de mostrarte dentro
+  useEffect(() => {
+    function onExpired() {
+      setUser(null);
+    }
+    function onStorage(e: StorageEvent) {
+      if (e.key === null || e.key === 'token' || e.key === 'user') setUser(getSavedUser());
+    }
+    window.addEventListener(SESSION_EXPIRED, onExpired);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(SESSION_EXPIRED, onExpired);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
 
   // El login solo devuelve el token. Los datos del usuario se piden después a /users/me
   async function login(email: string, password: string) {

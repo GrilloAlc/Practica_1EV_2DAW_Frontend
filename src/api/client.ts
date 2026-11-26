@@ -3,6 +3,11 @@ export const USE_FAKE_DATA = false;
 
 const DEFAULT_ERROR = 'Ha ocurrido un error, inténtalo de nuevo.';
 
+// Aviso para AuthProvider de que el backend ya no acepta la sesión (token caducado o usuario desactivado)
+export const SESSION_EXPIRED = 'catahome:sesion-caducada';
+// Marca para que la pantalla de acceso explique por qué se pide entrar otra vez
+export const SESSION_EXPIRED_FLAG = 'sesion-caducada';
+
 // Error de la API con su código HTTP (403, 404…), para que cada pantalla pueda explicar qué ha pasado
 export class ApiError extends Error {
   status: number;
@@ -52,10 +57,12 @@ async function request(method: string, url: string, body?: unknown): Promise<any
   }
 
   if (!res.ok) {
-    // Token caducado o no válido: se cierra la sesión
+    // Token caducado o no válido: se cierra la sesión y se avisa a la app para que pida entrar otra vez
     if (res.status === 401 && token) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      sessionStorage.setItem(SESSION_EXPIRED_FLAG, '1');
+      window.dispatchEvent(new Event(SESSION_EXPIRED));
     }
     if (data && typeof data === 'object' && data.message) {
       throw new ApiError(data.message, res.status);

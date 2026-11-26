@@ -217,7 +217,7 @@ function TicketDetail() {
         </div>
       )}
 
-      <div className="ticket-layout">
+      <div className={isCustomer ? 'ticket-layout' : 'ticket-layout ticket-layout-staff'}>
         <section className="ticket-box">
           <h2>Conversación</h2>
 

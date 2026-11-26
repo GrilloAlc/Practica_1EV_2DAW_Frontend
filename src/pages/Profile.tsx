@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { updateMe } from '../api/users';
 import { getErrorMessage } from '../api/client';
@@ -7,7 +8,14 @@ import { roleLabels } from '../utils/labels';
 import './Profile.css';
 
 function Profile() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Igual que "Salir" del menú: primero se va al inicio y después se cierra la sesión
+  function handleLogout() {
+    navigate('/', { replace: true, flushSync: true });
+    logout();
+  }
   const [name, setName] = useState(user!.name);
   const [phone, setPhone] = useState(user!.phone || '');
   const [saved, setSaved] = useState(false);
@@ -44,7 +52,7 @@ function Profile() {
         <label className="field">
           Correo electrónico
           <input name="email" type="email" value={user!.email} disabled aria-describedby="email-help" />
-          <span id="email-help" className="field-help">El correo no se puede cambiar. Si lo necesitas, abre un ticket.</span>
+          <span id="email-help" className="field-help">El correo no se puede cambiar. Si lo necesitas, escríbenos una consulta.</span>
         </label>
         <label className="field">
           Teléfono
@@ -56,6 +64,13 @@ function Profile() {
           {saved && <p className="form-ok" role="status">Cambios guardados</p>}
         </div>
       </form>
+
+      {/* En el teléfono "Salir" no cabe en el menú: está aquí (y también en el ordenador) */}
+      <section className="profile-session" aria-labelledby="profile-session-title">
+        <h2 id="profile-session-title" className="form-box-title">Sesión</h2>
+        <p>Has entrado como {user!.email}.</p>
+        <button type="button" className="btn btn-outline" onClick={handleLogout}>Cerrar sesión</button>
+      </section>
     </main>
   );
 }

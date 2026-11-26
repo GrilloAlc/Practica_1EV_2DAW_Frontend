@@ -172,7 +172,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
             )}
           </div>
         ) : (
-          <table className="table">
+          <table className="table table-linked">
             <thead>
               <tr>
                 <th>Código</th>
@@ -190,13 +190,13 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                 <tr key={t._id}>
                   {/* Enlace relativo: lleva al detalle dentro de la ruta actual */}
                   <td className="cell-code"><Link to={t._id}>{t.code}</Link></td>
-                  <td>{t.subject}</td>
-                  {!isCustomer && <td>{t.customer.name}</td>}
-                  <td className="cell-muted">{categoryLabels[t.category]}</td>
-                  <td><span className={priorityClass(t.priority)}>{priorityLabels[t.priority]}</span></td>
-                  <td><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
-                  {isAdmin && <td className={t.agent ? '' : 'cell-muted'}>{t.agent ? t.agent.name : 'Sin asignar'}</td>}
-                  <td className="cell-muted cell-code">{formatDate(t.createdAt)}</td>
+                  <td className="cell-title">{t.subject}</td>
+                  {!isCustomer && <td data-label="Cliente">{t.customer.name}</td>}
+                  <td data-label="Categoría" className="cell-muted">{categoryLabels[t.category]}</td>
+                  <td data-label="Prioridad"><span className={priorityClass(t.priority)}>{priorityLabels[t.priority]}</span></td>
+                  <td data-label="Estado"><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
+                  {isAdmin && <td data-label="Agente" className={t.agent ? '' : 'cell-muted'}>{t.agent ? t.agent.name : 'Sin asignar'}</td>}
+                  <td data-label="Fecha" className="cell-muted cell-code">{formatDate(t.createdAt)}</td>
                 </tr>
               ))}
             </tbody>

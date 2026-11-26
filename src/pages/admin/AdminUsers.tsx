@@ -65,16 +65,16 @@ function AdminUsers() {
                     <strong>{u.name}</strong>
                   </span>
                 </td>
-                <td className="cell-muted">{u.email}</td>
-                <td>
+                <td data-label="Correo" className="cell-muted">{u.email}</td>
+                <td data-label="Rol">
                   <select aria-label={`Rol de ${u.name}`} value={u.role} onChange={(e) => updateRole(u._id, e.target.value)}>
                     {ROLES.map((r) => (
                       <option key={r} value={r}>{roleLabels[r]}</option>
                     ))}
                   </select>
                 </td>
-                <td><span className={u.isActive ? 'status-badge status-on' : 'status-badge status-off'}>{u.isActive ? 'Activo' : 'Inactivo'}</span></td>
-                <td>
+                <td data-label="Estado"><span className={u.isActive ? 'status-badge status-on' : 'status-badge status-off'}>{u.isActive ? 'Activo' : 'Inactivo'}</span></td>
+                <td data-label="Acciones">
                   <button className="link-button" onClick={() => toggleActive(u)}>
                     {u.isActive ? 'Desactivar' : 'Activar'}
                   </button>

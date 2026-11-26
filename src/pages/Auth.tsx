@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Auth.css';
 import { useAuth } from '../context/useAuth';
 import { Logo } from '../components/Layout';
-import { getErrorMessage } from '../api/client';
+import { getErrorMessage, SESSION_EXPIRED_FLAG } from '../api/client';
 import { pageAfterLogin } from '../utils/redirect';
 
 function Auth() {
@@ -14,6 +14,11 @@ function Auth() {
 
   const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
+  // Si se llega aquí porque la sesión caducó, se explica (una sola vez)
+  const [expired] = useState(() => sessionStorage.getItem(SESSION_EXPIRED_FLAG) === '1');
+  useEffect(() => {
+    sessionStorage.removeItem(SESSION_EXPIRED_FLAG);
+  }, []);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -71,6 +76,8 @@ function Auth() {
 
           <h2>{mode === 'login' ? 'Entra en tu cuenta' : 'Crea tu cuenta'}</h2>
           <p>{mode === 'login' ? 'Usa el correo y la contraseña con los que te registraste.' : 'Solo te pedimos lo necesario para poder responderte.'}</p>
+
+          {expired && mode === 'login' && <p className="notice" role="status">Tu sesión ha caducado. Vuelve a entrar para seguir donde estabas.</p>}
 
           <form onSubmit={handleSubmit}>
             {mode === 'register' && (

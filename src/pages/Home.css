@@ -172,9 +172,10 @@
 
 .home-section-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
+  gap: 8px 16px;
   margin-bottom: clamp(40px, 6vw, 80px);
 }
 
@@ -186,6 +187,7 @@
 
 .home-link {
   font-size: 15px;
+  white-space: nowrap;
   color: var(--tinta);
   text-decoration: underline;
   text-decoration-color: var(--acento);

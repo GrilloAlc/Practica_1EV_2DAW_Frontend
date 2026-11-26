@@ -62,7 +62,7 @@ function AdminDashboard() {
             {unassigned.length === 0 ? (
               <div className="empty"><strong>Todos los tickets tienen agente</strong>No hay nada pendiente de asignar.</div>
             ) : (
-            <table className="table">
+            <table className="table table-linked">
               <thead>
                 <tr><th>Código</th><th>Asunto</th><th>Cliente</th><th>Prioridad</th><th>Estado</th></tr>
               </thead>
@@ -70,10 +70,10 @@ function AdminDashboard() {
                 {unassigned.map((t) => (
                   <tr key={t._id}>
                     <td className="cell-code"><Link to={`/admin/tickets/${t._id}`}>{t.code}</Link></td>
-                    <td>{t.subject}</td>
-                    <td>{t.customer.name}</td>
-                    <td><span className={priorityClass(t.priority)}>{priorityLabels[t.priority]}</span></td>
-                    <td><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
+                    <td className="cell-title">{t.subject}</td>
+                    <td data-label="Cliente">{t.customer.name}</td>
+                    <td data-label="Prioridad"><span className={priorityClass(t.priority)}>{priorityLabels[t.priority]}</span></td>
+                    <td data-label="Estado"><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
                   </tr>
                 ))}
               </tbody>

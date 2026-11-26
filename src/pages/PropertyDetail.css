@@ -180,7 +180,43 @@
   text-underline-offset: 4px;
 }
 
+/* Barra fija de contacto: solo en pantallas estrechas */
+.detail-bar {
+  display: none;
+}
+
 @media (max-width: 900px) {
+  .detail-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px var(--margen) max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--linea);
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: saturate(1.2) blur(8px);
+  }
+  .detail-bar-price {
+    flex: 1;
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    font-variation-settings: var(--opsz);
+    white-space: nowrap;
+  }
+  .detail-bar .btn {
+    min-height: 44px;
+    padding: 8px 18px;
+  }
+  /* Hueco al final de la página para que la barra no tape el pie */
+  body:has(.detail-bar) .footer {
+    padding-bottom: 72px;
+  }
   .detail-layout {
     grid-template-columns: 1fr;
     gap: 16px;

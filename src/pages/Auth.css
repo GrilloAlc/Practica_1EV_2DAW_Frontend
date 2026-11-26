@@ -137,3 +137,26 @@
     margin-bottom: 24px;
   }
 }
+
+/* Teléfono: la foto se queda en una franja con el logo y la frase corta, para que el formulario
+   empiece en la primera pantalla */
+@media (max-width: 600px) {
+  .auth-side {
+    gap: 20px;
+    padding: 16px 16px 20px;
+  }
+  .auth-side h1 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.15;
+  }
+  .auth-side p {
+    display: none;
+  }
+  .auth-main {
+    padding-top: 20px;
+  }
+  .auth-back {
+    margin-bottom: 16px;
+  }
+}

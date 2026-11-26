@@ -139,6 +139,13 @@ function PropertyDetail() {
             O llámanos al <a href="tel:+34644717199">644 7171 99</a>
           </p>
         </aside>
+
+        {/* En el teléfono la caja de contacto queda al final: esta barra fija deja preguntar desde cualquier punto */}
+        <div className="detail-bar">
+          <p className="detail-bar-price">{formatPrice(property)}</p>
+          <a href="tel:+34644717199" className="btn btn-outline detail-bar-call">Llamar</a>
+          <Link to={contactUrl} className="btn btn-acento">Preguntar</Link>
+        </div>
       </div>
     </main>
   );

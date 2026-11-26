@@ -167,6 +167,36 @@
   }
 }
 
+/* Teléfono: logo y zona del usuario en una sola fila, y el menú debajo (dos filas en vez de tres).
+   "Salir" pasa a la página del perfil (se llega tocando el círculo con la inicial) */
+@media (max-width: 600px) {
+  .navbar-inner {
+    gap: 0 12px;
+    padding-top: 8px;
+  }
+  .navbar-logo .logo {
+    font-size: 24px;
+  }
+  .navbar-user {
+    gap: 14px;
+  }
+  .navbar-secondary {
+    padding: 12px 0;
+    font-size: 14px;
+  }
+  .navbar-logout {
+    display: none;
+  }
+  .navbar-access {
+    min-height: 44px;
+    padding: 8px 20px;
+  }
+  .navbar-links {
+    gap: 22px;
+    margin-top: 0;
+  }
+}
+
 /* ---------- Pie ---------- */
 
 .footer {
@@ -207,7 +237,7 @@
 .footer-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -216,6 +246,12 @@
 .footer a {
   color: #fff;
   text-decoration: none;
+}
+
+/* Enlaces del pie con altura cómoda para el dedo */
+.footer-list a {
+  display: inline-block;
+  padding: 6px 0;
 }
 
 .footer a:hover {
@@ -367,5 +403,43 @@
   .admin-sidebar-back,
   .admin-sidebar-user {
     margin: 0;
+  }
+}
+
+/* Teléfono: el panel arriba en dos filas (logo con "Ver la web" y "Cerrar sesión"; debajo, las secciones) */
+@media (max-width: 600px) {
+  .admin-sidebar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 10px 16px 0;
+  }
+  .admin-sidebar-logo {
+    padding: 0;
+  }
+  .admin-sidebar-logo .logo {
+    font-size: 24px;
+  }
+  .admin-sidebar-sub,
+  .admin-sidebar-user {
+    display: none;
+  }
+  .admin-sidebar-foot {
+    grid-column: 2;
+    grid-row: 1;
+    flex-wrap: nowrap;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    border-top: none;
+  }
+  .admin-sidebar-links {
+    grid-column: 1 / -1;
+    margin: 0 -16px;
+    padding: 0 6px;
+  }
+  .admin-sidebar-links a {
+    padding: 12px 10px;
   }
 }

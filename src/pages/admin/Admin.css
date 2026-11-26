@@ -70,8 +70,14 @@
 }
 
 .admin-main .page-header:has(.admin-section-title) {
-  align-items: center;
   margin-bottom: 20px;
+}
+
+/* En fila (pantalla ancha) título y botón centrados entre sí; en columna (móvil) alineados a la izquierda */
+@media (min-width: 701px) {
+  .admin-main .page-header:has(.admin-section-title) {
+    align-items: center;
+  }
 }
 
 /* ---------- Tablas ---------- */

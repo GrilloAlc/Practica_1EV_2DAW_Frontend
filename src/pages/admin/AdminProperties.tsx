@@ -98,12 +98,12 @@ function AdminProperties() {
                       <strong>{p.title}</strong>
                     </span>
                   </td>
-                  <td>{p.type}</td>
-                  <td className="cell-muted">{p.status}</td>
-                  <td>{p.address.city}</td>
-                  <td className="cell-code"><strong>{formatPrice(p)}</strong></td>
-                  <td><span className={p.isActive ? 'status-badge status-on' : 'status-badge status-off'}>{p.isActive ? 'Activa' : 'Inactiva'}</span></td>
-                  <td>
+                  <td data-label="Tipo">{p.type}</td>
+                  <td data-label="Estado" className="cell-muted">{p.status}</td>
+                  <td data-label="Ciudad">{p.address.city}</td>
+                  <td data-label="Precio" className="cell-code"><strong>{formatPrice(p)}</strong></td>
+                  <td data-label="Visible"><span className={p.isActive ? 'status-badge status-on' : 'status-badge status-off'}>{p.isActive ? 'Activa' : 'Inactiva'}</span></td>
+                  <td data-label="Acciones">
                     <div className="admin-actions">
                       <Link to={`/admin/propiedades/${p._id}/editar`}>Editar</Link>
                       <button className="link-button" onClick={() => toggleActive(p)}>{p.isActive ? 'Desactivar' : 'Activar'}</button>

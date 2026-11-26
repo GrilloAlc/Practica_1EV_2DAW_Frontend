@@ -84,6 +84,20 @@ body {
   background: var(--fondo);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  caret-color: var(--acento);
+  scrollbar-color: var(--linea-fuerte) transparent;
+  /* Quita el resaltado azul al tocar en el móvil: cada control ya tiene su estado */
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--acento-suave);
+  color: var(--acento-oscuro);
+}
+
+/* Párrafos sin una palabra sola en la última línea */
+p {
+  text-wrap: pretty;
 }
 
 h1, h2, h3 {
@@ -257,6 +271,19 @@ img {
   color: var(--acento);
 }
 
+/* Pantallas táctiles: los enlaces y botones de texto sueltos se pueden tocar sin afinar (44 px de alto) */
+@media (pointer: coarse) {
+  .link-button,
+  .home-link,
+  .admin-sidebar-back,
+  .admin-sidebar-logout,
+  .admin-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
 /* ---------- Formularios: campos con una línea debajo ---------- */
 
 .field {
@@ -325,7 +352,6 @@ img {
 .field-error {
   margin: 0 0 20px;
   padding: 12px 16px;
-  border-left: 2px solid var(--error);
   background: var(--error-suave);
   color: var(--error);
   font-size: 15px;
@@ -541,6 +567,74 @@ img {
   outline: none;
 }
 
+/* En el móvil cada fila de tabla es una tarjeta: la primera celda (y el asunto) arriba, y el resto
+   como "etiqueta: valor" (la etiqueta sale de data-label). Así no hay que desplazarse de lado */
+@media (max-width: 640px) {
+  .table-box {
+    overflow-x: visible;
+  }
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .table tbody tr {
+    position: relative;
+    padding: 16px 0;
+    border-top: 1px solid var(--linea);
+  }
+  .table tbody tr:first-child {
+    border-top: none;
+  }
+  .table tbody tr:hover {
+    background: none;
+  }
+  .table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 32px;
+    padding: 2px 0;
+    border-top: none;
+    text-align: right;
+  }
+  .table td[data-label]::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 13px;
+    color: var(--pizarra);
+    text-align: left;
+  }
+  .table td.cell-title {
+    margin-bottom: 6px;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 600;
+    font-variation-settings: var(--opsz);
+    line-height: 1.2;
+    text-align: left;
+  }
+  /* Tablas de consultas: toda la tarjeta abre el detalle (el enlace del código la cubre entera) */
+  .table-linked td:first-child a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .table-linked tbody tr:active {
+    background: var(--niebla);
+  }
+}
+
 .table-foot {
   margin: 14px 0 0;
   display: flex;
@@ -598,7 +692,6 @@ img {
 .notice {
   margin: 0 0 24px;
   padding: 14px 18px;
-  border-left: 2px solid var(--acento);
   background: var(--acento-suave);
   color: var(--acento-oscuro);
   font-size: 15px;

@@ -30,6 +30,19 @@
   color: var(--pizarra);
 }
 
+/* Cerrar sesión, separado del formulario */
+.profile-session {
+  max-width: 720px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--linea);
+}
+
+.profile-session p {
+  margin: 0 0 20px;
+  color: var(--pizarra);
+}
+
 @media (max-width: 500px) {
   .profile-head {
     gap: 14px;
