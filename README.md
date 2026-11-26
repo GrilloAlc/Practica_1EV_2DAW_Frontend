@@ -127,13 +127,15 @@ public/images/  fotos de las casas (de Unsplash, ver CREDITOS.md)
 
 ## Marca
 
-El logo es propio: una C de estilo Bodoni que abraza un tejado. El símbolo solo sirve de favicon y de
+El logo es propio: una C de estilo Bodoni que abraza un tejado. Sobre fondo vino o negro se usa la versión clara. El símbolo solo sirve de favicon y de
 icono; en el logotipo hace de primera letra de "CataHome". Los archivos están en `public/brand/`:
 
 | Archivo | Uso |
 |---|---|
 | `catahome-simbolo.svg` | Símbolo en tinta y vino, para fondos claros |
 | `catahome-simbolo-claro.svg` | Símbolo en blanco, para fondos oscuros |
+| `catahome-simbolo-negro.svg` | Símbolo en una sola tinta negra (sellos, impresión en blanco y negro) |
+| `catahome-icono-app.svg` | Símbolo en crema sobre vino, para icono de app o perfil de redes |
 | `catahome-logo.svg` | Logotipo completo para fondos claros |
 | `catahome-logo-claro.svg` | Logotipo completo para fondos oscuros |
 
