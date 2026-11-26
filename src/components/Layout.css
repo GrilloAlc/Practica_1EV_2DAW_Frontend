@@ -1,6 +1,11 @@
 /* ---------- Logotipo ---------- */
 
 .logo {
+  /* La C es el símbolo: tinta con el tejado en vino */
+  --logo-c: currentColor;
+  --logo-roof: var(--acento);
+  display: inline-flex;
+  align-items: baseline;
   font-family: var(--font-serif);
   font-size: 28px;
   font-weight: 600;
@@ -11,7 +16,17 @@
 }
 
 .logo-light {
+  --logo-roof: currentColor;
   color: #fff;
+}
+
+/* El símbolo ocupa el sitio de la C: misma altura que las mayúsculas y apoyado en la línea base */
+.logo-symbol {
+  flex: none;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: -0.07em;
+  transform: translateY(0.12em);
 }
 
 /* ---------- Menú superior ---------- */

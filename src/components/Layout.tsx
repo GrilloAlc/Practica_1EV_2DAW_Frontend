@@ -1,11 +1,18 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import './Layout.css';
+import BrandSymbol from './BrandSymbol';
 import '../pages/admin/Admin.css';
 import { useAuth } from '../context/useAuth';
 
-// Logotipo: el nombre escrito en serif. Se usa en el menú, el pie, el login y el panel
+// Logotipo: el símbolo (la C con tejado) hace de primera letra de "CataHome".
+// Se usa en el menú, el pie, el login y el panel
 export function Logo({ light = false }: { light?: boolean }) {
-  return <span className={light ? 'logo logo-light' : 'logo'}>CataHome</span>;
+  return (
+    <span className={light ? 'logo logo-light' : 'logo'} role="img" aria-label="CataHome">
+      <BrandSymbol className="logo-symbol" />
+      <span aria-hidden="true">ataHome</span>
+    </span>
+  );
 }
 
 // Menú superior y pie de las páginas públicas. Cada página se pinta en <Outlet />

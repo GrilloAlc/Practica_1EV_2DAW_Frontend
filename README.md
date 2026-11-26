@@ -116,6 +116,22 @@ src/
 public/images/  fotos de las casas (de Unsplash, ver CREDITOS.md)
 ```
 
+## Marca
+
+El logo es propio: una C de estilo Bodoni que abraza un tejado. El símbolo solo sirve de favicon y de
+icono; en el logotipo hace de primera letra de "CataHome". Los archivos están en `public/brand/`:
+
+| Archivo | Uso |
+|---|---|
+| `catahome-simbolo.svg` | Símbolo en tinta y vino, para fondos claros |
+| `catahome-simbolo-claro.svg` | Símbolo en blanco, para fondos oscuros |
+| `catahome-logo.svg` | Logotipo completo para fondos claros |
+| `catahome-logo-claro.svg` | Logotipo completo para fondos oscuros |
+
+El texto del logotipo usa la fuente Bodoni Moda. Fuera del navegador hay que tenerla instalada o
+convertir el texto en trazos (por ejemplo, con Inkscape). En la web, el logo es el componente `Logo`
+(`src/components/Layout.tsx`) con el símbolo de `src/components/BrandSymbol.tsx`.
+
 ## Créditos
 
 Fotos de [Unsplash](https://unsplash.com) (detalle en `public/images/CREDITOS.md`). Las sugerencias

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 6 498 98">
+  <!-- Logotipo de CataHome. El texto usa la fuente Bodoni Moda (Google Fonts): para usarlo fuera de un
+       navegador, instala la fuente o convierte el texto en trazos con un editor como Inkscape -->
+  <style>@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,600&amp;display=swap');</style>
+  <svg x="0" y="10" width="90" height="90" viewBox="4.6 3.6 24.8 24.8">
+  <mask id="m"><rect width="32" height="32" fill="#fff"/><path d="M21 10.4L32 5.2v21.6l-11-5.2zM24.5 4h8v24h-8z" fill="#000"/></mask>
+  <path d="M16.6 4.6a11.4 11.4 0 1 0 0 22.8a11.4 11.4 0 1 0 0-22.8zM18.4 6.1a6.6 9.9 0 1 0 0 19.8a6.6 9.9 0 1 0 0-19.8z" fill="#26241f" fill-rule="evenodd" mask="url(#m)"/>
+  <path d="M23.2 5.9h1.3v5.2h-1.3zM23.2 20.9h1.3v5.2h-1.3z" fill="#26241f"/>
+  <path d="M12.2 20.2L19 13.4l6.8 6.8" fill="none" stroke="#6e2233" stroke-width="3.2" stroke-linejoin="miter"/>
+  </svg>
+  <text x="83" y="88" font-family="'Bodoni Moda', Didot, Georgia, serif" font-size="100" font-weight="600" letter-spacing="-2" style="font-variation-settings: 'opsz' 12" fill="#26241f">ataHome</text>
+</svg>
