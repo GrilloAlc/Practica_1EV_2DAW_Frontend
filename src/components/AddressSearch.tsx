@@ -1,44 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import './AddressSearch.css';
-import { formatAddress, provinceFromPostalCode } from '../utils/address';
+import { formatAddress, searchAddresses } from '../utils/address';
 import type { FoundAddress } from '../utils/address';
-
-// Respuesta de Photon (buscador de direcciones de OpenStreetMap): https://photon.komoot.io
-interface PhotonFeature {
-  geometry: { coordinates: [number, number] };
-  properties: {
-    countrycode?: string;
-    name?: string;
-    street?: string;
-    housenumber?: string;
-    postcode?: string;
-    city?: string;
-    locality?: string;
-    district?: string;
-    county?: string;
-    state?: string;
-  };
-}
-
-// Solo España: mismos límites de latitud y longitud que valida el backend
-const SPAIN_BBOX = '-18,27,5,44';
-
-function toAddress(feature: PhotonFeature): FoundAddress | null {
-  const p = feature.properties;
-  const street = p.street || p.name;
-  const city = p.city || p.locality || p.district;
-  if (p.countrycode !== 'ES' || !street || !city) return null;
-  const [lng, lat] = feature.geometry.coordinates;
-  return {
-    street,
-    number: p.housenumber || '',
-    postalCode: p.postcode || '',
-    city,
-    province: provinceFromPostalCode(p.postcode || '') || p.state || city,
-    lat,
-    lng,
-  };
-}
 
 // Campo de búsqueda con sugerencias de direcciones reales mientras se escribe
 function AddressSearch({ onSelect }: { onSelect: (address: FoundAddress) => void }) {
@@ -59,10 +22,7 @@ function AddressSearch({ onSelect }: { onSelect: (address: FoundAddress) => void
     const timer = setTimeout(async () => {
       setSearching(true);
       try {
-        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(text)}&limit=8&bbox=${SPAIN_BBOX}`;
-        const res = await fetch(url, { signal: controller.signal });
-        const data = await res.json();
-        const list = (data.features as PhotonFeature[]).map(toAddress).filter((a): a is FoundAddress => a !== null);
+        const list = await searchAddresses(text, controller.signal);
         // Quita las repetidas (la misma dirección puede venir varias veces)
         const unique = list.filter((a, i) => list.findIndex((b) => formatAddress(b) === formatAddress(a)) === i);
         // Primero las de la ciudad que se ha escrito ("... Barcelona")

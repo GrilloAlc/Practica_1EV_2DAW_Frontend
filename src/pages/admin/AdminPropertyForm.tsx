@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, SyntheticEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { createProperty, getPropertyForAdmin, updateProperty } from '../../api/properties';
 import AddressSearch from '../../components/AddressSearch';
-import { formatAddress, provinceFromPostalCode } from '../../utils/address';
+import { findHouse, formatAddress, provinceFromPostalCode } from '../../utils/address';
 import type { FoundAddress } from '../../utils/address';
 import { getErrorMessage } from '../../api/client';
 import { PROPERTY_STATUSES, PROPERTY_TYPES } from '../../utils/labels';
@@ -27,6 +27,12 @@ function AdminPropertyForm() {
   const [address, setAddress] = useState<FoundAddress | null>(null);
   // Dirección guardada antes, sin coordenadas: hay que volver a buscarla
   const [oldAddress, setOldAddress] = useState('');
+  // Punto y código postal de la calle elegida, para volver a ellos si no se encuentra el número
+  const streetPin = useRef<Pick<FoundAddress, 'lat' | 'lng' | 'postalCode' | 'province'> | null>(null);
+  // Dirección con el número recién escrito, pendiente de buscar su portal
+  const [numberToFind, setNumberToFind] = useState<FoundAddress | null>(null);
+  // '' = sin comprobar, 'buscando', 'portal' = punto en el número exacto, 'calle' = punto en la calle
+  const [pin, setPin] = useState<'' | 'buscando' | 'portal' | 'calle'>('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -57,6 +63,59 @@ function AdminPropertyForm() {
     }
   }, [id]);
 
+  // Al cambiar el número se busca ese portal (espera a que se deje de escribir)
+  useEffect(() => {
+    if (!numberToFind) return;
+    const wanted = numberToFind;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      let found = null;
+      try {
+        found = await findHouse(wanted, controller.signal);
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
+      }
+      const point = found || streetPin.current;
+      // Solo si el número sigue siendo el mismo que se buscó.
+      // El portal puede tener otro código postal que el tramo de calle elegido.
+      setAddress((cur) => {
+        if (!cur || !point || cur.number !== wanted.number) return cur;
+        const moved = { ...cur, lat: point.lat, lng: point.lng };
+        if (point.postalCode) {
+          moved.postalCode = point.postalCode;
+          moved.province = point.province;
+        }
+        return moved;
+      });
+      setPin(found ? 'portal' : 'calle');
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [numberToFind]);
+
+  function chooseAddress(a: FoundAddress) {
+    setAddress(a);
+    setError('');
+    streetPin.current = { lat: a.lat, lng: a.lng, postalCode: a.postalCode, province: a.province };
+    setPin(a.number ? 'portal' : 'calle');
+  }
+
+  function changeNumber(number: string) {
+    if (!address) return;
+    const next = { ...address, number };
+    setAddress(next);
+    if (number.trim()) {
+      setPin('buscando');
+      setNumberToFind(next);
+    } else {
+      setNumberToFind(null);
+      if (streetPin.current) setAddress({ ...next, ...streetPin.current });
+      setPin('calle');
+    }
+  }
+
   // Actualiza el campo según el name del input
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -65,6 +124,10 @@ function AdminPropertyForm() {
   async function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
     // La dirección tiene que ser real: elegida de las sugerencias y con código postal de 5 dígitos
+    if (pin === 'buscando') {
+      setError('Espera un momento: se está buscando el número en el mapa.');
+      return;
+    }
     if (!address) {
       setError('Busca la dirección y elígela de la lista de sugerencias.');
       return;
@@ -155,9 +218,20 @@ function AdminPropertyForm() {
           <div className="address-chosen">
             <p>
               {formatAddress(address)}
-              <span>Ubicación guardada: {address.lat.toFixed(5)}, {address.lng.toFixed(5)}</span>
+              <span>
+                {pin === 'buscando' && 'Buscando el número en el mapa…'}
+                {pin === 'portal' && 'El punto del mapa está en el portal. '}
+                {pin === 'calle' && (address.number
+                  ? `No encontramos el número ${address.number} en el mapa: el punto queda en la calle. `
+                  : 'Sin número: el punto del mapa queda en la calle. ')}
+                {pin !== 'buscando' && (
+                  <a href={`https://www.openstreetmap.org/?mlat=${address.lat}&mlon=${address.lng}#map=18/${address.lat}/${address.lng}`} target="_blank" rel="noreferrer">
+                    Ver el punto en el mapa
+                  </a>
+                )}
+              </span>
             </p>
-            <button type="button" className="link-button" onClick={() => setAddress(null)}>Cambiar dirección</button>
+            <button type="button" className="link-button" onClick={() => { setAddress(null); setPin(''); setNumberToFind(null); }}>Cambiar dirección</button>
           </div>
         ) : (
           <>
@@ -169,14 +243,14 @@ function AdminPropertyForm() {
                 </p>
               </div>
             )}
-            <AddressSearch onSelect={(a) => { setAddress(a); setError(''); }} />
+            <AddressSearch onSelect={chooseAddress} />
           </>
         )}
         {address && (
           <div className="form-row">
             <label className="field">
               Número
-              <input value={address.number} onChange={(e) => setAddress({ ...address, number: e.target.value })} />
+              <input value={address.number} onChange={(e) => changeNumber(e.target.value)} />
             </label>
             <label className="field">
               Código postal
