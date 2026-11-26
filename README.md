@@ -9,7 +9,7 @@ Web de una inmobiliaria de casas en venta y alquiler, con zona de clientes y sis
 | Parte | URL |
 |---|---|
 | Web (frontend) | _pendiente de desplegar_ |
-| API (backend) | _pendiente de desplegar_ |
+| API (backend) | https://practica-1ev-2daw-backend.onrender.com/api |
 | Documentación de la API (Swagger) | _URL de la API_ + `/api-docs` |
 
 ## Qué se puede hacer
@@ -36,7 +36,7 @@ React 19, TypeScript, Vite y React Router. Las peticiones a la API se hacen con 
 ## Requisitos
 
 - Node.js 20.19 o superior y npm.
-- La API arrancada (en local, en `http://localhost:3000`) o su URL pública.
+- Conexión a Internet: por defecto se usa la API publicada en Render.
 
 ## Instalación y arranque en local
 
@@ -45,8 +45,14 @@ npm install
 npm run dev
 ```
 
-La web se abre en http://localhost:5173. En local, las peticiones a `/api` las manda Vite a
-`http://localhost:3000` (ver `vite.config.ts`), así que hay que tener el backend arrancado en ese puerto.
+La web se abre en http://localhost:5173. Las peticiones a `/api` las reenvía Vite a la API publicada
+en Render (ver `vite.config.ts`). Para usar un backend arrancado en tu ordenador:
+
+```bash
+BACKEND_URL=http://localhost:3000 npm run dev
+```
+
+La API de Render se duerme si nadie la usa: la primera petición puede tardar unos 30 segundos.
 
 Otros comandos:
 
@@ -59,28 +65,31 @@ Otros comandos:
 
 ## Variables de entorno
 
-Copia `.env.example` como `.env.local` (o configúralas en el servicio de despliegue):
+No hace falta ninguna. La web llama siempre a `/api` en su propio dominio, y ese `/api` lo reenvían al
+backend Vite (en local) y `vercel.json` (en Vercel). Así no hay problemas de CORS.
 
 | Variable | Ejemplo | Para qué sirve |
 |---|---|---|
-| `VITE_API_URL` | `https://tu-backend.ejemplo.com/api` | URL pública de la API, terminada en `/api`. Si no se pone, se usa `/api` (solo sirve en local). |
+| `VITE_API_URL` | `https://otra-api.ejemplo.com/api` | Opcional. Llamar a otra API directamente en vez de a `/api`; esa API tendría que permitir CORS. |
+| `BACKEND_URL` | `http://localhost:3000` | Opcional, solo en local. A qué backend reenvía Vite `/api`. |
 
 No hay claves ni contraseñas en el frontend: el token de sesión lo da el backend al iniciar sesión.
 
 ## Despliegue
 
-1. Configura `VITE_API_URL` con la URL pública de la API.
-2. Ejecuta `npm run build` y publica la carpeta `dist/` en un servicio de páginas estáticas.
-3. Como es una aplicación de una sola página, el servicio debe devolver `index.html` en cualquier
-   ruta (por ejemplo `/propiedades/123`). En Netlify o Render se hace con una regla de reescritura
-   `/* → /index.html`. En Vercel ya está hecho: `vercel.json` lleva esa regla.
-4. El backend debe permitir por CORS el dominio donde se publique la web.
+La web está en Vercel, conectada al repositorio de GitHub: cada push a `main` se publica solo.
+`vercel.json` lleva dos reglas:
+
+1. `/api/...` se reenvía a `https://practica-1ev-2daw-backend.onrender.com/api/...`. Si la API cambia de
+   dirección, se cambia aquí y en `vite.config.ts`.
+2. Cualquier otra ruta (por ejemplo `/propiedades/123`) devuelve `index.html`, porque es una aplicación
+   de una sola página.
 
 ## Modo de prueba sin backend
 
-Mientras el backend no funciona, `USE_FAKE_DATA = true` en `src/api/client.ts` hace que la web use
-los datos de `src/data/fakeData.ts` en lugar de la API. **Para la entrega debe estar en `false`**, y
-después se borran `fakeData.ts` y las ramas `if (USE_FAKE_DATA)` de `src/api/`.
+`USE_FAKE_DATA` en `src/api/client.ts` está en `false`: la web usa la API real. Si se pone en `true`, usa
+los datos de `src/data/fakeData.ts`, útil para probar sin backend. Cuando todo funcione contra la API se
+borran `fakeData.ts` y las ramas `if (USE_FAKE_DATA)` de `src/api/`.
 
 ## Usuarios de prueba
 

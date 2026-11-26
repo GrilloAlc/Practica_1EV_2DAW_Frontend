@@ -28,6 +28,7 @@ function Home() {
   const [priceMax, setPriceMax] = useState('');
   const [properties, setProperties] = useState<Property[]>(homeCache || []);
   const [loading, setLoading] = useState(!homeCache);
+  const [loadFailed, setLoadFailed] = useState(false);
   const isRent = status === 'Disponible para alquilar';
 
   useEffect(() => {
@@ -38,7 +39,9 @@ function Home() {
         homeCache = list.filter((p) => p.isActive);
         setProperties(homeCache);
       } catch {
+        // Si el servidor falla no se dice que no hay casas: se avisa del error
         setProperties([]);
+        setLoadFailed(true);
       }
       setLoading(false);
     }
@@ -140,7 +143,13 @@ function Home() {
           <Link to="/propiedades" className="home-link">Ver todas las casas</Link>
         </div>
 
-        {!loading && latest.length === 0 && (
+        {!loading && loadFailed && (
+          <p className="home-empty" role="alert">
+            No hemos podido cargar las casas. Vuelve a intentarlo en un momento o llámanos al{' '}
+            <a href="tel:+34644717199">644 7171 99</a>.
+          </p>
+        )}
+        {!loading && !loadFailed && latest.length === 0 && (
           <p className="home-empty">Ahora mismo no hay más casas publicadas. Vuelve a mirar en unos días.</p>
         )}
 
