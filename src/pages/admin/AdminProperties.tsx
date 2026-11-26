@@ -14,7 +14,7 @@ function AdminProperties() {
   useEffect(() => {
     async function loadProperties() {
       try {
-        // El listado del backend incluye también las desactivadas
+        // El backend solo lista las activas: las desactivadas aparecen aquí hasta recargar la página
         setList(await getProperties());
       } catch (err) {
         setError(getErrorMessage(err));

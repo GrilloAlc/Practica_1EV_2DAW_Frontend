@@ -243,3 +243,21 @@
 .ticket-denied .page-title {
   margin-bottom: 16px;
 }
+
+/* Aviso de petición de reapertura, con los botones del admin al lado */
+.ticket-reopen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.ticket-reopen p {
+  margin: 0;
+}
+
+.ticket-reopen-actions {
+  display: flex;
+  gap: 10px;
+}

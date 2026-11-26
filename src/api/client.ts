@@ -1,4 +1,4 @@
-// true: usa los datos falsos de data/fakeData.ts. Cambiar a false cuando el backend funcione
+// true: usa los datos falsos de data/fakeData.ts. false: usa el backend real
 export const USE_FAKE_DATA = false;
 
 const DEFAULT_ERROR = 'Ha ocurrido un error, inténtalo de nuevo.';
@@ -18,8 +18,8 @@ export function getErrorStatus(error: unknown) {
   return error instanceof ApiError ? error.status : null;
 }
 
-// Dirección de la API. En local se deja vacía y se usa /api, que Vite manda a http://localhost:3000
-// (ver vite.config.ts). Al desplegar se pone la URL pública en VITE_API_URL (ver .env.example).
+// Dirección de la API. Se usa /api: en local Vite lo manda al backend de Render (o a BACKEND_URL, ver vite.config.ts)
+// y en Vercel lo hace vercel.json. VITE_API_URL solo hace falta para llamar a otro servidor directamente.
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Hace una petición al backend con fetch.
@@ -89,6 +89,12 @@ export const api = {
   list: async (url: string, params?: Record<string, unknown>) => {
     const res = await request('GET', url + toQuery(params));
     return Array.isArray(res) ? res : res.data || [];
+  },
+  // Igual que list, pero devuelve también los datos de la página (total, número de páginas…)
+  page: async (url: string, params?: Record<string, unknown>) => {
+    const res = await request('GET', url + toQuery(params));
+    if (Array.isArray(res)) return { data: res, pagesData: { page: 1, limit: res.length, total: res.length, totalPages: 1 } };
+    return res;
   },
   post: (url: string, body?: unknown) => request('POST', url, body),
   put: (url: string, body?: unknown) => request('PUT', url, body),

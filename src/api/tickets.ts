@@ -1,6 +1,6 @@
 import { api, ApiError, USE_FAKE_DATA } from './client';
 import { fakeHistory, fakeMessages, fakeTickets, fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
-import type { Ticket, TicketDetailData, TicketStats } from '../types';
+import type { Page, Ticket, TicketDetailData, TicketStats } from '../types';
 
 // Imita al backend: 404 si no existe y 403 si el cliente no es el dueño o el agente no está asignado
 function findFakeTicket(id: string) {
@@ -14,21 +14,53 @@ function findFakeTicket(id: string) {
   return ticket;
 }
 
+// Filtros que acepta GET /api/tickets. Los aplica el backend
+export interface TicketFilters {
+  status?: string;
+  priority?: number;
+  category?: string;
+  // Solo admin: nombre exacto del cliente o del agente
+  customerName?: string;
+  agentName?: string;
+  unassigned?: boolean;
+  reopenRequested?: boolean;
+  page?: number;
+  limit?: number;
+}
+
 // GET /api/tickets → { data, pagesData }. El backend ya filtra según el rol:
-// cliente/propietario ve los suyos, agente los asignados y admin todos
-export async function getTickets(params: { status?: string; priority?: number; unassigned?: boolean; page?: number; limit?: number } = {}): Promise<Ticket[]> {
+// el cliente ve los suyos, el agente los asignados y el admin todos. Máximo 50 por página
+export async function getTicketsPage(filters: TicketFilters = {}): Promise<Page<Ticket>> {
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
     let list = fakeTickets;
     if (user.role === 'CLIENTE') list = list.filter((t) => t.customer._id === user._id);
     if (user.role === 'AGENTE') list = list.filter((t) => t.agent?._id === user._id);
-    if (params.status) list = list.filter((t) => t.status === params.status);
-    if (params.priority) list = list.filter((t) => t.priority === params.priority);
-    if (params.unassigned) list = list.filter((t) => !t.agent);
-    return pageOf(list, params, 10);
+    if (filters.status) list = list.filter((t) => t.status === filters.status);
+    if (filters.priority) list = list.filter((t) => t.priority === filters.priority);
+    if (filters.category) list = list.filter((t) => t.category === filters.category);
+    if (filters.customerName) list = list.filter((t) => t.customer.name === filters.customerName);
+    if (filters.agentName) list = list.filter((t) => t.agent?.name === filters.agentName);
+    if (filters.unassigned) list = list.filter((t) => !t.agent);
+    if (filters.reopenRequested) list = list.filter((t) => t.reopenRequested);
+    const limit = filters.limit || 10;
+    return {
+      data: pageOf(list, filters, limit),
+      pagesData: { page: filters.page || 1, limit, total: list.length, totalPages: Math.max(1, Math.ceil(list.length / limit)) },
+    };
   }
 
-  return api.list('/tickets', params);
+  // El backend espera "true" como texto, y sin el parámetro si no se filtra
+  return api.page('/tickets', {
+    ...filters,
+    unassigned: filters.unassigned ? 'true' : undefined,
+    reopenRequested: filters.reopenRequested ? 'true' : undefined,
+  });
+}
+
+// Solo la lista, para pantallas que no necesitan paginar
+export async function getTickets(filters: TicketFilters = {}): Promise<Ticket[]> {
+  return (await getTicketsPage(filters)).data;
 }
 
 // GET /api/tickets/:id → { ticket, messages, history }: el ticket con sus mensajes (con el rol del autor)
@@ -63,8 +95,8 @@ export async function addMessage(ticket: Ticket, body: string) {
   await api.post('/ticket-messages', { ticketId: ticket._id, body });
 }
 
-// POST /api/tickets → { subject, description, category, priority }. El backend pone el estado y el cliente.
-// La prioridad es obligatoria: la consulta del cliente entra como MEDIA y el agente la ajusta
+// POST /api/tickets → { subject, description, category }. El backend pone el código, el estado, el cliente
+// y la prioridad (2, media). El cliente no la elige: la ajusta después el agente o el admin
 export async function createTicket(data: { subject: string; description: string; category: string }): Promise<Ticket> {
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
@@ -85,15 +117,15 @@ export async function createTicket(data: { subject: string; description: string;
     return ticket;
   }
 
-  return api.post('/tickets', { ...data, priority: 2 });
+  return api.post('/tickets', data);
 }
 
-// PUT /api/tickets/:id/assign (ADMIN) → { agentId }
+// PUT /api/tickets/:id/assign (ADMIN) → { agentId }. Con agentId vacío el ticket queda sin agente
 export async function assignTicket(id: string, agentId: string) {
   if (USE_FAKE_DATA) {
-    const agent = fakeUsers.find((u) => u._id === agentId)!;
+    const agent = fakeUsers.find((u) => u._id === agentId);
     const ticket = findFakeTicket(id);
-    ticket.agent = { _id: agent._id, name: agent.name };
+    ticket.agent = agent ? { _id: agent._id, name: agent.name } : null;
     ticket.updatedAt = new Date().toISOString();
     return;
   }
@@ -101,7 +133,7 @@ export async function assignTicket(id: string, agentId: string) {
   await api.put('/tickets/' + id + '/assign', { agentId });
 }
 
-// PUT /api/tickets/:id/priority (AGENTE asignado o ADMIN) → { priority }
+// PUT /api/tickets/:id/priority (AGENTE asignado o ADMIN) → { priority: 1 | 2 | 3 }
 export async function updatePriority(id: string, priority: number) {
   if (USE_FAKE_DATA) {
     const ticket = findFakeTicket(id);
@@ -120,6 +152,8 @@ export async function updateStatus(id: string, status: string) {
     const user = getLoggedUser();
     const now = new Date().toISOString();
     fakeHistory.push({ _id: String(Date.now()), ticket: id, oldStatus: ticket.status, newStatus: status, changedAt: now, changedBy: { _id: user._id, name: user.name } });
+    // Como el backend: al salir de RESUELTO se olvida la petición de reapertura
+    if (ticket.status === 'RESUELTO' && status !== 'RESUELTO') ticket.reopenRequested = false;
     ticket.status = status;
     ticket.updatedAt = now;
     return;
@@ -136,6 +170,16 @@ export async function reopenTicket(id: string) {
   }
 
   await api.post('/tickets/' + id + '/reopen');
+}
+
+// PUT /api/tickets/:id/reopen-request/deny (ADMIN): rechaza la petición de reapertura
+export async function denyReopen(id: string) {
+  if (USE_FAKE_DATA) {
+    findFakeTicket(id).reopenRequested = false;
+    return;
+  }
+
+  await api.put('/tickets/' + id + '/reopen-request/deny');
 }
 
 // GET /api/stats/tickets (ADMIN)

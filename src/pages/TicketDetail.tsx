@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './TicketDetail.css';
-import { addMessage, assignTicket, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
+import { addMessage, assignTicket, denyReopen, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
 import { getUsers } from '../api/users';
 import { getErrorMessage, getErrorStatus } from '../api/client';
 import { useAuth } from '../context/useAuth';
@@ -14,8 +14,8 @@ import {
   categoryLabels,
   formatDate,
   formatDateTime,
+  priorityClass,
   priorityLabels,
-  priorityCssLabels,
   roleLabels,
   statusLabels,
 } from '../utils/labels';
@@ -133,8 +133,8 @@ function TicketDetail() {
   async function changeAgent(agentId: string) {
     try {
       await assignTicket(ticket!._id, agentId);
-      const agent = agents.find((a) => a._id === agentId)!;
-      setTicket({ ...ticket!, agent: { _id: agent._id, name: agent.name }, updatedAt: new Date().toISOString() });
+      const agent = agents.find((a) => a._id === agentId);
+      setTicket({ ...ticket!, agent: agent ? { _id: agent._id, name: agent.name } : null, updatedAt: new Date().toISOString() });
       setError('');
     } catch (err) {
       setError(getErrorMessage(err));
@@ -145,6 +145,17 @@ function TicketDetail() {
     try {
       await reopenTicket(ticket!._id);
       setTicket({ ...ticket!, reopenRequested: true });
+      setError('');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  }
+
+  // El admin rechaza la petición de reapertura: el ticket sigue resuelto
+  async function rejectReopen() {
+    try {
+      await denyReopen(ticket!._id);
+      setTicket({ ...ticket!, reopenRequested: false });
       setError('');
     } catch (err) {
       setError(getErrorMessage(err));
@@ -194,7 +205,17 @@ function TicketDetail() {
       </div>
 
       {error && <p className="field-error" role="alert">{error}</p>}
-      {ticket.reopenRequested && ticket.status === 'RESUELTO' && <p className="notice">Se ha pedido reabrir este ticket.</p>}
+      {ticket.reopenRequested && ticket.status === 'RESUELTO' && (
+        <div className="notice ticket-reopen">
+          <p>{isCustomer ? 'Has pedido reabrir esta consulta. Te avisaremos cuando la revisemos.' : 'El cliente ha pedido reabrir este ticket.'}</p>
+          {isAdmin && (
+            <div className="ticket-reopen-actions">
+              <button className="btn" onClick={() => changeStatus('EN_CURSO')}>Reabrir</button>
+              <button className="btn btn-outline" onClick={rejectReopen}>Rechazar</button>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="ticket-layout">
         <section className="ticket-box">
@@ -251,7 +272,7 @@ function TicketDetail() {
                 <select aria-label="Prioridad" value={ticket.priority} onChange={(e) => changePriority(Number(e.target.value))}>
                   {TICKET_PRIORITIES.map((p) => <option key={p} value={p}>{priorityLabels[p]}</option>)}
                 </select>
-              ) : <span className={'priority priority-' + priorityCssLabels[ticket.priority]}>{priorityLabels[ticket.priority]}</span>}
+              ) : <span className={priorityClass(ticket.priority)}>{priorityLabels[ticket.priority]}</span>}
             </dd>
 
             <dt>Estado</dt>
@@ -269,7 +290,7 @@ function TicketDetail() {
             <dd>
               {isAdmin && !closed ? (
                 <select aria-label="Agente asignado" value={ticket.agent ? ticket.agent._id : ''} onChange={(e) => changeAgent(e.target.value)}>
-                  <option value="" disabled>Sin asignar</option>
+                  <option value="">Sin asignar</option>
                   {agents.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
                 </select>
               ) : ticket.agent ? ticket.agent.name : 'Sin asignar'}

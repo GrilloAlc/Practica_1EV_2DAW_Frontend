@@ -5,6 +5,7 @@ import './Auth.css';
 import { useAuth } from '../context/useAuth';
 import { Logo } from '../components/Layout';
 import { getErrorMessage } from '../api/client';
+import { pageAfterLogin } from '../utils/redirect';
 
 function Auth() {
   const navigate = useNavigate();
@@ -34,11 +35,9 @@ function Auth() {
         user = await register({ name, email, password, phone });
       }
 
-      // Vuelve a la página que pedía antes del login o va a su zona según el rol
-      let destination = '/mis-tickets';
-      if (user.role === 'ADMIN') destination = '/admin';
-      if (user.role === 'AGENTE') destination = '/agente/tickets';
-      navigate(location.state?.from || destination);
+      // Vuelve a la página que pedía antes del login si es para su rol; si no, a su página de inicio.
+      // replace: así Atrás no vuelve al formulario de acceso
+      navigate(pageAfterLogin(location.state?.from, user.role), { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
     }

@@ -33,11 +33,13 @@ export interface Ticket {
   subject: string;
   description: string;
   category: string;
+  // 1 baja, 2 media, 3 alta
   priority: number;
   status: string;
   customer: { _id: string; name: string; email?: string };
   agent: { _id: string; name: string; email?: string } | null;
   reopenRequested: boolean;
+  closedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
 }
@@ -74,4 +76,10 @@ export interface TicketStats {
   resueltos: number;
   cerrados: number;
   sinAsignar?: number;
+}
+
+// Respuesta paginada de los listados: { data, pagesData }
+export interface Page<T> {
+  data: T[];
+  pagesData: { page: number; limit: number; total: number; totalPages: number };
 }

@@ -1,11 +1,11 @@
 import type { Property } from '../types';
 
-// Valores que acepta el backend (model/enums.js)
 // Los mismos que el backend (model/enums.js)
 export const ROLES = ['CLIENTE', 'AGENTE', 'ADMIN'];
 export const PROPERTY_TYPES = ['Casa', 'Piso', 'Terreno', 'Local'];
 export const PROPERTY_STATUSES = ['En venta', 'Disponible para alquilar', 'Reservada', 'Vendida', 'Alquilada'];
 export const TICKET_STATUSES = ['ABIERTO', 'EN_CURSO', 'PENDIENTE_CLIENTE', 'RESUELTO', 'CERRADO'];
+// Prioridad en número: 1 baja, 2 media, 3 alta
 export const TICKET_PRIORITIES = [1, 2, 3];
 export const TICKET_CATEGORIES = ['CONSULTA_PROPIEDAD', 'SOLICITUD_VISITA', 'INCIDENCIA_ALQUILER', 'DOCUMENTACION', 'RECLAMACION', 'CUENTA'];
 
@@ -30,11 +30,11 @@ export const priorityLabels: Record<number, string> = {
   3: 'Alta',
 };
 
-export const priorityCssLabels: Record<number, string> = {
-  1: 'baja',
-  2: 'media',
-  3: 'alta',
-};
+// Clases CSS de la etiqueta de prioridad (priority-baja, priority-media, priority-alta)
+export function priorityClass(priority: number) {
+  const names: Record<number, string> = { 1: 'baja', 2: 'media', 3: 'alta' };
+  return 'priority priority-' + (names[priority] || 'media');
+}
 
 export const categoryLabels: Record<string, string> = {
   CONSULTA_PROPIEDAD: 'Consulta de propiedad',
