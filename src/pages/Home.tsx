@@ -58,8 +58,8 @@ function Home() {
     <main className="home">
       <section className="home-hero">
         <h1 className="home-hero-title">
-          <span>Casas para</span>
-          <span>catar despacio.</span>
+          <span>Elegir casa,</span>
+          <span>sin prisa.</span>
         </h1>
 
         <div className="home-hero-side">
