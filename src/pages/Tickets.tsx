@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { getTickets } from '../api/tickets';
 import { getErrorMessage } from '../api/client';
 import { useAuth } from '../context/useAuth';
-import { TICKET_PRIORITIES, TICKET_STATUSES, categoryLabels, formatDate, priorityLabels, statusLabels } from '../utils/labels';
+import { TICKET_CATEGORIES, TICKET_PRIORITIES, TICKET_STATUSES, categoryLabels, formatDate, priorityLabels, statusLabels } from '../utils/labels';
 import type { Ticket } from '../types';
 import { TableSkeleton } from '../components/Skeleton';
 
@@ -27,6 +27,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const [priority, setPriority] = useState('');
+  const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [agentId, setAgentId] = useState('');
@@ -61,6 +62,9 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   }
   if (priority) {
     visible = visible.filter((t) => t.priority === priority);
+  }
+  if (category) {
+    visible = visible.filter((t) => t.category === category);
   }
   if (search) {
     visible = visible.filter((t) => {
@@ -98,6 +102,15 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                 <option key={p} value={p}>{priorityLabels[p]}</option>
               ))}
             </select>
+            {/* Las categorías son los tipos de consulta (las mismas que elige el cliente al escribir) */}
+            {!isCustomer && (
+              <select className="table-search" aria-label="Filtrar por categoría" value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="">Todas las categorías</option>
+                {TICKET_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>{categoryLabels[c]}</option>
+                ))}
+              </select>
+            )}
             {isAdmin && (
               <>
                 <select className="table-search" aria-label="Filtrar por cliente" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
@@ -127,7 +140,11 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
             ) : (
               <>
                 <strong>Ninguna consulta coincide</strong>
-                {isAdmin ? 'Cambia el estado, la prioridad, el cliente, el agente o el texto de búsqueda.' : 'Cambia el estado, la prioridad o el texto de búsqueda.'}
+                {isAdmin
+                  ? 'Cambia el estado, la prioridad, la categoría, el cliente, el agente o el texto de búsqueda.'
+                  : isCustomer
+                    ? 'Cambia el estado, la prioridad o el texto de búsqueda.'
+                    : 'Cambia el estado, la prioridad, la categoría o el texto de búsqueda.'}
               </>
             )}
           </div>

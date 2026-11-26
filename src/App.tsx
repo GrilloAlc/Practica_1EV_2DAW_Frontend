@@ -13,7 +13,6 @@ import NewTicket from './pages/NewTicket';
 import TicketDetail from './pages/TicketDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
-import AdminCategories from './pages/admin/AdminCategories';
 import AdminProperties from './pages/admin/AdminProperties';
 import AdminPropertyForm from './pages/admin/AdminPropertyForm';
 import NotFound from './pages/NotFound';
@@ -51,10 +50,9 @@ export const router = createBrowserRouter(
       <Route element={<RequireAuth roles={['ADMIN']} />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/tickets" element={<Tickets title="Tickets" subtitle="Filtra por estado, prioridad, cliente o agente." />} />
+          <Route path="/admin/tickets" element={<Tickets title="Tickets" subtitle="Filtra por estado, prioridad, categoría, cliente o agente." />} />
           <Route path="/admin/tickets/:id" element={<TicketDetail />} />
           <Route path="/admin/usuarios" element={<AdminUsers />} />
-          <Route path="/admin/categorias" element={<AdminCategories />} />
           <Route path="/admin/propiedades" element={<AdminProperties />} />
           <Route path="/admin/propiedades/nueva" element={<AdminPropertyForm />} />
           <Route path="/admin/propiedades/:id/editar" element={<AdminPropertyForm />} />
