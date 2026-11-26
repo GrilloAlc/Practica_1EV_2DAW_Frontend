@@ -1,75 +1,123 @@
-# React + TypeScript + Vite
+# CataHome · Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Web de una inmobiliaria de casas en venta y alquiler, con zona de clientes y sistema de consultas
+(tickets) atendidas por agentes. Es la parte cliente del proyecto trimestral de 2º DAW; la API está en
+`Practica_1EV_2DAW_Backend` (Node + Express + MongoDB).
 
-Currently, two official plugins are available:
+## URLs públicas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Parte | URL |
+|---|---|
+| Web (frontend) | _pendiente de desplegar_ |
+| API (backend) | _pendiente de desplegar_ |
+| Documentación de la API (Swagger) | _URL de la API_ + `/api-docs` |
 
-## React Compiler
+## Qué se puede hacer
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Visitante:** ver el inicio, buscar casas por operación, tipo, ciudad y precio, ver la ficha de cada
+  casa (fotos, datos, calculadora de hipoteca y enlace al mapa), leer "Nosotros" y las preguntas
+  frecuentes, y crear una cuenta (siempre de cliente).
+- **Cliente:** editar su perfil; abrir consultas sobre una casa o pedir una visita; ver sus consultas
+  filtradas por estado; responder; pedir que se reabra una consulta resuelta o confirmar su cierre.
+- **Agente:** ver las consultas que tiene asignadas, responder y cambiar su estado y prioridad.
+- **Administrador:** ver todas las consultas y filtrarlas por estado, prioridad, cliente y agente;
+  asignarlas y cerrarlas; ver el historial de cambios de estado; gestionar usuarios y roles; dar de
+  alta, editar y desactivar casas; ver el resumen con las métricas de consultas.
 
-## Expanding the ESLint configuration
+Los permisos los comprueba el backend. El frontend solo enseña a cada rol lo que puede usar y, si el
+backend deniega algo (por ejemplo, un cliente que abre la consulta de otro cambiando la URL), muestra
+un aviso claro de "No tienes acceso a esta consulta".
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tecnologías
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+React 19, TypeScript, Vite y React Router. Las peticiones a la API se hacen con `fetch`
+(`src/api/client.ts`) y hay una función por endpoint en `src/api/*.ts`.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Requisitos
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 20.19 o superior y npm.
+- La API arrancada (en local, en `http://localhost:3000`) o su URL pública.
 
+## Instalación y arranque en local
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+La web se abre en http://localhost:5173. En local, las peticiones a `/api` las manda Vite a
+`http://localhost:3000` (ver `vite.config.ts`), así que hay que tener el backend arrancado en ese puerto.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Otros comandos:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Comando | Qué hace |
+|---|---|
+| `npm run build` | Comprueba los tipos y genera la web lista para publicar en `dist/`. |
+| `npm run preview` | Sirve la versión de `dist/` para probarla. |
+| `npm run lint` | Revisa el código con ESLint. |
+| `npm run lanzar` | Instala, compila y arranca en un solo paso. |
+
+## Variables de entorno
+
+Copia `.env.example` como `.env.local` (o configúralas en el servicio de despliegue):
+
+| Variable | Ejemplo | Para qué sirve |
+|---|---|---|
+| `VITE_API_URL` | `https://tu-backend.ejemplo.com/api` | URL pública de la API, terminada en `/api`. Si no se pone, se usa `/api` (solo sirve en local). |
+
+No hay claves ni contraseñas en el frontend: el token de sesión lo da el backend al iniciar sesión.
+
+## Despliegue
+
+1. Configura `VITE_API_URL` con la URL pública de la API.
+2. Ejecuta `npm run build` y publica la carpeta `dist/` en un servicio de páginas estáticas.
+3. Como es una aplicación de una sola página, el servicio debe devolver `index.html` en cualquier
+   ruta (por ejemplo `/propiedades/123`). En Netlify o Render se hace con una regla de reescritura
+   `/* → /index.html`; en Vercel, con un `rewrites` en `vercel.json`.
+4. El backend debe permitir por CORS el dominio donde se publique la web.
+
+## Modo de prueba sin backend
+
+Mientras el backend no funciona, `USE_FAKE_DATA = true` en `src/api/client.ts` hace que la web use
+los datos de `src/data/fakeData.ts` en lugar de la API. **Para la entrega debe estar en `false`**, y
+después se borran `fakeData.ts` y las ramas `if (USE_FAKE_DATA)` de `src/api/`.
+
+## Usuarios de prueba
+
+Todos los datos son ficticios.
+
+**Con la API real** (deben existir en la base de datos del backend desplegado):
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Cliente | _pendiente_ | _pendiente_ |
+| Agente | _pendiente_ | _pendiente_ |
+| Administrador | _pendiente_ | _pendiente_ |
+
+**En modo de prueba** (`USE_FAKE_DATA = true`):
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Cliente | maria@correo.com | maria1234 |
+| Agente | ana@inmobiliaria.es | ana12345 |
+| Administrador | admin@inmobiliaria.es | admin1234 |
+
+## Estructura
 
 ```
+src/
+  api/          fetch a la API (client.ts) y una función por endpoint
+  components/   piezas compartidas: menú y pie, tarjetas de casas, carrusel, esqueletos de carga…
+  context/      sesión del usuario (AuthProvider)
+  data/         datos de prueba (solo mientras USE_FAKE_DATA = true)
+  pages/        una página por ruta; pages/admin para el panel de administración
+  utils/        textos de estados y prioridades, formato de precios y fechas
+  App.tsx       rutas de la web
+public/images/  fotos de las casas (de Unsplash, ver CREDITOS.md)
+```
+
+## Créditos
+
+Fotos de [Unsplash](https://unsplash.com) (detalle en `public/images/CREDITOS.md`). Las sugerencias
+de direcciones del formulario de casas vienen de [Photon](https://photon.komoot.io), el buscador de
+OpenStreetMap.
