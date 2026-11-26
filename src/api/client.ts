@@ -18,8 +18,11 @@ export function getErrorStatus(error: unknown) {
   return error instanceof ApiError ? error.status : null;
 }
 
+// Dirección de la API. En local se deja vacía y se usa /api, que Vite manda a http://localhost:3000
+// (ver vite.config.ts). Al desplegar se pone la URL pública en VITE_API_URL (ver .env.example).
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 // Hace una petición al backend con fetch.
-// Las peticiones a /api las manda Vite a http://localhost:3000 (ver vite.config.ts).
 // Según DOCUMENTACION_API_FRONTEND.md, unas respuestas son JSON y otras texto plano,
 // así que se lee como texto y se intenta convertir a JSON.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +41,7 @@ async function request(method: string, url: string, body?: unknown): Promise<any
     options.body = JSON.stringify(body);
   }
 
-  const res = await fetch('/api' + url, options);
+  const res = await fetch(API_URL + url, options);
 
   const text = await res.text();
   let data;
