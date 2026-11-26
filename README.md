@@ -139,8 +139,8 @@ icono; en el logotipo hace de primera letra de "CataHome". Los archivos están e
 | `catahome-logo.svg` | Logotipo completo para fondos claros |
 | `catahome-logo-claro.svg` | Logotipo completo para fondos oscuros |
 
-El texto del logotipo usa la fuente Bodoni Moda. Fuera del navegador hay que tenerla instalada o
-convertir el texto en trazos (por ejemplo, con Inkscape). En la web, el logo es el componente `Logo`
+En los archivos, el texto "ataHome" va convertido en trazos (Bodoni Moda 600, licencia OFL), así que se ven
+igual en cualquier programa sin instalar la fuente. En la web, el logo es el componente `Logo`
 (`src/components/Layout.tsx`) con el símbolo de `src/components/BrandSymbol.tsx`.
 
 ## Créditos
