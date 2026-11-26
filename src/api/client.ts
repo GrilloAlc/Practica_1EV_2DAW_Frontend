@@ -1,5 +1,5 @@
 // true: usa los datos falsos de data/fakeData.ts. Cambiar a false cuando el backend funcione
-export const USE_FAKE_DATA = true;
+export const USE_FAKE_DATA = false;
 
 const DEFAULT_ERROR = 'Ha ocurrido un error, inténtalo de nuevo.';
 
@@ -84,6 +84,12 @@ function toQuery(params?: Record<string, unknown>) {
 
 export const api = {
   get: (url: string, params?: Record<string, unknown>) => request('GET', url + toQuery(params)),
+  // Los listados llegan paginados: { data: [...], pagesData: { page, limit, total, totalPages } }.
+  // Devuelve solo la lista
+  list: async (url: string, params?: Record<string, unknown>) => {
+    const res = await request('GET', url + toQuery(params));
+    return Array.isArray(res) ? res : res.data || [];
+  },
   post: (url: string, body?: unknown) => request('POST', url, body),
   put: (url: string, body?: unknown) => request('PUT', url, body),
   delete: (url: string) => request('DELETE', url),

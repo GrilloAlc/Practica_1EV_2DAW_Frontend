@@ -17,7 +17,7 @@ export interface PropertyFilters {
 // El backend devuelve 50 propiedades por página como máximo
 export const PROPERTIES_PER_PAGE = 50;
 
-// GET /api/properties → array (incluye también las desactivadas)
+// GET /api/properties → { data, pagesData }. Solo devuelve las casas activas
 export async function getProperties(filters: PropertyFilters = {}): Promise<Property[]> {
   if (USE_FAKE_DATA) {
     let list = fakeProperties.slice();
@@ -31,7 +31,7 @@ export async function getProperties(filters: PropertyFilters = {}): Promise<Prop
     return pageOf(list, { page: filters.page }, PROPERTIES_PER_PAGE);
   }
 
-  return api.get('/properties', { ...filters });
+  return api.list('/properties', { ...filters, limit: PROPERTIES_PER_PAGE });
 }
 
 // GET /api/properties/:id

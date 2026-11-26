@@ -2,7 +2,7 @@ import { api, USE_FAKE_DATA } from './client';
 import { fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
 import type { User } from '../types';
 
-// GET /api/users (ADMIN) → array, máximo 50
+// GET /api/users (ADMIN) → { data, pagesData }, máximo 50 por página
 export async function getUsers(params: { role?: string; isActive?: boolean; page?: number; limit?: number } = {}): Promise<User[]> {
   if (USE_FAKE_DATA) {
     let list = fakeUsers;
@@ -11,7 +11,7 @@ export async function getUsers(params: { role?: string; isActive?: boolean; page
     return pageOf(list, params, 50);
   }
 
-  return api.get('/users', params);
+  return api.list('/users', { limit: 50, ...params });
 }
 
 // PUT /api/users/me → { name, phone }

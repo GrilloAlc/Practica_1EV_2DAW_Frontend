@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './TicketDetail.css';
-import { addMessage, assignTicket, getMessages, getStatusHistory, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
+import { addMessage, assignTicket, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
 import { getUsers } from '../api/users';
 import { getErrorMessage, getErrorStatus } from '../api/client';
 import { useAuth } from '../context/useAuth';
@@ -35,13 +35,14 @@ function TicketDetail() {
   const [loadStatus, setLoadStatus] = useState<number | null>(null);
   const [error, setError] = useState('');
 
+  // El ticket llega con sus mensajes y su historial de estados en una sola petición
   useEffect(() => {
     async function loadTicket() {
       try {
-        // El ticket y sus mensajes se piden por separado
-        const [ticketData, messageList] = await Promise.all([getTicket(id!), getMessages(id!)]);
-        setTicket(ticketData);
-        setMessages(messageList);
+        const data = await getTicket(id!);
+        setTicket(data.ticket);
+        setMessages(data.messages);
+        setHistory(data.history);
       } catch (err) {
         setLoadError(getErrorMessage(err));
         setLoadStatus(getErrorStatus(err));
@@ -49,20 +50,6 @@ function TicketDetail() {
     }
     loadTicket();
   }, [id]);
-
-  // Historial de estados: el backend (GET /api/ticket-history/:id) solo se lo da al ADMIN
-  useEffect(() => {
-    async function loadHistory() {
-      try {
-        setHistory(await getStatusHistory(id!));
-      } catch {
-        setHistory([]);
-      }
-    }
-    if (isAdmin) {
-      loadHistory();
-    }
-  }, [id, isAdmin]);
 
   useEffect(() => {
     async function loadAgents() {
@@ -111,14 +98,19 @@ function TicketDetail() {
     return <main className="page"><TableSkeleton rows={4} /></main>;
   }
 
+  // Vuelve a pedir el ticket para tener los mensajes y el historial al día
+  async function reload() {
+    const data = await getTicket(ticket!._id);
+    setTicket(data.ticket);
+    setMessages(data.messages);
+    setHistory(data.history);
+  }
+
   async function changeStatus(status: string) {
     try {
       await updateStatus(ticket!._id, status);
-      setTicket({ ...ticket!, status, updatedAt: new Date().toISOString() });
+      await reload();
       setError('');
-      if (isAdmin) {
-        setHistory(await getStatusHistory(ticket!._id));
-      }
     } catch (err) {
       setError(getErrorMessage(err));
     }
@@ -159,9 +151,8 @@ function TicketDetail() {
     e.preventDefault();
     try {
       await addMessage(ticket!, reply);
-      // Se vuelven a pedir para tener el autor con su nombre
-      setMessages(await getMessages(ticket!._id));
-      setTicket({ ...ticket!, updatedAt: new Date().toISOString() });
+      // Se vuelve a pedir para tener el mensaje con su autor
+      await reload();
       setReply('');
       setError('');
     } catch (err) {
@@ -279,25 +270,24 @@ function TicketDetail() {
             </dd>
           </dl>
 
-          {isAdmin && (
-            <section className="ticket-history" aria-labelledby="ticket-history-title">
-              <h3 id="ticket-history-title">Historial de estados</h3>
-              {history.length === 0 ? (
-                <p className="cell-muted">Todavía no hay cambios de estado.</p>
-              ) : (
-                <ol>
-                  {history.map((h) => (
-                    <li key={h._id}>
-                      <strong>
-                        {h.oldStatus ? `De ${statusLabels[h.oldStatus]} a ${statusLabels[h.newStatus]}` : `Creada como ${statusLabels[h.newStatus]}`}
-                      </strong>
-                      <span>{h.changedBy.name} · {formatDateTime(h.changedAt)}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </section>
-          )}
+          {/* Historial de estados: lo ven el cliente, el agente asignado y el admin. El más reciente arriba */}
+          <section className="ticket-history" aria-labelledby="ticket-history-title">
+            <h3 id="ticket-history-title">Historial de estados</h3>
+            {history.length === 0 ? (
+              <p className="cell-muted">Todavía no hay cambios de estado.</p>
+            ) : (
+              <ol>
+                {[...history].reverse().map((h) => (
+                  <li key={h._id}>
+                    <strong>
+                      {h.oldStatus ? `De ${statusLabels[h.oldStatus]} a ${statusLabels[h.newStatus]}` : `Creada como ${statusLabels[h.newStatus]}`}
+                    </strong>
+                    <span>{h.changedBy.name} · {formatDateTime(h.changedAt)}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
         </aside>
       </div>
     </main>

@@ -42,7 +42,14 @@ export interface Ticket {
   updatedAt?: string;
 }
 
-// Una entrada de GET /api/ticket-history/:id (cambio de estado de un ticket)
+// GET /api/tickets/:id devuelve el ticket con sus mensajes y su historial de estados
+export interface TicketDetailData {
+  ticket: Ticket;
+  messages: Message[];
+  history: StatusChange[];
+}
+
+// Una entrada del historial de estados de un ticket
 export interface StatusChange {
   _id: string;
   oldStatus: string | null;

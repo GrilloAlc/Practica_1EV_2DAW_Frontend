@@ -1,6 +1,6 @@
 import { api, ApiError, USE_FAKE_DATA } from './client';
 import { fakeHistory, fakeMessages, fakeTickets, fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
-import type { Message, StatusChange, Ticket, TicketStats } from '../types';
+import type { Ticket, TicketDetailData, TicketStats } from '../types';
 
 // Imita al backend: 404 si no existe y 403 si el cliente no es el dueño o el agente no está asignado
 function findFakeTicket(id: string) {
@@ -14,7 +14,7 @@ function findFakeTicket(id: string) {
   return ticket;
 }
 
-// GET /api/tickets → array. El backend ya filtra según el rol:
+// GET /api/tickets → { data, pagesData }. El backend ya filtra según el rol:
 // cliente/propietario ve los suyos, agente los asignados y admin todos
 export async function getTickets(params: { status?: string; priority?: string; unassigned?: boolean; page?: number; limit?: number } = {}): Promise<Ticket[]> {
   if (USE_FAKE_DATA) {
@@ -28,28 +28,24 @@ export async function getTickets(params: { status?: string; priority?: string; u
     return pageOf(list, params, 10);
   }
 
-  return api.get('/tickets', params);
+  return api.list('/tickets', params);
 }
 
-// GET /api/tickets/:id
-export async function getTicket(id: string): Promise<Ticket> {
+// GET /api/tickets/:id → { ticket, messages, history }: el ticket con sus mensajes (con el rol del autor)
+// y su historial de estados, del más antiguo al más reciente. 403 si no es tuyo, 404 si no existe
+export async function getTicket(id: string): Promise<TicketDetailData> {
   if (USE_FAKE_DATA) {
-    return findFakeTicket(id);
+    return {
+      ticket: findFakeTicket(id),
+      messages: fakeMessages.filter((m) => m.ticket === id),
+      history: fakeHistory.filter((h) => h.ticket === id).sort((a, b) => a.changedAt.localeCompare(b.changedAt)),
+    };
   }
 
   return api.get('/tickets/' + id);
 }
 
-// GET /api/ticket-messages/:ticketId (el id es el del ticket)
-export async function getMessages(ticketId: string): Promise<Message[]> {
-  if (USE_FAKE_DATA) {
-    return fakeMessages.filter((m) => m.ticket === ticketId);
-  }
-
-  return api.get('/ticket-messages/' + ticketId);
-}
-
-// POST /api/ticket-messages → { ticketCode, body }
+// POST /api/ticket-messages → { ticketId, body }
 export async function addMessage(ticket: Ticket, body: string) {
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
@@ -64,10 +60,11 @@ export async function addMessage(ticket: Ticket, body: string) {
     return;
   }
 
-  await api.post('/ticket-messages', { ticketCode: ticket.code, body });
+  await api.post('/ticket-messages', { ticketId: ticket._id, body });
 }
 
-// POST /api/tickets → { subject, description, category }. El backend pone estado, cliente y prioridad
+// POST /api/tickets → { subject, description, category, priority }. El backend pone el estado y el cliente.
+// La prioridad es obligatoria: la consulta del cliente entra como MEDIA y el agente la ajusta
 export async function createTicket(data: { subject: string; description: string; category: string }): Promise<Ticket> {
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
@@ -88,7 +85,7 @@ export async function createTicket(data: { subject: string; description: string;
     return ticket;
   }
 
-  return api.post('/tickets', data);
+  return api.post('/tickets', { ...data, priority: 'MEDIA' });
 }
 
 // PUT /api/tickets/:id/assign (ADMIN) → { agentId }
@@ -116,7 +113,7 @@ export async function updatePriority(id: string, priority: string) {
   await api.put('/tickets/' + id + '/priority', { priority });
 }
 
-// PUT /api/tickets/:id/status → { status }
+// PUT /api/tickets/:id/status → { newStatus }
 export async function updateStatus(id: string, status: string) {
   if (USE_FAKE_DATA) {
     const ticket = findFakeTicket(id);
@@ -128,7 +125,7 @@ export async function updateStatus(id: string, status: string) {
     return;
   }
 
-  await api.put('/tickets/' + id + '/status', { status });
+  await api.put('/tickets/' + id + '/status', { newStatus: status });
 }
 
 // POST /api/tickets/:id/reopen (cliente dueño del ticket)
@@ -139,16 +136,6 @@ export async function reopenTicket(id: string) {
   }
 
   await api.post('/tickets/' + id + '/reopen');
-}
-
-// GET /api/ticket-history/:id → cambios de estado del ticket, del más reciente al más antiguo.
-// Ahora el backend solo se lo da al ADMIN
-export async function getStatusHistory(ticketId: string): Promise<StatusChange[]> {
-  if (USE_FAKE_DATA) {
-    return fakeHistory.filter((h) => h.ticket === ticketId).sort((a, b) => b.changedAt.localeCompare(a.changedAt));
-  }
-
-  return api.get('/ticket-history/' + ticketId);
 }
 
 // GET /api/stats/tickets (ADMIN)
