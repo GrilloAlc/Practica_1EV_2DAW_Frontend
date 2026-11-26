@@ -73,7 +73,7 @@ No hay claves ni contraseñas en el frontend: el token de sesión lo da el backe
 2. Ejecuta `npm run build` y publica la carpeta `dist/` en un servicio de páginas estáticas.
 3. Como es una aplicación de una sola página, el servicio debe devolver `index.html` en cualquier
    ruta (por ejemplo `/propiedades/123`). En Netlify o Render se hace con una regla de reescritura
-   `/* → /index.html`; en Vercel, con un `rewrites` en `vercel.json`.
+   `/* → /index.html`. En Vercel ya está hecho: `vercel.json` lleva esa regla.
 4. El backend debe permitir por CORS el dominio donde se publique la web.
 
 ## Modo de prueba sin backend
