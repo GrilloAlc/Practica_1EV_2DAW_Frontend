@@ -19,12 +19,15 @@ export function Logo({ light = false }: { light?: boolean }) {
 export function PublicLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const [searchParams] = useSearchParams();
 
+  // Primero se sale de la página y después se cierra la sesión: si se hiciera al revés, la página privada
+  // en la que se estaba se guardaría como "página pedida" y se volvería a ella en el siguiente acceso
   function handleLogout() {
+    // flushSync: el cambio de página se aplica ya, antes de borrar la sesión
+    navigate('/', { replace: true, flushSync: true });
     logout();
-    navigate('/');
   }
 
   // Comprar y Alquilar son el mismo listado con distinto filtro: se marca el que está activo
@@ -78,7 +81,7 @@ export function PublicLayout() {
                 <button className="link-button navbar-logout" onClick={handleLogout}>Salir</button>
               </>
             ) : (
-              <Link to="/acceso" className="btn navbar-access">Entrar</Link>
+              <Link to="/acceso" state={{ from: pathname + search }} className="btn navbar-access">Entrar</Link>
             )}
           </div>
         </div>
@@ -130,8 +133,9 @@ export function AdminLayout() {
   const navigate = useNavigate();
 
   function handleLogout() {
+    // flushSync: el cambio de página se aplica ya, antes de borrar la sesión
+    navigate('/', { replace: true, flushSync: true });
     logout();
-    navigate('/');
   }
 
   return (
