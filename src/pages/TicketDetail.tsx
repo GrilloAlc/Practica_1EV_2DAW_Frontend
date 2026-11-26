@@ -19,11 +19,14 @@ import {
   statusLabels,
 } from '../utils/labels';
 
+// Estados que puede poner el agente asignado (el backend no le deja abrir ni cerrar). El admin, todos
+const AGENT_STATUSES = ['EN_CURSO', 'PENDIENTE_CLIENTE', 'RESUELTO'];
+
 // Detalle compartido por cliente, agente y admin. Las acciones dependen del rol
 function TicketDetail() {
   const { id } = useParams();
   const { user } = useAuth();
-  const isCustomer = user!.role === 'CLIENTE' || user!.role === 'PROPIETARIO';
+  const isCustomer = user!.role === 'CLIENTE';
   const isAdmin = user!.role === 'ADMIN';
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -254,7 +257,9 @@ function TicketDetail() {
             <dd>
               {!isCustomer && !closed ? (
                 <select aria-label="Estado" value={ticket.status} onChange={(e) => changeStatus(e.target.value)}>
-                  {TICKET_STATUSES.map((s) => <option key={s} value={s}>{statusLabels[s]}</option>)}
+                  {TICKET_STATUSES.filter((s) => isAdmin || AGENT_STATUSES.includes(s) || s === ticket.status).map((s) => (
+                    <option key={s} value={s} disabled={!isAdmin && !AGENT_STATUSES.includes(s)}>{statusLabels[s]}</option>
+                  ))}
                 </select>
               ) : statusLabels[ticket.status]}
             </dd>

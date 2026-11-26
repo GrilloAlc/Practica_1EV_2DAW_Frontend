@@ -35,7 +35,7 @@ export const router = createBrowserRouter(
           <Route path="/perfil" element={<Profile />} />
         </Route>
 
-        <Route element={<RequireAuth roles={['CLIENTE', 'PROPIETARIO']} />}>
+        <Route element={<RequireAuth roles={['CLIENTE']} />}>
           <Route path="/mis-tickets" element={<Tickets title="Mis consultas" subtitle="Tus preguntas y visitas, con su respuesta por escrito." />} />
           <Route path="/mis-tickets/nuevo" element={<NewTicket />} />
           <Route path="/mis-tickets/:id" element={<TicketDetail />} />

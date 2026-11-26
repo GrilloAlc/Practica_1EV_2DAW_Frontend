@@ -92,7 +92,7 @@ function Auth() {
             )}
             <label className="field">
               Contraseña
-              <input name="password" type="password" required minLength={8} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input name="password" type="password" required minLength={mode === 'register' ? 8 : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} placeholder={mode === 'register' ? 'Mínimo 8 caracteres' : undefined} value={password} onChange={(e) => setPassword(e.target.value)} />
             </label>
             {mode === 'register' && (
               <label className="field">

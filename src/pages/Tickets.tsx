@@ -19,7 +19,7 @@ function uniquePeople(people: ({ _id: string; name: string } | null)[]) {
 // Lista compartida por cliente, agente y admin. Las columnas cambian según el rol
 function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const { user } = useAuth();
-  const isCustomer = user!.role === 'CLIENTE' || user!.role === 'PROPIETARIO';
+  const isCustomer = user!.role === 'CLIENTE';
   const isAdmin = user!.role === 'ADMIN';
 
   const [tickets, setTickets] = useState<Ticket[]>([]);

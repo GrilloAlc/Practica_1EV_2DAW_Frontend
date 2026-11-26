@@ -30,7 +30,7 @@ export function PublicLayout() {
   // Comprar y Alquilar son el mismo listado con distinto filtro: se marca el que está activo
   const inListing = pathname === '/propiedades';
   const status = searchParams.get('status');
-  const isCustomer = !user || user.role === 'CLIENTE' || user.role === 'PROPIETARIO';
+  const isCustomer = !user || user.role === 'CLIENTE';
 
   return (
     <>

@@ -7,7 +7,7 @@ function findFakeTicket(id: string) {
   const ticket = fakeTickets.find((t) => t._id === id);
   if (!ticket) throw new ApiError('Ticket no encontrado', 404);
   const user = getLoggedUser();
-  const isCustomer = user.role === 'CLIENTE' || user.role === 'PROPIETARIO';
+  const isCustomer = user.role === 'CLIENTE';
   if ((isCustomer && ticket.customer._id !== user._id) || (user.role === 'AGENTE' && ticket.agent?._id !== user._id)) {
     throw new ApiError('No tienes permiso para ver este ticket', 403);
   }
@@ -20,7 +20,7 @@ export async function getTickets(params: { status?: string; priority?: string; u
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
     let list = fakeTickets;
-    if (user.role === 'CLIENTE' || user.role === 'PROPIETARIO') list = list.filter((t) => t.customer._id === user._id);
+    if (user.role === 'CLIENTE') list = list.filter((t) => t.customer._id === user._id);
     if (user.role === 'AGENTE') list = list.filter((t) => t.agent?._id === user._id);
     if (params.status) list = list.filter((t) => t.status === params.status);
     if (params.priority) list = list.filter((t) => t.priority === params.priority);

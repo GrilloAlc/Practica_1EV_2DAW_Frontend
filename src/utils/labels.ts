@@ -1,7 +1,8 @@
 import type { Property } from '../types';
 
 // Valores que acepta el backend (model/enums.js)
-export const ROLES = ['CLIENTE', 'PROPIETARIO', 'AGENTE', 'ADMIN'];
+// Los mismos que el backend (model/enums.js)
+export const ROLES = ['CLIENTE', 'AGENTE', 'ADMIN'];
 export const PROPERTY_TYPES = ['Casa', 'Piso', 'Terreno', 'Local'];
 export const PROPERTY_STATUSES = ['En venta', 'Disponible para alquilar', 'Reservada', 'Vendida', 'Alquilada'];
 export const TICKET_STATUSES = ['ABIERTO', 'EN_CURSO', 'PENDIENTE_CLIENTE', 'RESUELTO', 'CERRADO'];
@@ -11,7 +12,6 @@ export const TICKET_CATEGORIES = ['CONSULTA_PROPIEDAD', 'SOLICITUD_VISITA', 'INC
 // Texto que se muestra en pantalla para cada valor
 export const roleLabels: Record<string, string> = {
   CLIENTE: 'Cliente',
-  PROPIETARIO: 'Propietario',
   AGENTE: 'Agente',
   ADMIN: 'Administrador',
 };
