@@ -16,7 +16,7 @@ function findFakeTicket(id: string) {
 
 // GET /api/tickets → { data, pagesData }. El backend ya filtra según el rol:
 // cliente/propietario ve los suyos, agente los asignados y admin todos
-export async function getTickets(params: { status?: string; priority?: string; unassigned?: boolean; page?: number; limit?: number } = {}): Promise<Ticket[]> {
+export async function getTickets(params: { status?: string; priority?: number; unassigned?: boolean; page?: number; limit?: number } = {}): Promise<Ticket[]> {
   if (USE_FAKE_DATA) {
     const user = getLoggedUser();
     let list = fakeTickets;
@@ -74,7 +74,7 @@ export async function createTicket(data: { subject: string; description: string;
       code: 'TK-' + String(fakeTickets.length).padStart(4, '0'),
       customer: { _id: user._id, name: user.name },
       agent: null,
-      priority: 'MEDIA',
+      priority: 2,
       status: 'ABIERTO',
       reopenRequested: false,
       createdAt: new Date().toISOString(),
@@ -85,7 +85,7 @@ export async function createTicket(data: { subject: string; description: string;
     return ticket;
   }
 
-  return api.post('/tickets', { ...data, priority: 'MEDIA' });
+  return api.post('/tickets', { ...data, priority: 2 });
 }
 
 // PUT /api/tickets/:id/assign (ADMIN) → { agentId }
@@ -102,7 +102,7 @@ export async function assignTicket(id: string, agentId: string) {
 }
 
 // PUT /api/tickets/:id/priority (AGENTE asignado o ADMIN) → { priority }
-export async function updatePriority(id: string, priority: string) {
+export async function updatePriority(id: string, priority: number) {
   if (USE_FAKE_DATA) {
     const ticket = findFakeTicket(id);
     ticket.priority = priority;

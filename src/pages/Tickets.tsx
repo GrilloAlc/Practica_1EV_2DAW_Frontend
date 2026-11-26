@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { getTickets } from '../api/tickets';
 import { getErrorMessage } from '../api/client';
 import { useAuth } from '../context/useAuth';
-import { TICKET_CATEGORIES, TICKET_PRIORITIES, TICKET_STATUSES, categoryLabels, formatDate, priorityLabels, statusLabels } from '../utils/labels';
+import { TICKET_CATEGORIES, TICKET_PRIORITIES, TICKET_STATUSES, categoryLabels, formatDate, priorityLabels, priorityCssLabels, statusLabels } from '../utils/labels';
 import type { Ticket } from '../types';
 import { TableSkeleton } from '../components/Skeleton';
 
@@ -26,7 +26,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
-  const [priority, setPriority] = useState('');
+  const [priority, setPriority] = useState<number | 0>(0);
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [customerId, setCustomerId] = useState('');
@@ -96,8 +96,8 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
             ))}
           </div>
           <div className="tabs">
-            <select className="table-search" aria-label="Filtrar por prioridad" value={priority} onChange={(e) => setPriority(e.target.value)}>
-              <option value="">Toda prioridad</option>
+            <select className="table-search" aria-label="Filtrar por prioridad" value={priority} onChange={(e) => setPriority(Number(e.target.value))}>
+              <option value="0">Toda prioridad</option>
               {TICKET_PRIORITIES.map((p) => (
                 <option key={p} value={p}>{priorityLabels[p]}</option>
               ))}
@@ -170,7 +170,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                   <td>{t.subject}</td>
                   {!isCustomer && <td>{t.customer.name}</td>}
                   <td className="cell-muted">{categoryLabels[t.category]}</td>
-                  <td><span className={'priority priority-' + t.priority.toLowerCase()}>{priorityLabels[t.priority]}</span></td>
+                  <td><span className={'priority priority-' + priorityCssLabels[t.priority]}>{priorityLabels[t.priority]}</span></td>
                   <td><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
                   {isAdmin && <td className={t.agent ? '' : 'cell-muted'}>{t.agent ? t.agent.name : 'Sin asignar'}</td>}
                   <td className="cell-muted cell-code">{formatDate(t.createdAt)}</td>

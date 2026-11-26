@@ -15,6 +15,7 @@ import {
   formatDate,
   formatDateTime,
   priorityLabels,
+  priorityCssLabels,
   roleLabels,
   statusLabels,
 } from '../utils/labels';
@@ -119,7 +120,7 @@ function TicketDetail() {
     }
   }
 
-  async function changePriority(priority: string) {
+  async function changePriority(priority: number) {
     try {
       await updatePriority(ticket!._id, priority);
       setTicket({ ...ticket!, priority, updatedAt: new Date().toISOString() });
@@ -247,10 +248,10 @@ function TicketDetail() {
             <dt>Prioridad</dt>
             <dd>
               {!isCustomer && !closed ? (
-                <select aria-label="Prioridad" value={ticket.priority} onChange={(e) => changePriority(e.target.value)}>
+                <select aria-label="Prioridad" value={ticket.priority} onChange={(e) => changePriority(Number(e.target.value))}>
                   {TICKET_PRIORITIES.map((p) => <option key={p} value={p}>{priorityLabels[p]}</option>)}
                 </select>
-              ) : <span className={'priority priority-' + ticket.priority.toLowerCase()}>{priorityLabels[ticket.priority]}</span>}
+              ) : <span className={'priority priority-' + priorityCssLabels[ticket.priority]}>{priorityLabels[ticket.priority]}</span>}
             </dd>
 
             <dt>Estado</dt>

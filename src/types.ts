@@ -33,7 +33,7 @@ export interface Ticket {
   subject: string;
   description: string;
   category: string;
-  priority: string;
+  priority: number;
   status: string;
   customer: { _id: string; name: string; email?: string };
   agent: { _id: string; name: string; email?: string } | null;
