@@ -105,7 +105,7 @@ function PropertyDetail() {
           </dl>
 
           <section className="detail-section">
-            <h2>La casa</h2>
+            <h2>Notas de cata</h2>
             <p className="detail-description">{property.description}</p>
           </section>
 

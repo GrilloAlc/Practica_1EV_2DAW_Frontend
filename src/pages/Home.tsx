@@ -7,7 +7,6 @@ import { getProperties } from '../api/properties';
 import { PROPERTY_TYPES, formatPrice, propertyImage } from '../utils/labels';
 import HeroCarousel from '../components/HeroCarousel';
 import type { Property } from '../types';
-import WineRing from '../components/WineRing';
 
 const OPERATIONS = [
   { value: 'En venta', label: 'Comprar' },
@@ -60,14 +59,7 @@ function Home() {
       <section className="home-hero">
         <h1 className="home-hero-title">
           <span>Casas para</span>
-          <span>
-            {/* La copa se ha dejado encima de "catar" */}
-            <span className="home-hero-cata">
-              catar
-              <WineRing className="home-hero-ring" />
-            </span>{' '}
-            despacio.
-          </span>
+          <span>catar despacio.</span>
         </h1>
 
         <div className="home-hero-side">
