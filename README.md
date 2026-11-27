@@ -8,7 +8,7 @@ Web de una inmobiliaria de casas en venta y alquiler, con zona de clientes y sis
 
 | Parte | URL |
 |---|---|
-| Web (frontend) | https://practica-1-ev-2-daw-frontend.vercel.app |
+| Web (frontend) | https://catahome.vercel.app |
 | API (backend) | https://practica-1ev-2daw-backend.onrender.com/api |
 | Documentación de la API (Swagger) | _URL de la API_ + `/api-docs` |
 
