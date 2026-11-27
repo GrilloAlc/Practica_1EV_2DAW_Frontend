@@ -5,6 +5,8 @@
 //   npm run subir-casas              → pide el correo y la contraseña de un ADMIN y las sube
 //   npm run subir-casas -- --prueba  → solo comprueba el archivo y lo que se subiría, sin entrar ni subir nada
 //   npm run subir-casas -- --api http://localhost:3000/api   → contra otro backend
+//   npm run subir-casas -- --actualizar-fotos   → a las casas ya subidas con fotos del frontend (/images/...)
+//                                                 les pone las de casas.json (Unsplash). Con --prueba solo las lista
 //
 // También se pueden pasar las credenciales con las variables ADMIN_EMAIL y ADMIN_PASSWORD.
 // No sube dos veces la misma casa: si ya hay una activa en la misma calle, número y ciudad, la salta.
@@ -22,6 +24,7 @@ const PARALLEL = 4;
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--prueba');
+const fixPhotos = args.includes('--actualizar-fotos');
 const apiIndex = args.indexOf('--api');
 const API = (apiIndex >= 0 ? args[apiIndex + 1] : DEFAULT_API).replace(/\/$/, '');
 
@@ -133,6 +136,70 @@ function summary(casas) {
   console.log(`  Ciudades: ${new Set(casas.map((c) => c.address.city)).size}. Fotos por casa: entre ${Math.min(...fotos)} y ${Math.max(...fotos)}`);
 }
 
+// Inicia sesión como ADMIN (pide los datos si no vienen en ADMIN_EMAIL y ADMIN_PASSWORD). Devuelve token y usuario
+async function loginAdmin() {
+  const email = process.env.ADMIN_EMAIL || (await ask('\nCorreo del administrador: '));
+  const password = process.env.ADMIN_PASSWORD || (await ask('Contraseña: ', { hidden: true }));
+  const token = (await request('POST', '/users/login', { body: { email: email.toLowerCase(), password } })).token;
+  const me = await request('GET', '/users/me', { token });
+  if (me.role !== 'ADMIN') throw new Error(`${me.name} no es administrador (es ${me.role})`);
+  return { token, me };
+}
+
+// --actualizar-fotos: las casas ya subidas que aún tienen fotos guardadas en el frontend (/images/...)
+// pasan a tener las de scripts/casas.json (enlaces de Unsplash). Solo cambia las fotos; el resto se envía igual
+async function updatePhotos(casas, existing) {
+  const byKey = new Map(casas.map((c) => [key(c.address), c]));
+  const toFix = existing
+    .filter((p) => /(^|\s)\/images\//.test(p.image || ''))
+    .map((p) => ({ p, casa: byKey.get(key(p.address)) }))
+    .filter((x) => x.casa);
+
+  console.log(`\nCasas con fotos guardadas en el frontend: ${toFix.length}`);
+  for (const { p } of toFix) console.log(`  · ${p.title} · ${p.address.street} ${p.address.number || ''}, ${p.address.city}`);
+  if (dryRun || toFix.length === 0) {
+    console.log(dryRun ? '\nModo prueba: no se ha cambiado nada.' : '\nNo hay nada que cambiar.');
+    return 0;
+  }
+
+  let session;
+  try {
+    session = await loginAdmin();
+  } catch (err) {
+    console.error('No se ha podido iniciar sesión: ' + err.message);
+    return 1;
+  }
+  const answer = await ask(`\n¿Cambiar las fotos de ${toFix.length} casas como ${session.me.name}? (s/n) `);
+  if (answer.toLowerCase() !== 's') {
+    console.log('No se ha cambiado nada.');
+    return 0;
+  }
+
+  let ok = 0;
+  for (const { p, casa } of toFix) {
+    const body = {
+      title: p.title,
+      description: p.description,
+      type: p.type,
+      status: p.status,
+      address: p.address,
+      price: p.price,
+      area: p.area,
+      image: casa.image,
+      images: casa.images,
+    };
+    try {
+      await withRetries(() => request('PUT', '/properties/' + p._id, { token: session.token, body }));
+      ok++;
+      console.log(`  ✓ ${p.title}`);
+    } catch (err) {
+      console.log(`  ✗ ${p.title}: ${err.message}`);
+    }
+  }
+  console.log(`\nActualizadas ${ok} de ${toFix.length}.`);
+  return ok === toFix.length ? 0 : 1;
+}
+
 // Devuelve el código de salida: 0 si todo ha ido bien.
 // (Se evita process.exit(): en Windows a veces falla si quedan conexiones abiertas)
 async function main() {
@@ -160,6 +227,8 @@ async function main() {
     console.error('No se ha podido leer el backend: ' + err.message);
     return 1;
   }
+  if (fixPhotos) return updatePhotos(casas, existing);
+
   const existingKeys = new Set(existing.map((p) => key(p.address)));
   const toUpload = casas.filter((c) => !existingKeys.has(key(c.address)));
   const skipped = casas.length - toUpload.length;
