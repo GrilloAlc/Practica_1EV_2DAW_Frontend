@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import './TicketDetail.css';
 import { addMessage, assignTicket, denyReopen, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
 import { getAllUsers } from '../api/users';
@@ -58,8 +58,11 @@ function TicketDetail() {
 
 function TicketPage({ id }: { id: string }) {
   const { user } = useAuth();
+  const location = useLocation();
   const isCustomer = user!.role === 'CLIENTE';
   const isAdmin = user!.role === 'ADMIN';
+  // Recién enviada desde "Nueva consulta": se confirma que ha llegado
+  const justCreated = Boolean((location.state as { created?: boolean } | null)?.created);
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -257,6 +260,11 @@ function TicketPage({ id }: { id: string }) {
 
       {error && <p className="field-error" role="alert">{error}</p>}
       {notice && <p className="notice" role="status">{notice}</p>}
+      {justCreated && !notice && messages.length === 0 && (
+        <p className="notice" role="status">
+          Hemos recibido tu consulta. Un agente te responderá por escrito aquí mismo, normalmente en menos de 24 horas.
+        </p>
+      )}
       {ticket.reopenRequested && ticket.status === 'RESUELTO' && (
         <div className="notice ticket-reopen">
           <p>{isCustomer ? 'Has pedido reabrir esta consulta. Te avisaremos cuando la revisemos.' : 'El cliente ha pedido reabrir este ticket.'}</p>

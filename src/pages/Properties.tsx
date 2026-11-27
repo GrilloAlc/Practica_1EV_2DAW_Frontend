@@ -194,6 +194,12 @@ function Properties() {
                 Hay {formatNumber(total)} casas en {totalPages} {totalPages === 1 ? 'página' : 'páginas'}.{' '}
                 <button type="button" className="link-button" onClick={() => changeUrl({ page: '' })}>Ir a la primera</button>
               </div>
+            ) : appliedCity ? (
+              <div className="empty table-box">
+                <strong>Ahora mismo no hay casas así en {appliedCity}</strong>
+                <button type="button" className="link-button" onClick={() => changeUrl({ city: '', page: '' })}>Busca lo mismo en todas las ciudades</button>{' '}
+                o <button type="button" className="link-button" onClick={clearFilters}>quita todos los filtros</button>.
+              </div>
             ) : (
               <div className="empty table-box">
                 <strong>Ninguna casa coincide con tu búsqueda</strong>

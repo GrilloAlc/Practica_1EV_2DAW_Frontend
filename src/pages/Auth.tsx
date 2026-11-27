@@ -59,8 +59,11 @@ function Auth() {
           : await register({ name: name.trim(), email: cleanEmail, password, phone: phone.trim() || undefined });
 
       // Vuelve a la página que pedía antes del login si es para su rol; si no, a su página de inicio.
-      // replace: así Atrás no vuelve al formulario de acceso
-      navigate(pageAfterLogin(location.state?.from, loggedUser.role), { replace: true });
+      // replace: así Atrás no vuelve al formulario de acceso. Tras crear la cuenta se da la bienvenida
+      navigate(pageAfterLogin(location.state?.from, loggedUser.role), {
+        replace: true,
+        state: mode === 'register' ? { welcome: loggedUser.name } : undefined,
+      });
     } catch (err) {
       setError(getErrorMessage(err));
       setSending(false);

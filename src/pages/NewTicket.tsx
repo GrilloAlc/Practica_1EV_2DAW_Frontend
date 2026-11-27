@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { createTicket } from '../api/tickets';
 import { getProperty } from '../api/properties';
 import { getErrorMessage } from '../api/client';
@@ -16,6 +16,8 @@ function NewTicket() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const propertyId = searchParams.get('casa');
+  // Si se viene de crear la cuenta (se pidió una consulta sin sesión), se da la bienvenida
+  const welcome = (useLocation().state as { welcome?: string } | null)?.welcome;
 
   // El asunto puede venir ya escrito desde una casa (?asunto=...)
   const [subject, setSubject] = useState((searchParams.get('asunto') || '').slice(0, 200));
@@ -67,7 +69,8 @@ function NewTicket() {
     setSending(true);
     try {
       const ticket = await createTicket({ subject: subject.trim(), description: finalDescription, category });
-      navigate('/mis-tickets/' + ticket._id, { replace: true });
+      // La consulta se abre con un aviso de que ha llegado bien
+      navigate('/mis-tickets/' + ticket._id, { replace: true, state: { created: true } });
     } catch (err) {
       setError(getErrorMessage(err));
       setSending(false);
@@ -83,6 +86,7 @@ function NewTicket() {
       <p className="breadcrumb"><Link to="/mis-tickets">Mis consultas</Link> / Nueva consulta</p>
       <h1 className="page-title">Nueva consulta</h1>
       <p className="page-subtitle">Cuéntanos qué necesitas. Un agente te responde, normalmente en menos de 24 horas.</p>
+      {welcome && <p className="notice" role="status">Te damos la bienvenida, {welcome}. Ya puedes enviar tu consulta.</p>}
 
       <div className="new-ticket">
         <form className="form-box" onSubmit={handleSubmit}>

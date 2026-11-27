@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { getTicketsPage } from '../api/tickets';
 import { getAllUsers } from '../api/users';
 import { getErrorMessage } from '../api/client';
@@ -18,6 +18,8 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const isCustomer = user!.role === 'CLIENTE';
   const isAdmin = user!.role === 'ADMIN';
   const [searchParams, setSearchParams] = useSearchParams();
+  // Nombre de quien acaba de crear su cuenta (lo deja la pantalla de acceso)
+  const welcome = (useLocation().state as { welcome?: string } | null)?.welcome;
 
   const status = searchParams.get('estado') || '';
   const priority = searchParams.get('prioridad') || '';
@@ -116,6 +118,12 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
         </div>
         {isCustomer && <Link to="/mis-tickets/nuevo" className="btn btn-acento">Nueva consulta</Link>}
       </div>
+
+      {welcome && (
+        <p className="notice" role="status">
+          Te damos la bienvenida, {welcome}. Tu cuenta ya está creada: desde cualquier casa puedes preguntar o pedir una visita.
+        </p>
+      )}
 
       <div className="table-box">
         <div className="table-tools">
