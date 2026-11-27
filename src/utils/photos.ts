@@ -1,11 +1,11 @@
 import type { Property } from '../types';
 
-// Foto de respaldo para cada tipo de inmueble (public/images/tipos)
+// Foto de respaldo para cada tipo de inmueble (de Unsplash, como todas las fotos de la web)
 const TYPE_IMAGES: Record<string, string> = {
-  Piso: '/images/tipos/piso.jpg',
-  Casa: '/images/tipos/casa.jpg',
-  Local: '/images/tipos/local.jpg',
-  Terreno: '/images/tipos/terreno.jpg',
+  Piso: 'https://images.unsplash.com/photo-1556912173-3bb406ef7e77',
+  Casa: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914',
+  Local: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
+  Terreno: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef',
 };
 
 export function typeImage(type: string) {

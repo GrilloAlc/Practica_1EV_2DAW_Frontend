@@ -6,7 +6,7 @@
     "status": "En venta",
     "price": 545000,
     "area": 98,
-    "image": "/images/propiedades/piso-luminoso-centro.jpg",
+    "image": "https://images.unsplash.com/photo-1493809842364-78817add7ffb",
     "address": {
       "street": "Calle de Atocha",
       "number": "34",
@@ -26,7 +26,7 @@
     "status": "En venta",
     "price": 985000,
     "area": 176,
-    "image": "/images/propiedades/casa-jardin-privado.jpg",
+    "image": "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
     "address": {
       "street": "Calle de Arturo Soria",
       "number": "210",
@@ -46,7 +46,7 @@
     "status": "En venta",
     "price": 1150000,
     "area": 112,
-    "image": "/images/propiedades/atico-terraza.jpg",
+    "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
     "address": {
       "street": "Calle de Velázquez",
       "number": "57",
@@ -66,7 +66,7 @@
     "status": "En venta",
     "price": 295000,
     "area": 74,
-    "image": "/images/propiedades/apartamento-reformado.jpg",
+    "image": "https://images.unsplash.com/photo-1484154218962-a197022b5858",
     "address": {
       "street": "Carrer de Galileu",
       "number": "120",
@@ -86,7 +86,7 @@
     "status": "En venta",
     "price": 890000,
     "area": 220,
-    "image": "/images/propiedades/chalet-zona-residencial.jpg",
+    "image": "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6",
     "address": {
       "street": "Calle de la Granadilla",
       "number": "10",
@@ -106,7 +106,7 @@
     "status": "En venta",
     "price": 365000,
     "area": 48,
-    "image": "/images/propiedades/estudio-cerca-parque.jpg",
+    "image": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
     "address": {
       "street": "Calle de Alfonso XII",
       "number": "18",
@@ -126,7 +126,7 @@
     "status": "En venta",
     "price": 330000,
     "area": 70,
-    "image": "/images/propiedades/piso-amueblado-metro.jpg",
+    "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
     "address": {
       "street": "Calle de Bravo Murillo",
       "number": "150",
@@ -146,7 +146,7 @@
     "status": "En venta",
     "price": 395000,
     "area": 65,
-    "image": "/images/propiedades/loft-born.jpg",
+    "image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
     "address": {
       "street": "Carrer de la Princesa",
       "number": "30",
@@ -166,7 +166,7 @@
     "status": "En venta",
     "price": 340000,
     "area": 130,
-    "image": "/images/propiedades/casa-adosada-patio.jpg",
+    "image": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3",
     "address": {
       "street": "Carrer de Sueca",
       "number": "47",
@@ -186,7 +186,7 @@
     "status": "En venta",
     "price": 360000,
     "area": 95,
-    "image": "/images/propiedades/piso-vistas-mar.jpg",
+    "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00",
     "address": {
       "street": "Carrer de la Reina",
       "number": "120",
@@ -206,7 +206,7 @@
     "status": "En venta",
     "price": 520000,
     "area": 190,
-    "image": "/images/propiedades/casa-pueblo-rehabilitada.jpg",
+    "image": "https://images.unsplash.com/photo-1568605114967-8130f3a36994",
     "address": {
       "street": "Carrer de Gelida",
       "number": "40",
@@ -226,7 +226,7 @@
     "status": "En venta",
     "price": 690000,
     "area": 120,
-    "image": "/images/propiedades/duplex-terraza.jpg",
+    "image": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c",
     "address": {
       "street": "Calle de Ponzano",
       "number": "46",

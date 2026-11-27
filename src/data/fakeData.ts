@@ -1,8 +1,22 @@
 // Datos falsos para usar mientras el backend no funcione (ver USE_FAKE_DATA en api/client.ts)
 import type { Message, Property, StatusChange, Ticket, User } from '../types';
 
-// Fotos guardadas en public/images/propiedades
-const photo = (name: string) => `/images/propiedades/${name}.jpg`;
+// Fotos de Unsplash de cada casa (nombre → id de la foto)
+const PHOTO_IDS: Record<string, string> = {
+  'piso-luminoso-centro': '1493809842364-78817add7ffb',
+  'casa-jardin-privado': '1570129477492-45c003edd2be',
+  'atico-terraza': '1560448204-e02f11c3d0e2',
+  'apartamento-reformado': '1484154218962-a197022b5858',
+  'chalet-zona-residencial': '1605276374104-dee2a0ed3cd6',
+  'estudio-cerca-parque': '1502672260266-1c1ef2d93688',
+  'piso-amueblado-metro': '1522708323590-d24dbb6b0267',
+  'loft-born': '1600607687939-ce8a6c25118c',
+  'casa-adosada-patio': '1600566753190-17f0baa2a6c3',
+  'piso-vistas-mar': '1545324418-cc1a3fa10c00',
+  'casa-pueblo-rehabilitada': '1568605114967-8130f3a36994',
+  'duplex-terraza': '1598928506311-c55ded91a20c'
+};
+const photo = (name: string) => `https://images.unsplash.com/photo-${PHOTO_IDS[name]}`;
 
 // Cada casa con su dirección (calle real, código postal y coordenadas) y su propia descripción
 export const fakeProperties: Property[] = [

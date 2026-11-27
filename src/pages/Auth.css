@@ -13,7 +13,7 @@
   padding: 36px var(--margen) 56px;
   background:
     linear-gradient(180deg, rgba(38, 36, 31, 0.35) 0%, rgba(38, 36, 31, 0.1) 40%, rgba(79, 23, 36, 0.85) 100%),
-    url('/images/acceso.jpg') center / cover,
+    url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=75&auto=format&fit=crop') center / cover,
     var(--tinta);
   color: #fff;
 }
@@ -145,7 +145,7 @@
     padding: 20px 16px 32px;
     background:
       linear-gradient(180deg, rgba(38, 36, 31, 0.6) 0%, rgba(79, 23, 36, 0.88) 100%),
-      url('/images/acceso.jpg') center / cover,
+      url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=75&auto=format&fit=crop') center / cover,
       var(--tinta);
   }
   .auth-main {

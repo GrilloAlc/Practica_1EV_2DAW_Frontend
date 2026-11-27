@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import './NotFound.css';
 import { PHONE, PHONE_HREF } from '../utils/contact';
+import { typeImage } from '../utils/photos';
+import Photo from '../components/Photo';
 
 // Página para las direcciones que no existen (ruta "*" en App.tsx)
 function NotFound() {
@@ -20,13 +22,7 @@ function NotFound() {
           ¿Buscabas una en concreto? Llámanos al <a href={PHONE_HREF}>{PHONE}</a>.
         </p>
       </div>
-      <img
-        className="not-found-photo"
-        src="/images/tipos/casa.jpg"
-        alt=""
-        width={900}
-        height={1100}
-      />
+      <Photo className="not-found-photo" src={typeImage('Casa')} fallback={typeImage('Casa')} pixels={900} alt="" width={900} height={1100} sizes="(max-width: 860px) 100vw, 40vw" />
     </main>
   );
 }

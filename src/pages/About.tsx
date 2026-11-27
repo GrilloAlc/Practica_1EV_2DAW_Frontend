@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import './About.css';
 import { useAuth } from '../context/useAuth';
 import Photo from '../components/Photo';
+import { typeImage } from '../utils/photos';
 import { EMAIL, PHONE, PHONE_HREF } from '../utils/contact';
 
 // Las tres promesas del inicio, contadas como un manifiesto: qué significa cada una en la web
@@ -48,7 +49,7 @@ function About() {
       <div className="about-photo">
         <Photo
           src="https://images.unsplash.com/photo-1493809842364-78817add7ffb"
-          fallback="/images/propiedades/piso-luminoso-centro.jpg"
+          fallback={typeImage('Piso')}
           pixels={1600}
           alt="Salón con ventanales y luz de mañana"
           width={1600}

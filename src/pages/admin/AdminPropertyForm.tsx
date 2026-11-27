@@ -307,7 +307,7 @@ function PropertyForm({ id }: { id?: string }) {
             <textarea
               className="admin-photos-input"
               rows={4}
-              placeholder={'https://images.unsplash.com/photo-…\n/images/propiedades/mi-foto.jpg'}
+              placeholder={'https://images.unsplash.com/photo-…\nhttps://…/otra-foto.jpg'}
               value={photosText}
               onChange={(e) => setPhotosText(e.target.value)}
               spellCheck={false}

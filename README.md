@@ -146,7 +146,6 @@ src/
   pages/        una página por ruta; pages/admin para el panel de administración
   utils/        textos de estados y prioridades, formato de precios y fechas
   App.tsx       rutas de la web
-public/images/  fotos de las casas (de Unsplash, ver CREDITOS.md)
 ```
 
 ## Marca
@@ -169,7 +168,8 @@ igual en cualquier programa sin instalar la fuente. En la web, el logo es el com
 
 ## Créditos
 
-Fotos de [Unsplash](https://unsplash.com) (las de la web en `public/images/CREDITOS.md`; las de las
-casas de demostración, con su autor, en `scripts/datos/fotos.json`). Las sugerencias de direcciones
+Todas las fotos son de [Unsplash](https://unsplash.com/license) (uso libre, también comercial) y se sirven
+desde `images.unsplash.com`: la web no guarda ninguna foto. Las de las casas de demostración, con su autor,
+están en `scripts/datos/fotos.json`; las de respaldo de cada tipo, en `src/utils/photos.ts`. Las sugerencias de direcciones
 del formulario de casas vienen de [Photon](https://photon.komoot.io), el buscador de OpenStreetMap, y
 el mapa de la ficha usa las teselas de [OpenStreetMap](https://www.openstreetmap.org/copyright).
