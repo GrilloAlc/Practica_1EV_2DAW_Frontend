@@ -3,7 +3,7 @@ import type { SyntheticEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 import '../components/Skeleton.css';
-import { getProperties } from '../api/properties';
+import { getProperties, getPropertiesPage } from '../api/properties';
 import { useAuth } from '../context/useAuth';
 import { PROPERTY_TYPES, formatNumber, formatPrice, isRentStatus } from '../utils/labels';
 import { coverPhoto, typeImage } from '../utils/photos';
@@ -23,8 +23,13 @@ const OPERATIONS = [
   { value: 'Disponible para alquilar', label: 'Alquilar' },
 ];
 
+// Ciudades de "Dónde buscar". Cuántas casas tiene cada una lo dice el backend (total de la búsqueda por ciudad);
+// las que no tienen ninguna no se enseñan
+const PLACES = ['Madrid', 'Barcelona', 'Palma', 'Valencia', 'Sevilla', 'Marbella', 'Málaga', 'San Sebastián', 'Alcobendas', 'Bilbao', 'Ibiza', 'Sitges'];
+
 // Casas ya cargadas: al volver al inicio se pintan al momento
 let homeCache: { cover: Property[]; latest: Property[] } | null = null;
+let placesCache: { city: string; total: number }[] | null = null;
 
 function Home() {
   const navigate = useNavigate();
@@ -38,6 +43,7 @@ function Home() {
   const [latest, setLatest] = useState<Property[]>(homeCache?.latest || []);
   const [loading, setLoading] = useState(!homeCache);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [places, setPlaces] = useState(placesCache);
   const slow = useSlowLoading(loading, 'home');
   const isRent = status === 'Disponible para alquilar';
   // Escribir una consulta es cosa de clientes (los visitantes entran primero)
@@ -63,6 +69,26 @@ function Home() {
       setLoading(false);
     }
     load();
+  }, []);
+
+  // "Dónde buscar": el total de casas de cada ciudad (una petición pequeña por ciudad, limit=1)
+  useEffect(() => {
+    if (placesCache) return;
+    let current = true;
+    Promise.all(
+      PLACES.map((city) =>
+        getPropertiesPage({ city, limit: 1 }).then(
+          (res) => ({ city, total: res.pagesData.total }),
+          () => ({ city, total: 0 }),
+        ),
+      ),
+    ).then((list) => {
+      placesCache = list.filter((p) => p.total > 0).sort((a, b) => b.total - a.total);
+      if (current) setPlaces(placesCache);
+    });
+    return () => {
+      current = false;
+    };
   }, []);
 
   function handleSubmit(e: SyntheticEvent) {
@@ -147,6 +173,38 @@ function Home() {
         </p>
       )}
       {loading ? <div className="home-cover-skeleton skeleton" aria-hidden="true" /> : <HeroCarousel properties={cover} />}
+
+      {/* Dónde buscar: las ciudades como una carta, con su número real de casas */}
+      {(places === null || places.length > 0) && (
+        <section className="home-places" aria-labelledby="home-places-title" aria-busy={places === null}>
+          <div className="home-places-head">
+            <h2 id="home-places-title">Dónde buscar</h2>
+            <p>Casas publicadas ahora, ciudad a ciudad.</p>
+          </div>
+          <ul className="home-places-list">
+            {places === null
+              ? PLACES.slice(0, 8).map((city) => (
+                  <li key={city} aria-hidden="true">
+                    <span className="home-places-row">
+                      <span className="skeleton home-places-skeleton" />
+                    </span>
+                  </li>
+                ))
+              : places.map((p) => (
+                  <li key={p.city}>
+                    <Link to={'/propiedades?city=' + encodeURIComponent(p.city)} className="home-places-row">
+                      <span className="home-places-name">{p.city}</span>
+                      <span className="home-places-dots" aria-hidden="true" />
+                      <span className="home-places-count">
+                        {formatNumber(p.total)} {p.total === 1 ? 'casa' : 'casas'}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+          </ul>
+          <Link to="/propiedades" className="home-link home-places-all">Ver todas las ciudades</Link>
+        </section>
+      )}
 
       {/* Comprar y Alquilar ya están en el menú y en el buscador: aquí, hablar con una persona */}
       <section className="home-talk" aria-labelledby="home-talk-title">

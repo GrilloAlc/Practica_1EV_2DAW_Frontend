@@ -15,7 +15,7 @@
 - The promise "Precio a la vista. Metros reales. Y cuando preguntas, te responde una persona, por escrito."
 - The footer tagline "Casas para catar despacio."
 - The section title "Notas de cata" in the house page
-- The phone number written as "644 7171 99" and the email "info@inmobiliaria.es"
+- The phone number written as "660 78 73 58" and the email "info@inmobiliaria.es"
 - The page subtitles passed to the ticket lists in src/App.tsx
 - The skeleton loading states (they show real loading)
 - The carousel counter "1 / 5" (a real sequence)

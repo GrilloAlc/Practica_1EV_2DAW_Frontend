@@ -1,12 +1,23 @@
 import { Link } from 'react-router-dom';
 import './About.css';
 import { useAuth } from '../context/useAuth';
+import Photo from '../components/Photo';
 import { EMAIL, PHONE, PHONE_HREF } from '../utils/contact';
 
-const steps = [
-  { title: 'Encuentra la casa', text: 'Filtra por operación, ciudad, tipo y precio, y ordena por precio, tamaño o fecha.' },
-  { title: 'Pregunta o pide una visita', text: 'Desde la ficha abres una consulta, que se asigna a un agente.' },
-  { title: 'Sigue la respuesta', text: 'En «Mis consultas» ves en qué punto está cada una y hablas con tu agente por escrito.' },
+// Las tres promesas del inicio, contadas como un manifiesto: qué significa cada una en la web
+const promises = [
+  {
+    title: 'Precio a la vista.',
+    text: 'Cada casa enseña su precio final y, si está en venta, lo que sale el metro cuadrado. Aquí no hay «consultar precio».',
+  },
+  {
+    title: 'Metros reales.',
+    text: 'La superficie que ves es la de la casa, y la dirección es la de su portal: por eso la ponemos en el mapa.',
+  },
+  {
+    title: 'Y cuando preguntas, te responde una persona, por escrito.',
+    text: 'Cada consulta tiene un agente y queda guardada con su historial. Nada se pierde en una llamada.',
+  },
 ];
 
 const faqs = [
@@ -25,26 +36,39 @@ function About() {
   return (
     <main className="about">
       <title>Nosotros y preguntas frecuentes · CataHome</title>
-      <section className="about-hero">
-        <div className="about-inner">
-          <h1>Una inmobiliaria que responde por escrito</h1>
-          <p>
-            Ayudamos a comprar, vender y alquilar casas. Cada consulta tiene su agente y queda por escrito, así nunca
-            tienes que preguntar dos veces lo mismo.
-          </p>
-        </div>
+
+      <section className="about-hero about-inner">
+        <h1>Una inmobiliaria que responde por escrito</h1>
+        <p>
+          Ayudamos a comprar, vender y alquilar casas sin prisas. Cada consulta tiene su agente y queda por escrito, así
+          nunca tienes que preguntar dos veces lo mismo.
+        </p>
       </section>
 
-      <section className="about-inner about-steps" aria-labelledby="about-steps-title">
-        <h2 id="about-steps-title">Cómo funciona</h2>
-        <ol className="about-step-list">
-          {steps.map((s) => (
-            <li key={s.title} className="about-step">
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
-            </li>
-          ))}
-        </ol>
+      <div className="about-photo">
+        <Photo
+          src="https://images.unsplash.com/photo-1493809842364-78817add7ffb"
+          fallback="/images/propiedades/piso-luminoso-centro.jpg"
+          pixels={1600}
+          alt="Salón con ventanales y luz de mañana"
+          width={1600}
+          height={900}
+          sizes="100vw"
+          fetchPriority="high"
+        />
+      </div>
+
+      <section className="about-inner about-manifesto" aria-labelledby="about-manifesto-title">
+        <h2 id="about-manifesto-title" className="about-visually-hidden">Lo que prometemos</h2>
+        {promises.map((p) => (
+          <div key={p.title} className="about-promise">
+            <p className="about-promise-title">{p.title}</p>
+            <p className="about-promise-text">{p.text}</p>
+          </div>
+        ))}
+        <p className="about-process">
+          Cómo funciona: buscas la casa, preguntas o pides visita desde su ficha y sigues la respuesta en «Mis consultas».
+        </p>
       </section>
 
       <div className="about-inner about-columns">
@@ -59,13 +83,10 @@ function About() {
         </section>
 
         <aside className="about-contact" aria-labelledby="about-contact-title">
-          <h2 id="about-contact-title">Contacto</h2>
-          <dl>
-            <dt>Correo</dt>
-            <dd><a href={'mailto:' + EMAIL}>{EMAIL}</a></dd>
-            <dt>Teléfono</dt>
-            <dd><a href={PHONE_HREF}>{PHONE}</a></dd>
-          </dl>
+          <h2 id="about-contact-title">Hablemos</h2>
+          <p>Te atiende una persona del equipo, por teléfono o por escrito.</p>
+          <a className="about-contact-phone" href={PHONE_HREF}>{PHONE}</a>
+          <a className="about-contact-mail" href={'mailto:' + EMAIL}>{EMAIL}</a>
           {canAsk && <Link to="/mis-tickets/nuevo" className="btn btn-acento about-contact-btn">Escribir una consulta</Link>}
         </aside>
       </div>
