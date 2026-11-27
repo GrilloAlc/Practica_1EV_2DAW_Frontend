@@ -1,0 +1,242 @@
+[
+  {
+    "title": "Piso luminoso en el centro",
+    "description": "Tercera planta con ascensor y cuatro balcones a la calle. Entra sol toda la mañana en el salón y en los dos dormitorios.\n\nSuelos de tarima, techos altos y cocina independiente. A cinco minutos andando de la Puerta del Sol.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 545000,
+    "area": 98,
+    "image": "/images/propiedades/piso-luminoso-centro.jpg",
+    "address": {
+      "street": "Calle de Atocha",
+      "number": "34",
+      "postalCode": "28012",
+      "city": "Madrid",
+      "province": "Madrid",
+      "coordinates": {
+        "lat": 40.413173,
+        "lng": -3.701017
+      }
+    }
+  },
+  {
+    "title": "Casa con jardín privado",
+    "description": "Casa de dos plantas con un jardín de 120 m² y árboles ya crecidos. Cuatro dormitorios, tres baños y un garaje para dos coches.\n\nCalle tranquila, con colegios y el metro a diez minutos.",
+    "type": "Casa",
+    "status": "En venta",
+    "price": 985000,
+    "area": 176,
+    "image": "/images/propiedades/casa-jardin-privado.jpg",
+    "address": {
+      "street": "Calle de Arturo Soria",
+      "number": "210",
+      "postalCode": "28016",
+      "city": "Madrid",
+      "province": "Madrid",
+      "coordinates": {
+        "lat": 40.460949,
+        "lng": -3.661931
+      }
+    }
+  },
+  {
+    "title": "Ático con terraza",
+    "description": "Última planta en el barrio de Salamanca con una terraza de 35 m² que da a los tejados. El salón se abre por completo a la terraza.\n\nDos dormitorios, dos baños y portero físico.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 1150000,
+    "area": 112,
+    "image": "/images/propiedades/atico-terraza.jpg",
+    "address": {
+      "street": "Calle de Velázquez",
+      "number": "57",
+      "postalCode": "28001",
+      "city": "Madrid",
+      "province": "Madrid",
+      "coordinates": {
+        "lat": 40.428563,
+        "lng": -3.684045
+      }
+    }
+  },
+  {
+    "title": "Apartamento reformado",
+    "description": "Reformado entero el año pasado: instalación eléctrica, ventanas con doble cristal y cocina abierta al salón.\n\nDos dormitorios y un baño con plato de ducha. Listo para entrar a vivir.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 295000,
+    "area": 74,
+    "image": "/images/propiedades/apartamento-reformado.jpg",
+    "address": {
+      "street": "Carrer de Galileu",
+      "number": "120",
+      "postalCode": "08028",
+      "city": "Barcelona",
+      "province": "Barcelona",
+      "coordinates": {
+        "lat": 41.379307,
+        "lng": 2.134683
+      }
+    }
+  },
+  {
+    "title": "Chalet en zona residencial",
+    "description": "Chalet independiente en una parcela de 600 m² con piscina y porche. Cinco dormitorios, uno de ellos en la planta baja.\n\nUrbanización tranquila de Majadahonda, con colegios cerca y a veinte minutos de Madrid en coche.",
+    "type": "Casa",
+    "status": "En venta",
+    "price": 890000,
+    "area": 220,
+    "image": "/images/propiedades/chalet-zona-residencial.jpg",
+    "address": {
+      "street": "Calle de la Granadilla",
+      "number": "10",
+      "postalCode": "28220",
+      "city": "Majadahonda",
+      "province": "Madrid",
+      "coordinates": {
+        "lat": 40.471485,
+        "lng": -3.873805
+      }
+    }
+  },
+  {
+    "title": "Estudio cerca del parque",
+    "description": "Estudio exterior frente al Retiro, con la zona de dormir separada por una puerta corredera.\n\nCocina equipada y armarios empotrados. Buena opción como primera casa o para alquilar.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 365000,
+    "area": 48,
+    "image": "/images/propiedades/estudio-cerca-parque.jpg",
+    "address": {
+      "street": "Calle de Alfonso XII",
+      "number": "18",
+      "postalCode": "28014",
+      "city": "Madrid",
+      "province": "Madrid",
+      "coordinates": {
+        "lat": 40.417187,
+        "lng": -3.689234
+      }
+    }
+  },
+  {
+    "title": "Piso amueblado junto al metro",
+    "description": "Se vende con muebles y electrodomésticos. Dos dormitorios, salón con balcón y calefacción central.\n\nLa boca de metro de Estrecho está a pocos pasos del portal.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 330000,
+    "area": 70,
+    "image": "/images/propiedades/piso-amueblado-metro.jpg",
+    "address": {
+      "street": "Calle de Bravo Murillo",
+      "number": "150",
+      "postalCode": "28020",
+      "city": "Madrid",
+      "province": "Madrid",
+      "coordinates": {
+        "lat": 40.45091,
+        "lng": -3.702856
+      }
+    }
+  },
+  {
+    "title": "Loft diáfano en el Born",
+    "description": "Antiguo taller convertido en loft, con vigas de madera y cuatro metros de altura. Todo es un espacio abierto, salvo el baño.\n\nA un paso del Parc de la Ciutadella y del mercado de Santa Caterina.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 395000,
+    "area": 65,
+    "image": "/images/propiedades/loft-born.jpg",
+    "address": {
+      "street": "Carrer de la Princesa",
+      "number": "30",
+      "postalCode": "08003",
+      "city": "Barcelona",
+      "province": "Barcelona",
+      "coordinates": {
+        "lat": 41.385717,
+        "lng": 2.181004
+      }
+    }
+  },
+  {
+    "title": "Casa adosada con patio",
+    "description": "Casa adosada en Russafa con un patio trasero donde cabe una mesa para seis. Tres dormitorios en la planta de arriba.\n\nCalle con comercios de barrio y a diez minutos andando del centro.",
+    "type": "Casa",
+    "status": "En venta",
+    "price": 340000,
+    "area": 130,
+    "image": "/images/propiedades/casa-adosada-patio.jpg",
+    "address": {
+      "street": "Carrer de Sueca",
+      "number": "47",
+      "postalCode": "46006",
+      "city": "València",
+      "province": "Valencia",
+      "coordinates": {
+        "lat": 39.460926,
+        "lng": -0.374549
+      }
+    }
+  },
+  {
+    "title": "Piso junto a la playa",
+    "description": "En el Cabanyal, a dos calles de la playa. Desde la terraza se ve el mar entre los tejados.\n\nTres dormitorios, terraza acristalada y plaza de garaje incluida en el precio.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 360000,
+    "area": 95,
+    "image": "/images/propiedades/piso-vistas-mar.jpg",
+    "address": {
+      "street": "Carrer de la Reina",
+      "number": "120",
+      "postalCode": "46011",
+      "city": "València",
+      "province": "Valencia",
+      "coordinates": {
+        "lat": 39.468569,
+        "lng": -0.328565
+      }
+    }
+  },
+  {
+    "title": "Casa de pueblo rehabilitada",
+    "description": "Casa de piedra del siglo XIX rehabilitada respetando muros y bóvedas. Bodega en el sótano y patio con una parra.\n\nRodeada de viñedos, a cuarenta minutos de Barcelona.",
+    "type": "Casa",
+    "status": "En venta",
+    "price": 520000,
+    "area": 190,
+    "image": "/images/propiedades/casa-pueblo-rehabilitada.jpg",
+    "address": {
+      "street": "Carrer de Gelida",
+      "number": "40",
+      "postalCode": "08770",
+      "city": "Sant Sadurní d'Anoia",
+      "province": "Barcelona",
+      "coordinates": {
+        "lat": 41.429217,
+        "lng": 1.788836
+      }
+    }
+  },
+  {
+    "title": "Dúplex con terraza",
+    "description": "Dúplex en Chamberí: abajo, salón y cocina; arriba, dos dormitorios y una terraza de 20 m².\n\nSe vende sin muebles. Calle llena de restaurantes y a dos minutos del metro de Ríos Rosas.",
+    "type": "Piso",
+    "status": "En venta",
+    "price": 690000,
+    "area": 120,
+    "image": "/images/propiedades/duplex-terraza.jpg",
+    "address": {
+      "street": "Calle de Ponzano",
+      "number": "46",
+      "postalCode": "28003",
+      "city": "Madrid",
+      "province": "Madrid",
+      "coordinates": {
+        "lat": 40.440457,
+        "lng": -3.699049
+      }
+    }
+  }
+]

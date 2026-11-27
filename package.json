@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "lanzar": "npm install && npm run build && npm run dev",
+    "generar-casas": "node scripts/generar-casas.mjs",
     "subir-casas": "node scripts/subir-casas.mjs"
   },
   "dependencies": {
