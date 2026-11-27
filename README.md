@@ -8,15 +8,16 @@ Web de una inmobiliaria de casas en venta y alquiler, con zona de clientes y sis
 
 | Parte | URL |
 |---|---|
-| Web (frontend) | _pendiente de desplegar_ |
+| Web (frontend) | https://practica-1-ev-2-daw-frontend.vercel.app |
 | API (backend) | https://practica-1ev-2daw-backend.onrender.com/api |
 | Documentación de la API (Swagger) | _URL de la API_ + `/api-docs` |
 
 ## Qué se puede hacer
 
-- **Visitante:** ver el inicio, buscar casas por operación, tipo, ciudad y precio, ver la ficha de cada
-  casa (fotos, datos, calculadora de hipoteca y enlace al mapa), leer "Nosotros" y las preguntas
-  frecuentes, y crear una cuenta (siempre de cliente).
+- **Visitante:** ver el inicio (casas destacadas, ciudades con su número de casas y las recién
+  llegadas), buscar casas por operación, tipo, ciudad y precio, ver la ficha de cada casa (galería de
+  fotos a pantalla completa, datos, calculadora de hipoteca, mapa de la zona y casas parecidas), leer
+  "Nosotros" y las preguntas frecuentes, y crear una cuenta (siempre de cliente).
 - **Cliente:** editar su perfil; abrir consultas sobre una casa o pedir una visita; ver sus consultas
   filtradas por estado; responder; pedir que se reabra una consulta resuelta o confirmar su cierre.
 - **Agente:** ver las consultas que tiene asignadas, responder y cambiar su estado y prioridad.
@@ -62,6 +63,29 @@ Otros comandos:
 | `npm run preview` | Sirve la versión de `dist/` para probarla. |
 | `npm run lint` | Revisa el código con ESLint. |
 | `npm run lanzar` | Instala, compila y arranca en un solo paso. |
+| `npm run generar-casas` | Crea `scripts/casas.json` con 500 casas (ver "Casas de demostración"). |
+| `npm run subir-casas` | Sube `scripts/casas.json` al backend con la cuenta de un administrador. |
+
+## Casas de demostración
+
+Para que la web tenga contenido hay 500 casas listas para subir:
+
+```bash
+npm run subir-casas -- --prueba   # comprueba el archivo y dice qué subiría, sin entrar ni subir nada
+npm run subir-casas               # pide el correo y la contraseña de un ADMIN y sube las que falten
+```
+
+- **Direcciones:** portales reales de OpenStreetMap (calle, número, código postal y coordenadas) en 52
+  ciudades, buscados con [Photon](https://photon.komoot.io). Se guardan en `scripts/datos/direcciones.json`.
+- **Fotos:** de 3 a 7 por casa, del mismo estilo (fachada o salón, cocina, dormitorio, baño…), de
+  [Unsplash](https://unsplash.com/license). Se sirven desde `images.unsplash.com` al tamaño que pide cada
+  pantalla. La lista con el autor de cada foto está en `scripts/datos/fotos.json`.
+- **Precios y textos:** precio del metro cuadrado de cada zona y frases escritas a mano que se combinan.
+- Si se corta a medias, se puede volver a lanzar: no sube dos veces la misma dirección.
+
+**Galería:** el backend guarda una sola foto por casa (`image`, texto). Para tener varias, `image` lleva
+las direcciones de todas las fotos separadas por espacios (la primera es la portada) y el frontend las
+separa (`src/utils/photos.ts`). Si el backend añade un campo `images: [String]`, el frontend lo usa.
 
 ## Variables de entorno
 
@@ -145,6 +169,7 @@ igual en cualquier programa sin instalar la fuente. En la web, el logo es el com
 
 ## Créditos
 
-Fotos de [Unsplash](https://unsplash.com) (detalle en `public/images/CREDITOS.md`). Las sugerencias
-de direcciones del formulario de casas vienen de [Photon](https://photon.komoot.io), el buscador de
-OpenStreetMap.
+Fotos de [Unsplash](https://unsplash.com) (las de la web en `public/images/CREDITOS.md`; las de las
+casas de demostración, con su autor, en `scripts/datos/fotos.json`). Las sugerencias de direcciones
+del formulario de casas vienen de [Photon](https://photon.komoot.io), el buscador de OpenStreetMap, y
+el mapa de la ficha usa las teselas de [OpenStreetMap](https://www.openstreetmap.org/copyright).
