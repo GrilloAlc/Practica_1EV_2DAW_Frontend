@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './HeroCarousel.css';
-import { formatPrice, propertyImage } from '../utils/labels';
+import { formatPrice } from '../utils/labels';
+import { coverPhoto, typeImage } from '../utils/photos';
+import Photo from './Photo';
 import type { Property } from '../types';
 
 const AUTOPLAY_MS = 6000;
@@ -19,7 +21,8 @@ function HeroCarousel({ properties }: { properties: Property[] }) {
   if (total === 0) return null;
 
   // "% total" por si la lista cambia de tamaño y el índice se queda fuera
-  const current = properties[index % total];
+  const active = index % total;
+  const current = properties[active];
 
   function go(next: number) {
     setIndex((next + total) % total);
@@ -40,7 +43,7 @@ function HeroCarousel({ properties }: { properties: Property[] }) {
       onTouchEnd={(e) => {
         if (touchStart.current === null) return;
         const dx = e.changedTouches[0].clientX - touchStart.current;
-        if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
+        if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
         touchStart.current = null;
       }}
     >
@@ -50,12 +53,22 @@ function HeroCarousel({ properties }: { properties: Property[] }) {
             key={p._id}
             to={`/propiedades/${p._id}`}
             state={{ property: p }}
-            className={i === index ? 'hero-carousel-slide is-active' : 'hero-carousel-slide'}
-            aria-hidden={i !== index}
-            tabIndex={i === index ? 0 : -1}
+            className={i === active ? 'hero-carousel-slide is-active' : 'hero-carousel-slide'}
+            aria-hidden={i !== active}
+            tabIndex={i === active ? 0 : -1}
             aria-label={`${p.title}, ${p.address.city}, ${formatPrice(p)}`}
           >
-            <img src={propertyImage(p)} alt="" width={1200} height={800} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} />
+            <Photo
+              src={coverPhoto(p)}
+              fallback={typeImage(p.type)}
+              pixels={1600}
+              alt=""
+              width={1600}
+              height={1000}
+              sizes="100vw"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : 'auto'}
+            />
           </Link>
         ))}
       </div>
@@ -72,12 +85,12 @@ function HeroCarousel({ properties }: { properties: Property[] }) {
         {total > 1 && (
           <div className="hero-carousel-controls">
             <span className="hero-carousel-count">
-              {index + 1} / {total}
+              {active + 1} / {total}
             </span>
-            <button type="button" onClick={() => go(index - 1)} aria-label="Casa anterior">
+            <button type="button" onClick={() => go(active - 1)} aria-label="Casa anterior">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
             </button>
-            <button type="button" onClick={() => go(index + 1)} aria-label="Casa siguiente">
+            <button type="button" onClick={() => go(active + 1)} aria-label="Casa siguiente">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
             </button>
             <button type="button" onClick={() => setPaused(!paused)} aria-label={paused ? 'Reanudar el carrusel' : 'Pausar el carrusel'}>
@@ -96,9 +109,9 @@ function HeroCarousel({ properties }: { properties: Property[] }) {
           {properties.map((p, i) => (
             <span
               key={p._id}
-              className={i === index ? 'is-active' : i < index ? 'is-done' : ''}
+              className={i === active ? 'is-active' : i < active ? 'is-done' : ''}
               style={{ animationDuration: `${AUTOPLAY_MS}ms`, animationPlayState: paused || hovered ? 'paused' : 'running' }}
-              onAnimationEnd={i === index ? () => go(index + 1) : undefined}
+              onAnimationEnd={i === active ? () => go(active + 1) : undefined}
             />
           ))}
         </div>

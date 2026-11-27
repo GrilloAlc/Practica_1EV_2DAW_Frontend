@@ -117,6 +117,21 @@
   flex-direction: column;
 }
 
+.properties-results {
+  min-width: 0;
+  transition: opacity 0.2s;
+}
+
+/* Búsqueda nueva en camino: los resultados anteriores se ven apagados hasta que llegan los nuevos */
+.properties-results.is-loading {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.properties-results .empty p {
+  margin: 0 0 20px;
+}
+
 @media (max-width: 900px) {
   .properties-layout {
     grid-template-columns: 1fr;

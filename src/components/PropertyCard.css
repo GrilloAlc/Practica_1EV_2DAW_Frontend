@@ -48,6 +48,18 @@
   color: var(--tinta);
 }
 
+/* Cuántas fotos tiene: invita a abrir la ficha */
+.property-card-count {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  padding: 4px 10px;
+  background: rgba(38, 36, 31, 0.72);
+  font-size: 13px;
+  color: #fff;
+  pointer-events: none;
+}
+
 .property-card-body {
   display: flex;
   flex-direction: column;

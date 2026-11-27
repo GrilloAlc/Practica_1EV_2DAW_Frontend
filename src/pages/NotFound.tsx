@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import './NotFound.css';
+import { PHONE, PHONE_HREF } from '../utils/contact';
 
 // Página para las direcciones que no existen (ruta "*" en App.tsx)
 function NotFound() {
   return (
     <main className="page not-found">
+      <title>Página no encontrada · CataHome</title>
       <div className="not-found-text">
         <h1 className="page-title">Aquí no hay ninguna casa.</h1>
         <p className="page-subtitle">
@@ -15,7 +17,7 @@ function NotFound() {
           <Link to="/" className="btn btn-outline">Volver al inicio</Link>
         </div>
         <p className="not-found-phone">
-          ¿Buscabas una en concreto? Llámanos al <a href="tel:+34644717199">644 7171 99</a>.
+          ¿Buscabas una en concreto? Llámanos al <a href={PHONE_HREF}>{PHONE}</a>.
         </p>
       </div>
       <img

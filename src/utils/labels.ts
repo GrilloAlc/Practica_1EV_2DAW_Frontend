@@ -24,6 +24,19 @@ export const statusLabels: Record<string, string> = {
   CERRADO: 'Cerrado',
 };
 
+// El cliente ve sus consultas en femenino y "Pendiente de tu respuesta" en vez de "Pendiente del cliente"
+const customerStatusLabels: Record<string, string> = {
+  ABIERTO: 'Abierta',
+  EN_CURSO: 'En curso',
+  PENDIENTE_CLIENTE: 'Pendiente de tu respuesta',
+  RESUELTO: 'Resuelta',
+  CERRADO: 'Cerrada',
+};
+
+export function statusLabel(status: string, isCustomer = false) {
+  return (isCustomer ? customerStatusLabels[status] : statusLabels[status]) || status;
+}
+
 export const priorityLabels: Record<number, string> = {
   1: 'Baja',
   2: 'Media',
@@ -52,34 +65,35 @@ export function formatNumber(value: number) {
   return numberFormat.format(value);
 }
 
+// Alquiler: el precio es al mes
+export function isRentStatus(status: string) {
+  return status === 'Disponible para alquilar' || status === 'Alquilada';
+}
+
 export function formatPrice(property: Property) {
   let text = formatNumber(property.price) + ' €';
-  if (property.status === 'Disponible para alquilar' || property.status === 'Alquilada') {
+  if (isRentStatus(property.status)) {
     text += '/mes';
   }
   return text;
 }
 
-export function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('es-ES');
+// Fechas: sin fecha o con una fecha que no se entiende se muestra una raya en vez de "Invalid Date"
+function toDate(date?: string | null) {
+  if (!date) return null;
+  const d = new Date(date);
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
-// Fecha con hora, para el historial: "12/5/2025, 10:32"
-export function formatDateTime(date: string) {
-  return new Date(date).toLocaleString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+export function formatDate(date?: string | null) {
+  const d = toDate(date);
+  return d ? d.toLocaleDateString('es-ES') : '—';
 }
 
-// Foto de respaldo para cada tipo de inmueble (public/images/tipos)
-const TYPE_IMAGES: Record<string, string> = {
-  Piso: '/images/tipos/piso.jpg',
-  Casa: '/images/tipos/casa.jpg',
-  Local: '/images/tipos/local.jpg',
-  Terreno: '/images/tipos/terreno.jpg',
-};
-
-// Usa la foto de la propiedad y, si no tiene, la de su tipo
-export function propertyImage(property: Property) {
-  return property.image || TYPE_IMAGES[property.type] || TYPE_IMAGES.Piso;
+// Fecha con hora, para el historial y los mensajes: "12/5/2025, 10:32"
+export function formatDateTime(date?: string | null) {
+  const d = toDate(date);
+  return d ? d.toLocaleString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 }
 
 // Texto corto de la operación para las etiquetas de las fotos
@@ -88,3 +102,11 @@ export function operationLabel(status: string) {
   if (status === 'Disponible para alquilar') return 'Alquiler';
   return status;
 }
+
+// Tipo en plural para los títulos del listado ("Pisos en venta en Madrid")
+export const typePlurals: Record<string, string> = {
+  Casa: 'Casas',
+  Piso: 'Pisos',
+  Local: 'Locales',
+  Terreno: 'Terrenos',
+};

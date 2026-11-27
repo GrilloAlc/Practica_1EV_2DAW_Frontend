@@ -29,7 +29,7 @@ export function PropertyCardSkeleton() {
 
 export function PropertyListSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="properties-list" role="status" aria-label="Cargando viviendas">
+    <div className="properties-list" role="status" aria-label="Cargando casas">
       {Array.from({ length: count }, (_, i) => <PropertyCardSkeleton key={i} />)}
     </div>
   );
@@ -38,7 +38,7 @@ export function PropertyListSkeleton({ count = 3 }: { count?: number }) {
 // Tarjeta vertical del inicio
 export function ListingGridSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="home-grid" role="status" aria-label="Cargando viviendas">
+    <div className="home-grid" role="status" aria-label="Cargando casas">
       {Array.from({ length: count }, (_, i) => (
         <div key={i} className="skeleton-tile" aria-hidden="true">
           <span className="skeleton skeleton-tile-photo" />
@@ -54,10 +54,10 @@ export function ListingGridSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
-// Ficha de una vivienda
+// Ficha de una casa
 export function DetailSkeleton() {
   return (
-    <div role="status" aria-label="Cargando vivienda">
+    <div role="status" aria-label="Cargando la casa">
       <span className="skeleton skeleton-detail-photo" aria-hidden="true" />
       <div className="skeleton-detail" aria-hidden="true">
         <div className="skeleton-stack">

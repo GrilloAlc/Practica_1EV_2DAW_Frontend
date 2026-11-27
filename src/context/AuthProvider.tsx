@@ -9,7 +9,15 @@ import type { User } from '../types';
 function getSavedUser(): User | null {
   const saved = localStorage.getItem('user');
   if (saved && localStorage.getItem('token')) {
-    return JSON.parse(saved);
+    // Si lo guardado está estropeado, se empieza sin sesión en vez de romper toda la web
+    try {
+      const user = JSON.parse(saved);
+      if (user && typeof user.name === 'string' && typeof user.role === 'string') return user;
+    } catch {
+      // Sigue abajo: sesión borrada
+    }
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
   return null;
 }

@@ -10,12 +10,14 @@ import { pageAfterLogin } from '../utils/redirect';
 function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register } = useAuth();
+  const { user, login, register } = useAuth();
 
-  const [mode, setMode] = useState('login');
+  const [mode, setMode] = useState<'login' | 'register'>('login');
   const [error, setError] = useState('');
-  // Si se llega aquí porque la sesión caducó, se explica (una sola vez)
-  const [expired] = useState(() => sessionStorage.getItem(SESSION_EXPIRED_FLAG) === '1');
+  const [sending, setSending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  // Si se llega aquí porque la sesión caducó o la cuenta se desactivó, se explica (una sola vez)
+  const [ended] = useState(() => sessionStorage.getItem(SESSION_EXPIRED_FLAG));
   useEffect(() => {
     sessionStorage.removeItem(SESSION_EXPIRED_FLAG);
   }, []);
@@ -27,34 +29,52 @@ function Auth() {
 
   async function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
-    if (mode === 'register' && password !== password2) {
-      setError('Las contraseñas no coinciden.');
-      return;
+    if (sending) return;
+    const cleanEmail = email.trim().toLowerCase();
+    if (mode === 'register') {
+      if (!name.trim()) {
+        setError('Escribe tu nombre.');
+        return;
+      }
+      if (password.length < 8) {
+        setError('La contraseña debe tener al menos 8 caracteres.');
+        return;
+      }
+      if (password !== password2) {
+        setError('Las contraseñas no coinciden.');
+        return;
+      }
+      if (phone.trim() && !/^[+\d][\d\s-]{5,19}$/.test(phone.trim())) {
+        setError('Revisa el teléfono: solo números, espacios y, si quieres, el prefijo con +.');
+        return;
+      }
     }
 
+    setSending(true);
+    setError('');
     try {
-      let user;
-      if (mode === 'login') {
-        user = await login(email, password);
-      } else {
-        user = await register({ name, email, password, phone });
-      }
+      const loggedUser =
+        mode === 'login'
+          ? await login(cleanEmail, password)
+          : await register({ name: name.trim(), email: cleanEmail, password, phone: phone.trim() || undefined });
 
       // Vuelve a la página que pedía antes del login si es para su rol; si no, a su página de inicio.
       // replace: así Atrás no vuelve al formulario de acceso
-      navigate(pageAfterLogin(location.state?.from, user.role), { replace: true });
+      navigate(pageAfterLogin(location.state?.from, loggedUser.role), { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
+      setSending(false);
     }
   }
 
-  function changeMode(newMode: string) {
+  function changeMode(newMode: 'login' | 'register') {
     setMode(newMode);
     setError('');
   }
 
   return (
     <div className="auth">
+      <title>{mode === 'login' ? 'Entrar · CataHome' : 'Crear cuenta · CataHome'}</title>
       <div className="auth-side">
         <Link to="/" className="auth-logo" aria-label="CataHome, ir al inicio">
           <Logo light />
@@ -65,7 +85,7 @@ function Auth() {
         </div>
       </div>
 
-      <div className="auth-main">
+      <main className="auth-main">
         <div className="auth-box">
           <Link to="/" className="auth-back">Volver a la web</Link>
 
@@ -77,18 +97,24 @@ function Auth() {
           <h2>{mode === 'login' ? 'Entra en tu cuenta' : 'Crea tu cuenta'}</h2>
           <p>{mode === 'login' ? 'Usa el correo y la contraseña con los que te registraste.' : 'Solo te pedimos lo necesario para poder responderte.'}</p>
 
-          {expired && mode === 'login' && <p className="notice" role="status">Tu sesión ha caducado. Vuelve a entrar para seguir donde estabas.</p>}
+          {user && (
+            <p className="notice" role="status">
+              Ya has entrado como {user.name}. <Link to="/perfil">Ir a mi perfil</Link>
+            </p>
+          )}
+          {ended === 'caducada' && mode === 'login' && <p className="notice" role="status">Tu sesión ha caducado. Vuelve a entrar para seguir donde estabas.</p>}
+          {ended === 'desactivada' && <p className="field-error" role="status">Tu cuenta está desactivada. Escríbenos para volver a activarla.</p>}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate={false}>
             {mode === 'register' && (
               <label className="field">
                 Nombre
-                <input name="name" required autoComplete="name" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} />
+                <input name="name" required autoComplete="name" maxLength={80} placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} />
               </label>
             )}
             <label className="field">
               Correo electrónico
-              <input name="email" type="email" required autoComplete="email" spellCheck={false} placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input name="email" type="email" required autoComplete="email" spellCheck={false} autoCapitalize="none" placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </label>
             {mode === 'register' && (
               <label className="field">
@@ -96,25 +122,44 @@ function Auth() {
                 <input name="phone" type="tel" autoComplete="tel" placeholder="600 000 000" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </label>
             )}
-            <label className="field">
-              Contraseña
-              <input name="password" type="password" required minLength={mode === 'register' ? 8 : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} placeholder={mode === 'register' ? 'Mínimo 8 caracteres' : undefined} value={password} onChange={(e) => setPassword(e.target.value)} />
-            </label>
+            {/* El botón va fuera de la etiqueta: dentro, la etiqueta se asociaría al botón y no al campo */}
+            <div className="auth-password">
+              <label className="field">
+                Contraseña
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  minLength={mode === 'register' ? 8 : undefined}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  placeholder={mode === 'register' ? 'Mínimo 8 caracteres' : undefined}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </label>
+              <button type="button" className="link-button auth-show" onClick={() => setShowPassword(!showPassword)} aria-pressed={showPassword}>
+                {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              </button>
+            </div>
             {mode === 'register' && (
               <label className="field">
                 Repite la contraseña
-                <input name="password2" type="password" required minLength={8} autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)} />
+                <input name="password2" type={showPassword ? 'text' : 'password'} required minLength={8} autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)} />
               </label>
             )}
             {error && <p className="field-error" role="alert">{error}</p>}
-            <button type="submit" className="btn btn-acento auth-submit">
-              {mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+            <button type="submit" className="btn btn-acento auth-submit" disabled={sending}>
+              {sending ? (mode === 'login' ? 'Entrando…' : 'Creando la cuenta…') : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
             </button>
           </form>
 
-          <p className="auth-legal">Al continuar aceptas los términos de uso y la política de privacidad.</p>
+          <p className="auth-legal">
+            {mode === 'register'
+              ? 'Usamos tus datos solo para responder a tus consultas. Tu cuenta será de cliente.'
+              : '¿Has olvidado la contraseña? Llámanos y te ayudamos a recuperarla.'}
+          </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

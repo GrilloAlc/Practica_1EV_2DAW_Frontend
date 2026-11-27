@@ -3,6 +3,7 @@ import './Layout.css';
 import BrandSymbol from './BrandSymbol';
 import '../pages/admin/Admin.css';
 import { useAuth } from '../context/useAuth';
+import { EMAIL, PHONE, PHONE_HREF } from '../utils/contact';
 
 // Logotipo: el símbolo (la C con tejado) hace de primera letra de "CataHome".
 // Se usa en el menú, el pie, el login y el panel
@@ -33,6 +34,7 @@ export function PublicLayout() {
   // Comprar y Alquilar son el mismo listado con distinto filtro: se marca el que está activo
   const inListing = pathname === '/propiedades';
   const status = searchParams.get('status');
+  // Las consultas son de los clientes (los visitantes entran primero como clientes)
   const isCustomer = !user || user.role === 'CLIENTE';
 
   return (
@@ -75,7 +77,7 @@ export function PublicLayout() {
             {user ? (
               <>
                 <Link to="/perfil" className="navbar-profile" title="Mi perfil">
-                  <span className="navbar-avatar" aria-hidden="true">{user.name[0]}</span>
+                  <span className="navbar-avatar" aria-hidden="true">{user.name.charAt(0).toUpperCase()}</span>
                   <span className="navbar-name">{user.name}</span>
                 </Link>
                 <button className="link-button navbar-logout" onClick={handleLogout}>Salir</button>
@@ -109,19 +111,30 @@ export function PublicLayout() {
             <h2 className="footer-title">Ayuda</h2>
             <ul className="footer-list">
               <li><Link to="/sobre-nosotros">Nosotros y preguntas</Link></li>
-              <li><Link to="/mis-tickets">Mis consultas</Link></li>
-              <li><Link to="/mis-tickets/nuevo">Vender mi casa</Link></li>
+              {isCustomer ? (
+                <>
+                  <li><Link to="/mis-tickets">Mis consultas</Link></li>
+                  <li><Link to={'/mis-tickets/nuevo?asunto=' + encodeURIComponent('Quiero vender mi casa')}>Vender mi casa</Link></li>
+                </>
+              ) : user?.role === 'ADMIN' ? (
+                <li><Link to="/admin">Administración</Link></li>
+              ) : (
+                <li><Link to="/agente/tickets">Tickets asignados</Link></li>
+              )}
             </ul>
           </div>
           <div>
             <h2 className="footer-title">Contacto</h2>
             <ul className="footer-list">
-              <li><a href="tel:+34644717199">644 7171 99</a></li>
-              <li><a href="mailto:info@inmobiliaria.es">info@inmobiliaria.es</a></li>
+              <li><a href={PHONE_HREF}>{PHONE}</a></li>
+              <li><a href={'mailto:' + EMAIL}>{EMAIL}</a></li>
             </ul>
           </div>
         </div>
-        <p className="footer-bottom">© {new Date().getFullYear()} CataHome</p>
+        <p className="footer-bottom">
+          © {new Date().getFullYear()} CataHome · Fotos de <a href="https://unsplash.com" target="_blank" rel="noreferrer">Unsplash</a> · Mapas de{' '}
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>
+        </p>
       </footer>
     </>
   );
@@ -154,7 +167,7 @@ export function AdminLayout() {
         </nav>
         <div className="admin-sidebar-foot">
           <Link to="/" className="admin-sidebar-back">Ver la web</Link>
-          {user && <p className="admin-sidebar-user">{user.name}</p>}
+          {user && <Link to="/perfil" className="admin-sidebar-user">{user.name}</Link>}
           <button className="admin-sidebar-logout" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </aside>

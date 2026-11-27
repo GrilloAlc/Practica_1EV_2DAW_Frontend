@@ -1,6 +1,7 @@
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom';
 import '../pages/NotFound.css';
 import { Logo } from './Layout';
+import { PHONE, PHONE_HREF } from '../utils/contact';
 
 // Pantalla para cuando algo falla al pintar una página (en vez del mensaje técnico de React Router).
 // Lo más habitual es tener abierta una versión antigua de la web tras publicar otra: recargar lo arregla
@@ -12,6 +13,7 @@ function RouteError() {
 
   return (
     <div className="route-error">
+      <title>{notFound ? 'Página no encontrada · CataHome' : 'Algo no ha ido bien · CataHome'}</title>
       <a href="/" className="route-error-logo" aria-label="CataHome, ir al inicio"><Logo /></a>
       <main className="page not-found">
         <div className="not-found-text">
@@ -26,7 +28,7 @@ function RouteError() {
             <a href="/" className="btn btn-outline">Volver al inicio</a>
           </div>
           <p className="not-found-phone">
-            Si necesitas algo urgente, llámanos al <a href="tel:+34644717199">644 7171 99</a>.
+            Si necesitas algo urgente, llámanos al <a href={PHONE_HREF}>{PHONE}</a>.
           </p>
         </div>
       </main>

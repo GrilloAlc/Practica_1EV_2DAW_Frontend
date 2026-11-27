@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import type { SyntheticEvent } from 'react';
+import type { ReactNode, SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './TicketDetail.css';
 import { addMessage, assignTicket, denyReopen, getTicket, reopenTicket, updatePriority, updateStatus } from '../api/tickets';
-import { getUsers } from '../api/users';
+import { getAllUsers } from '../api/users';
 import { getErrorMessage, getErrorStatus } from '../api/client';
 import { useAuth } from '../context/useAuth';
 import type { Message, StatusChange, Ticket, User } from '../types';
 import { TableSkeleton } from '../components/Skeleton';
+import { useConfirm } from '../components/useConfirm';
 import {
   TICKET_PRIORITIES,
   TICKET_STATUSES,
@@ -17,62 +18,106 @@ import {
   priorityClass,
   priorityLabels,
   roleLabels,
-  statusLabels,
+  statusLabel,
 } from '../utils/labels';
 
 // Estados que puede poner el agente asignado (el backend no le deja abrir ni cerrar). El admin, todos
 const AGENT_STATUSES = ['EN_CURSO', 'PENDIENTE_CLIENTE', 'RESUELTO'];
+// El backend admite mensajes de hasta 2000 caracteres
+const MAX_MESSAGE = 2000;
 
-// Detalle compartido por cliente, agente y admin. Las acciones dependen del rol
+// Convierte en enlaces las direcciones web de un texto (por ejemplo, la de la casa por la que se pregunta).
+// Los enlaces a esta misma web se abren en la misma pestaña
+function linkify(text: string): ReactNode[] {
+  const parts = text.split(/(https?:\/\/[^\s<>"']+)/g);
+  return parts.map((part, i) => {
+    if (!/^https?:\/\//.test(part)) return part;
+    const clean = part.replace(/[.,;:!?)]+$/, '');
+    const rest = part.slice(clean.length);
+    let internal = '';
+    try {
+      const url = new URL(clean);
+      if (url.origin === window.location.origin) internal = url.pathname + url.search;
+    } catch {
+      return part;
+    }
+    return (
+      <span key={i}>
+        {internal ? <Link to={internal}>{clean}</Link> : <a href={clean} target="_blank" rel="noreferrer">{clean}</a>}
+        {rest}
+      </span>
+    );
+  });
+}
+
 function TicketDetail() {
   const { id } = useParams();
+  // Otra consulta = página nueva: no se mezclan mensajes ni errores de la anterior
+  return <TicketPage key={id} id={id!} />;
+}
+
+function TicketPage({ id }: { id: string }) {
   const { user } = useAuth();
   const isCustomer = user!.role === 'CLIENTE';
   const isAdmin = user!.role === 'ADMIN';
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [history, setHistory] = useState<StatusChange[]>([]);
   const [agents, setAgents] = useState<User[]>([]);
   const [reply, setReply] = useState('');
-  const [history, setHistory] = useState<StatusChange[]>([]);
   const [loadError, setLoadError] = useState('');
   const [loadStatus, setLoadStatus] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  // Acción en curso: mientras tanto los botones no se pueden volver a pulsar
+  const [busy, setBusy] = useState(false);
+  const [confirm, confirmDialog] = useConfirm();
 
   // El ticket llega con sus mensajes y su historial de estados en una sola petición
   useEffect(() => {
-    async function loadTicket() {
-      try {
-        const data = await getTicket(id!);
+    let current = true;
+    getTicket(id).then(
+      (data) => {
+        if (!current) return;
         setTicket(data.ticket);
         setMessages(data.messages);
         setHistory(data.history);
-      } catch (err) {
+      },
+      (err) => {
+        if (!current) return;
         setLoadError(getErrorMessage(err));
         setLoadStatus(getErrorStatus(err));
-      }
-    }
-    loadTicket();
+      },
+    );
+    return () => {
+      current = false;
+    };
   }, [id]);
 
   useEffect(() => {
-    async function loadAgents() {
-      try {
-        setAgents(await getUsers({ role: 'AGENTE', isActive: true }));
-      } catch {
-        setAgents([]);
-      }
-    }
-    if (isAdmin) {
-      loadAgents();
-    }
+    if (!isAdmin) return;
+    let current = true;
+    getAllUsers({ role: 'AGENTE', isActive: true }).then(
+      (list) => {
+        if (current) setAgents(list.sort((a, b) => a.name.localeCompare(b.name, 'es')));
+      },
+      () => {
+        if (current) setAgents([]);
+      },
+    );
+    return () => {
+      current = false;
+    };
   }, [isAdmin]);
 
-  // 403: la consulta es de otra persona. 404: no existe. Otro error: se muestra el del servidor
+  // 403: la consulta es de otra persona. 404: no existe (o el enlace está mal). Otro error: se muestra el del servidor
   if (loadError) {
     const backText = isCustomer ? 'Ver mis consultas' : 'Volver a la lista';
+    const notFound = loadStatus === 404 || (loadStatus === 500 && !/^[0-9a-f]{24}$/i.test(id));
     return (
       <main className="page">
+        <title>Consulta no disponible · CataHome</title>
         <div className="ticket-denied">
           {loadStatus === 403 ? (
             <>
@@ -81,7 +126,7 @@ function TicketDetail() {
                 Cada consulta solo la ven quien la escribió, el agente que la atiende y la administración.
               </p>
             </>
-          ) : loadStatus === 404 ? (
+          ) : notFound ? (
             <>
               <h1 className="page-title">Esta consulta no existe.</h1>
               <p className="page-subtitle">Puede que el enlace esté mal copiado o que la consulta se haya borrado.</p>
@@ -99,96 +144,102 @@ function TicketDetail() {
   }
 
   if (!ticket) {
-    return <main className="page"><TableSkeleton rows={4} /></main>;
+    return (
+      <main className="page">
+        <title>Cargando consulta · CataHome</title>
+        <TableSkeleton rows={4} />
+      </main>
+    );
   }
 
-  // Vuelve a pedir el ticket para tener los mensajes y el historial al día
+  // Vuelve a pedir el ticket para tener los mensajes, el estado y el historial al día
   async function reload() {
-    const data = await getTicket(ticket!._id);
+    const data = await getTicket(id);
     setTicket(data.ticket);
     setMessages(data.messages);
     setHistory(data.history);
   }
 
+  // Ejecuta una acción con los botones bloqueados y recarga el ticket al terminar
+  async function run(action: () => Promise<unknown>, done?: string) {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      await action();
+      await reload().catch(() => undefined);
+      if (done) setNotice(done);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+    setBusy(false);
+  }
+
   async function changeStatus(status: string) {
-    try {
-      await updateStatus(ticket!._id, status);
-      await reload();
-      setError('');
-    } catch (err) {
-      setError(getErrorMessage(err));
+    if (status === 'CERRADO') {
+      const ok = await confirm({
+        title: isCustomer ? '¿Confirmas que está resuelta?' : '¿Cerrar este ticket?',
+        message: <p>{isCustomer ? 'La consulta se cerrará y ya no se podrá escribir en ella. Si necesitas algo más, podrás abrir una nueva.' : 'Una vez cerrado no se pueden añadir mensajes ni cambiar el agente o la prioridad.'}</p>,
+        confirmLabel: isCustomer ? 'Sí, cerrarla' : 'Cerrar ticket',
+        danger: true,
+      });
+      if (!ok) return;
     }
-  }
-
-  async function changePriority(priority: number) {
-    try {
-      await updatePriority(ticket!._id, priority);
-      setTicket({ ...ticket!, priority, updatedAt: new Date().toISOString() });
-      setError('');
-    } catch (err) {
-      setError(getErrorMessage(err));
-    }
-  }
-
-  async function changeAgent(agentId: string) {
-    try {
-      await assignTicket(ticket!._id, agentId);
-      const agent = agents.find((a) => a._id === agentId);
-      setTicket({ ...ticket!, agent: agent ? { _id: agent._id, name: agent.name } : null, updatedAt: new Date().toISOString() });
-      setError('');
-    } catch (err) {
-      setError(getErrorMessage(err));
-    }
+    await run(() => updateStatus(id, status), 'Estado actualizado.');
   }
 
   async function askReopen() {
-    try {
-      await reopenTicket(ticket!._id);
-      setTicket({ ...ticket!, reopenRequested: true });
-      setError('');
-    } catch (err) {
-      setError(getErrorMessage(err));
-    }
+    await run(() => reopenTicket(id), 'Hemos recibido tu petición. Te avisaremos cuando la revisemos.');
   }
 
   // El admin rechaza la petición de reapertura: el ticket sigue resuelto
   async function rejectReopen() {
-    try {
-      await denyReopen(ticket!._id);
-      setTicket({ ...ticket!, reopenRequested: false });
-      setError('');
-    } catch (err) {
-      setError(getErrorMessage(err));
-    }
+    const ok = await confirm({
+      title: '¿Rechazar la reapertura?',
+      message: <p>El ticket seguirá resuelto y el cliente podrá confirmar el cierre.</p>,
+      confirmLabel: 'Rechazar',
+    });
+    if (ok) await run(() => denyReopen(id), 'Petición de reapertura rechazada.');
   }
 
   async function sendReply(e: SyntheticEvent) {
     e.preventDefault();
+    const text = reply.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
     try {
-      await addMessage(ticket!, reply);
-      // Se vuelve a pedir para tener el mensaje con su autor
-      await reload();
+      await addMessage(ticket!, text);
+      // El mensaje ya está enviado: se vacía aunque falle la recarga, para no mandarlo dos veces
       setReply('');
-      setError('');
+      await reload().catch(() => undefined);
     } catch (err) {
       setError(getErrorMessage(err));
     }
+    setBusy(false);
   }
 
   const closed = ticket.status === 'CERRADO';
+  // El cliente no escribe en una consulta resuelta: o pide reabrirla o confirma el cierre
+  const canReply = !closed && !(isCustomer && ticket.status === 'RESUELTO');
 
   return (
     <main className="page">
+      <title>{`${ticket.code} · ${ticket.subject} · CataHome`}</title>
+      {confirmDialog}
       {/* ".." vuelve a la lista de la que se viene */}
       <p className="breadcrumb"><Link to=".." relative="path">{isCustomer ? 'Volver a mis consultas' : 'Volver a la lista'}</Link></p>
 
       <div className="ticket-head">
         <div>
           <p className="ticket-meta">
-            <span className={'status-badge status-' + ticket.status.toLowerCase()}>{statusLabels[ticket.status]}</span>
+            <span className={'status-badge status-' + ticket.status.toLowerCase()}>{statusLabel(ticket.status, isCustomer)}</span>
             <span className="cell-code">{ticket.code}</span>
-            <span>Creado el {formatDate(ticket.createdAt)}</span>
-            {ticket.updatedAt && <span>Actualizado el {formatDateTime(ticket.updatedAt)}</span>}
+            {/* El cliente habla de "consultas" (femenino); agentes y administración, de "tickets" */}
+            <span>{isCustomer ? 'Creada' : 'Creado'} el {formatDate(ticket.createdAt)}</span>
+            {ticket.updatedAt && <span>{isCustomer ? 'Actualizada' : 'Actualizado'} el {formatDateTime(ticket.updatedAt)}</span>}
           </p>
           <h1 className="page-title">{ticket.subject}</h1>
         </div>
@@ -196,22 +247,23 @@ function TicketDetail() {
         <div className="ticket-actions">
           {isCustomer && ticket.status === 'RESUELTO' && (
             <>
-              {!ticket.reopenRequested && <button className="btn btn-outline" onClick={askReopen}>Solicitar reapertura</button>}
-              <button className="btn" onClick={() => changeStatus('CERRADO')}>Confirmar cierre</button>
+              {!ticket.reopenRequested && <button className="btn btn-outline" disabled={busy} onClick={askReopen}>Pedir que se reabra</button>}
+              <button className="btn" disabled={busy} onClick={() => changeStatus('CERRADO')}>Confirmar cierre</button>
             </>
           )}
-          {isAdmin && !closed && <button className="btn" onClick={() => changeStatus('CERRADO')}>Cerrar ticket</button>}
+          {isAdmin && !closed && <button className="btn" disabled={busy} onClick={() => changeStatus('CERRADO')}>Cerrar ticket</button>}
         </div>
       </div>
 
       {error && <p className="field-error" role="alert">{error}</p>}
+      {notice && <p className="notice" role="status">{notice}</p>}
       {ticket.reopenRequested && ticket.status === 'RESUELTO' && (
         <div className="notice ticket-reopen">
           <p>{isCustomer ? 'Has pedido reabrir esta consulta. Te avisaremos cuando la revisemos.' : 'El cliente ha pedido reabrir este ticket.'}</p>
           {isAdmin && (
             <div className="ticket-reopen-actions">
-              <button className="btn" onClick={() => changeStatus('EN_CURSO')}>Reabrir</button>
-              <button className="btn btn-outline" onClick={rejectReopen}>Rechazar</button>
+              <button className="btn" disabled={busy} onClick={() => run(() => updateStatus(id, 'EN_CURSO'), 'Ticket reabierto.')}>Reabrir</button>
+              <button className="btn btn-outline" disabled={busy} onClick={rejectReopen}>Rechazar</button>
             </div>
           )}
         </div>
@@ -221,38 +273,57 @@ function TicketDetail() {
         <section className="ticket-box">
           <h2>Conversación</h2>
 
-          {/* La descripción del ticket se muestra como primer mensaje */}
+          {/* La descripción de la consulta se muestra como primer mensaje */}
           <div className="ticket-message">
-            <span className="avatar">{ticket.customer.name[0]}</span>
+            <span className="avatar" aria-hidden="true">{ticket.customer.name.charAt(0).toUpperCase()}</span>
             <div>
               <p className="ticket-message-head">
-                <strong>{ticket.customer.name}</strong> <span className="ticket-role">Cliente</span> <span className="ticket-date">{formatDate(ticket.createdAt)}</span>
+                <strong>{ticket.customer.name}</strong> <span className="ticket-role">Cliente</span>{' '}
+                <time className="ticket-date" dateTime={ticket.createdAt}>{formatDateTime(ticket.createdAt)}</time>
               </p>
-              <p>{ticket.description}</p>
+              <p>{linkify(ticket.description)}</p>
             </div>
           </div>
 
           {messages.map((m) => (
             <div key={m._id} className={m.author._id === ticket.customer._id ? 'ticket-message' : 'ticket-message ticket-message-team'}>
-              <span className="avatar">{m.author.name[0]}</span>
+              <span className="avatar" aria-hidden="true">{m.author.name.charAt(0).toUpperCase()}</span>
               <div>
                 <p className="ticket-message-head">
-                  <strong>{m.author.name}</strong> {m.author.role && <span className="ticket-role">{roleLabels[m.author.role]}</span>} <span className="ticket-date">{formatDate(m.createdAt)}</span>
+                  <strong>{m.author.name}</strong> {m.author.role && <span className="ticket-role">{roleLabels[m.author.role]}</span>}{' '}
+                  <time className="ticket-date" dateTime={m.createdAt}>{formatDateTime(m.createdAt)}</time>
                 </p>
-                <p>{m.body}</p>
+                <p>{linkify(m.body)}</p>
               </div>
             </div>
           ))}
 
           {closed ? (
-            <p className="ticket-closed">Esta consulta está cerrada. Si necesitas algo más, abre una nueva.</p>
+            <p className="ticket-closed">
+              {isCustomer ? 'Esta consulta está cerrada. Si necesitas algo más, abre una nueva.' : 'Este ticket está cerrado: ya no admite mensajes.'}
+            </p>
+          ) : !canReply ? (
+            <p className="ticket-closed">
+              {ticket.reopenRequested
+                ? 'Has pedido reabrirla: podrás escribir cuando la revisemos.'
+                : 'La hemos dado por resuelta. Si no es así, pide que se reabra; si está todo bien, confirma el cierre.'}
+            </p>
           ) : (
             <form onSubmit={sendReply}>
               <label className="field">
-                Tu respuesta
-                <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Escribe aquí tu mensaje…" />
+                {isCustomer ? 'Tu respuesta' : 'Respuesta al cliente'}
+                <textarea
+                  value={reply}
+                  maxLength={MAX_MESSAGE}
+                  onChange={(e) => setReply(e.target.value)}
+                  placeholder="Escribe aquí tu mensaje…"
+                />
+                <span className="field-help">
+                  {reply.length} / {MAX_MESSAGE}
+                  {!isCustomer && !isAdmin ? ' · Al responder, la consulta queda pendiente del cliente.' : ''}
+                </span>
               </label>
-              <button type="submit" className="btn" disabled={!reply.trim()}>Enviar respuesta</button>
+              <button type="submit" className="btn" disabled={!reply.trim() || busy}>{busy ? 'Enviando…' : 'Enviar respuesta'}</button>
             </form>
           )}
         </section>
@@ -261,7 +332,7 @@ function TicketDetail() {
           <h2>Detalles</h2>
           <dl className="ticket-data">
             <dt>Categoría</dt>
-            <dd>{categoryLabels[ticket.category]}</dd>
+            <dd>{categoryLabels[ticket.category] || ticket.category}</dd>
 
             <dt>Cliente</dt>
             <dd>{ticket.customer.name}</dd>
@@ -269,7 +340,7 @@ function TicketDetail() {
             <dt>Prioridad</dt>
             <dd>
               {!isCustomer && !closed ? (
-                <select aria-label="Prioridad" value={ticket.priority} onChange={(e) => changePriority(Number(e.target.value))}>
+                <select aria-label="Prioridad" value={ticket.priority} disabled={busy} onChange={(e) => run(() => updatePriority(id, Number(e.target.value)), 'Prioridad actualizada.')}>
                   {TICKET_PRIORITIES.map((p) => <option key={p} value={p}>{priorityLabels[p]}</option>)}
                 </select>
               ) : <span className={priorityClass(ticket.priority)}>{priorityLabels[ticket.priority]}</span>}
@@ -278,23 +349,31 @@ function TicketDetail() {
             <dt>Estado</dt>
             <dd>
               {!isCustomer && !closed ? (
-                <select aria-label="Estado" value={ticket.status} onChange={(e) => changeStatus(e.target.value)}>
+                <select aria-label="Estado" value={ticket.status} disabled={busy} onChange={(e) => changeStatus(e.target.value)}>
                   {TICKET_STATUSES.filter((s) => isAdmin || AGENT_STATUSES.includes(s) || s === ticket.status).map((s) => (
-                    <option key={s} value={s} disabled={!isAdmin && !AGENT_STATUSES.includes(s)}>{statusLabels[s]}</option>
+                    <option key={s} value={s} disabled={!isAdmin && !AGENT_STATUSES.includes(s)}>{statusLabel(s)}</option>
                   ))}
                 </select>
-              ) : statusLabels[ticket.status]}
+              ) : statusLabel(ticket.status, isCustomer)}
             </dd>
 
             <dt>Agente asignado</dt>
             <dd>
               {isAdmin && !closed ? (
-                <select aria-label="Agente asignado" value={ticket.agent ? ticket.agent._id : ''} onChange={(e) => changeAgent(e.target.value)}>
+                <select aria-label="Agente asignado" value={ticket.agent ? ticket.agent._id : ''} disabled={busy} onChange={(e) => run(() => assignTicket(id, e.target.value), e.target.value ? 'Agente asignado.' : 'El ticket se ha quedado sin agente.')}>
                   <option value="">Sin asignar</option>
+                  {ticket.agent && !agents.some((a) => a._id === ticket.agent!._id) && <option value={ticket.agent._id}>{ticket.agent.name}</option>}
                   {agents.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
                 </select>
-              ) : ticket.agent ? ticket.agent.name : 'Sin asignar'}
+              ) : ticket.agent ? ticket.agent.name : isCustomer ? 'Pendiente de asignar' : 'Sin asignar'}
             </dd>
+
+            {ticket.closedAt && (
+              <>
+                <dt>Cerrada el</dt>
+                <dd>{formatDateTime(ticket.closedAt)}</dd>
+              </>
+            )}
           </dl>
 
           {/* Historial de estados: lo ven el cliente, el agente asignado y el admin. El más reciente arriba */}
@@ -307,7 +386,7 @@ function TicketDetail() {
                 {[...history].reverse().map((h) => (
                   <li key={h._id}>
                     <strong>
-                      {h.oldStatus ? `De ${statusLabels[h.oldStatus]} a ${statusLabels[h.newStatus]}` : `Creada como ${statusLabels[h.newStatus]}`}
+                      {h.oldStatus ? `De ${statusLabel(h.oldStatus, isCustomer)} a ${statusLabel(h.newStatus, isCustomer)}` : `Creada como ${statusLabel(h.newStatus, isCustomer)}`}
                     </strong>
                     <span>{h.changedBy.name} · {formatDateTime(h.changedAt)}</span>
                   </li>

@@ -89,6 +89,12 @@
   white-space: pre-line;
 }
 
+.ticket-message p a {
+  color: var(--tinta);
+  text-decoration-color: var(--acento);
+  text-underline-offset: 4px;
+}
+
 .ticket-message .ticket-message-head {
   display: flex;
   flex-wrap: wrap;

@@ -111,6 +111,25 @@
   margin-top: 8px;
 }
 
+/* Mostrar u ocultar la contraseña: a la derecha, a la altura de la etiqueta del campo */
+.auth-password {
+  position: relative;
+}
+
+.auth-show {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+@media (pointer: coarse) {
+  .auth-show {
+    top: -14px;
+  }
+}
+
 .auth-legal {
   margin-top: 20px;
   font-size: 13px;

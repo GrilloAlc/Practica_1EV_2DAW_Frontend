@@ -1,29 +1,5 @@
-/* Ficha de una casa: foto a todo lo ancho, texto de revista y una columna para contactar */
-
-.detail-photo {
-  position: relative;
-  height: min(70vh, 720px);
-  min-height: 280px;
-  margin: 0 calc(var(--margen) * -1) clamp(40px, 6vw, 72px);
-  background: var(--niebla);
-  overflow: hidden;
-}
-
-.detail-photo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.detail-photo-badge {
-  position: absolute;
-  top: 20px;
-  left: var(--margen);
-  padding: 6px 14px;
-  background: var(--fondo);
-  font-size: 14px;
-}
+/* Ficha de una casa: galería a todo lo ancho (components/PropertyGallery), texto de revista
+   y una columna para contactar */
 
 .detail-layout {
   display: grid;
@@ -73,6 +49,40 @@
   font-weight: 450;
   font-variation-settings: normal;
   color: var(--pizarra);
+}
+
+.detail-share {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0 0;
+  font-size: 14px;
+  color: var(--pizarra);
+}
+
+.detail-map-link {
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+/* Otras casas de la misma ciudad, al final de la ficha */
+.detail-similar {
+  margin-top: clamp(56px, 8vw, 112px);
+  padding-top: 32px;
+  border-top: 1px solid var(--tinta);
+}
+
+.detail-similar-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.detail-similar-head h2 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 40px);
 }
 
 /* Datos clave en fila, separados por rayas */
@@ -227,15 +237,6 @@
 }
 
 @media (max-width: 600px) {
-  .detail-photo {
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 4 / 3;
-    margin: 0 -16px 32px;
-  }
-  .detail-photo-badge {
-    left: 16px;
-  }
   .detail-facts {
     grid-template-columns: 1fr 1fr;
   }

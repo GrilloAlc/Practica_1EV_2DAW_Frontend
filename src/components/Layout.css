@@ -350,8 +350,15 @@
 }
 
 .admin-sidebar-user {
+  display: block;
   margin: 0 0 6px;
   color: #fff;
+  text-decoration: none;
+}
+
+.admin-sidebar-user:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .admin-sidebar-logout {

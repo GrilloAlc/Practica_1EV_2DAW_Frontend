@@ -132,6 +132,11 @@
   border-radius: 0;
 }
 
+/* Aviso mientras el servidor de Render se despierta */
+.home-slow {
+  margin: 0 var(--margen) 16px;
+}
+
 /* ---------- Hablar con una persona ---------- */
 
 .home-talk {

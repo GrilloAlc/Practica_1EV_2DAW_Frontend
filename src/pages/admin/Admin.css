@@ -69,6 +69,165 @@
   font-size: clamp(28px, 3vw, 40px);
 }
 
+/* Cifras secundarias del resumen: en fila, separadas por rayas */
+.admin-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 0;
+  margin: -32px 0 64px;
+}
+
+.admin-figures div {
+  padding: 0 28px;
+  border-left: 1px solid var(--linea);
+}
+
+.admin-figures div:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.admin-figures dt {
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.admin-figures dd {
+  margin: 2px 0 0;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+}
+
+.admin-block {
+  margin-bottom: 64px;
+}
+
+.admin-block-title {
+  margin-bottom: 20px;
+}
+
+/* Últimos mensajes */
+.admin-activity {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--tinta);
+}
+
+.admin-activity li {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.admin-activity-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.admin-activity-head strong {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  color: var(--tinta);
+}
+
+.admin-activity-body {
+  display: -webkit-box;
+  max-width: 80ch;
+  margin: 0 0 8px;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.admin-activity-link {
+  font-size: 14px;
+  color: var(--tinta);
+  text-decoration-color: var(--acento);
+  text-underline-offset: 4px;
+}
+
+/* Filtros de las tablas del panel: en fila, con la línea fina de los campos */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+.admin-filters select {
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--tinta);
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--tinta);
+}
+
+.admin-filters select:focus {
+  border-bottom: 2px solid var(--acento);
+  outline: none;
+}
+
+.admin-loading {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+/* Galería del formulario de casas */
+.admin-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-photos li {
+  position: relative;
+}
+
+.admin-photos img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--niebla);
+}
+
+.admin-photos-tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 8px;
+  background: var(--fondo);
+  font-size: 12px;
+}
+
+.admin-photos-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.admin-photos-actions .link-button {
+  font-size: 13px;
+}
+
 .admin-main .page-header:has(.admin-section-title) {
   margin-bottom: 20px;
 }
@@ -164,5 +323,13 @@
   }
   .admin-main .page {
     padding: 28px 16px 64px;
+  }
+  .admin-figures {
+    margin-top: -40px;
+  }
+  .admin-figures div {
+    flex: 1 1 45%;
+    padding: 0;
+    border-left: none;
   }
 }

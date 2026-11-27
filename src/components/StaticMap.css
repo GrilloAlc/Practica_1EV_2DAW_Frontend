@@ -1,0 +1,60 @@
+/* Mapa de la zona: teselas de OpenStreetMap en gris para que no compitan con las fotos, y un punto vino */
+
+.static-map {
+  position: relative;
+  height: 300px;
+  margin-top: 24px;
+  overflow: hidden;
+  background: var(--niebla);
+}
+
+.static-map-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.static-map-link:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: -3px;
+}
+
+.static-map-tiles img {
+  position: absolute;
+  max-width: none;
+  filter: grayscale(1) contrast(0.92) brightness(1.04);
+}
+
+.static-map-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--acento);
+  box-shadow: 0 0 0 8px rgba(110, 34, 51, 0.18);
+  transform: translate(-50%, -50%);
+}
+
+.static-map-credit {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+  color: var(--pizarra);
+  text-decoration: none;
+}
+
+.static-map-credit:hover {
+  color: var(--tinta);
+}
+
+@media (max-width: 600px) {
+  .static-map {
+    height: 240px;
+  }
+}

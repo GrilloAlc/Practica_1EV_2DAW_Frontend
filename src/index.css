@@ -419,6 +419,51 @@ img {
   background: var(--acento-suave);
 }
 
+/* La casa por la que se pregunta, encima del formulario */
+.new-ticket-property {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--linea);
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.new-ticket-property img {
+  flex-shrink: 0;
+  width: 96px;
+  height: 72px;
+  object-fit: cover;
+  background: var(--niebla);
+}
+
+.new-ticket-property > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--pizarra);
+}
+
+.new-ticket-property strong {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  line-height: 1.2;
+  color: var(--tinta);
+}
+
+.new-ticket-property:hover strong {
+  color: var(--acento);
+}
+
+.new-ticket-property-label {
+  font-size: 13px;
+}
+
 .new-ticket-help h2 {
   margin: 0 0 16px;
   font-size: 24px;
@@ -663,6 +708,17 @@ img {
 .cell-code {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* Aviso pequeño debajo del asunto (por ejemplo, "Piden reabrir") */
+.cell-flag {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 450;
+  font-variation-settings: normal;
+  color: var(--acento);
 }
 
 /* ---------- Vacíos y avisos ---------- */

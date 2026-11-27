@@ -15,8 +15,12 @@ export interface Property {
   status: string;
   price: number;
   area?: number;
+  // Una o varias direcciones de fotos separadas por espacios (la primera es la portada). Ver utils/photos.ts
   image?: string;
+  // Solo si el backend llega a guardar la galería como lista
+  images?: string[];
   isActive: boolean;
+  createdAt?: string;
   address: {
     street: string;
     number?: string;

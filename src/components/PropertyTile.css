@@ -1,0 +1,100 @@
+/* Casa pequeña en vertical (ficha: otras casas de la misma ciudad) */
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 40px);
+}
+
+.tile {
+  min-width: 0;
+}
+
+.tile-photo {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 16px;
+  overflow: hidden;
+  background: var(--niebla);
+}
+
+.tile-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.tile:hover .tile-photo img {
+  transform: scale(1.03);
+}
+
+.tile-badge,
+.tile-count {
+  position: absolute;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.tile-badge {
+  top: 12px;
+  left: 12px;
+  background: var(--fondo);
+}
+
+.tile-count {
+  right: 12px;
+  bottom: 12px;
+  background: rgba(38, 36, 31, 0.72);
+  color: #fff;
+}
+
+.tile-price {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+}
+
+.tile-title {
+  margin: 0 0 6px;
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+.tile-title a {
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.tile-title a:hover {
+  color: var(--acento);
+}
+
+.tile-place {
+  margin: 0;
+  font-size: 14px;
+  color: var(--pizarra);
+}
+
+@media (max-width: 900px) {
+  .tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .tile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile-photo img {
+    transition: none;
+  }
+}

@@ -1,5 +1,6 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
+import { homeForRole } from '../utils/redirect';
 
 // Solo muestra las rutas de dentro si hay sesión y el rol está permitido
 function RequireAuth({ roles }: { roles?: string[] }) {
@@ -8,15 +9,16 @@ function RequireAuth({ roles }: { roles?: string[] }) {
 
   if (!user) {
     // Guarda la página que pedía para volver a ella tras el login
-    return <Navigate to="/acceso" state={{ from: location.pathname + location.search }} />;
+    return <Navigate to="/acceso" state={{ from: location.pathname + location.search }} replace />;
   }
 
   if (roles && !roles.includes(user.role)) {
     return (
       <main className="page">
+        <title>Sin acceso · CataHome</title>
         <div className="empty table-box">
           <strong>No tienes acceso a esta página</strong>
-          <Link to="/">Volver al inicio</Link>
+          Es una zona de otro tipo de cuenta. <Link to={homeForRole(user.role)}>Ir a tu zona</Link> o <Link to="/">volver al inicio</Link>.
         </div>
       </main>
     );
