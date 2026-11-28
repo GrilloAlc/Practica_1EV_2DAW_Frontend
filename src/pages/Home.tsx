@@ -169,7 +169,7 @@ function Home() {
 
       {slow && (
         <p className="notice home-slow" role="status">
-          Estamos despertando el servidor. La primera visita del día puede tardar unos segundos.
+          Estamos preparando las casas. Solo será un momento.
         </p>
       )}
       {loading ? <div className="home-cover-skeleton skeleton" aria-hidden="true" /> : <HeroCarousel properties={cover} />}

@@ -107,7 +107,7 @@ function PropertyPage({ id }: { id: string }) {
           </div>
         ) : (
           <>
-            {slow && <p className="notice" role="status">Estamos despertando el servidor. La primera visita puede tardar unos segundos.</p>}
+            {slow && <p className="notice" role="status">Estamos abriendo la ficha. Solo será un momento.</p>}
             <DetailSkeleton />
           </>
         )}
@@ -217,7 +217,7 @@ function PropertyPage({ id }: { id: string }) {
           ) : isAdmin ? (
             <>
               <h2>Así la ven los clientes</h2>
-              <p>Desde el panel puedes cambiar sus datos y sus fotos, o dejar de publicarla.</p>
+              <p>Cambia sus datos y sus fotos, o deja de publicarla.</p>
               <Link to={`/admin/propiedades/${property._id}/editar`} className="btn btn-acento detail-contact-btn">Editar esta casa</Link>
             </>
           ) : canAsk ? (

@@ -8,6 +8,7 @@ import PropertyDetail from './pages/PropertyDetail';
 import Auth from './pages/Auth';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
+import Legal from './pages/Legal';
 import { AdminActivity, AdminDashboard, AdminProperties, AdminPropertyForm, AdminUsers, NewTicket, Profile, TicketDetail, Tickets } from './pages/lazyPages';
 import RouteError from './components/RouteError';
 
@@ -23,6 +24,9 @@ export const router = createBrowserRouter(
         <Route path="/propiedades" element={<Properties />} />
         <Route path="/propiedades/:id" element={<PropertyDetail />} />
         <Route path="/sobre-nosotros" element={<About />} />
+        <Route path="/aviso-legal" element={<Legal kind="aviso-legal" />} />
+        <Route path="/privacidad" element={<Legal kind="privacidad" />} />
+        <Route path="/cookies" element={<Legal kind="cookies" />} />
         <Route path="*" element={<NotFound />} />
 
         <Route element={<RequireAuth />}>
@@ -30,7 +34,7 @@ export const router = createBrowserRouter(
         </Route>
 
         <Route element={<RequireAuth roles={['CLIENTE']} />}>
-          <Route path="/mis-tickets" element={<Tickets title="Mis consultas" subtitle="Tus preguntas y visitas, con su respuesta por escrito." />} />
+          <Route path="/mis-tickets" element={<Tickets title="Mis consultas" subtitle="Tus preguntas y visitas, con cada respuesta por escrito." />} />
           <Route path="/mis-tickets/nuevo" element={<NewTicket />} />
           <Route path="/mis-tickets/:id" element={<TicketDetail />} />
         </Route>
@@ -44,7 +48,7 @@ export const router = createBrowserRouter(
       <Route element={<RequireAuth roles={['ADMIN']} />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/tickets" element={<Tickets title="Tickets" subtitle="Filtra por estado, prioridad, categoría, cliente o agente." />} />
+          <Route path="/admin/tickets" element={<Tickets title="Tickets" subtitle="Todas las consultas de los clientes." />} />
           <Route path="/admin/tickets/:id" element={<TicketDetail />} />
           <Route path="/admin/usuarios" element={<AdminUsers />} />
           <Route path="/admin/actividad" element={<AdminActivity />} />

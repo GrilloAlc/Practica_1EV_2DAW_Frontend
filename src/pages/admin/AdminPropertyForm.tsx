@@ -266,7 +266,7 @@ function PropertyForm({ id }: { id?: string }) {
       <title>{`${id ? 'Editar propiedad' : 'Nueva propiedad'} · Administración · CataHome`}</title>
       <p className="breadcrumb"><Link to="/admin/propiedades">Propiedades</Link> / {id ? 'Editar' : 'Nueva'}</p>
       <h1 className="page-title">{id ? 'Editar propiedad' : 'Nueva propiedad'}</h1>
-      <p className="page-subtitle">Lo que escribas aquí es lo que se ve en la ficha de la web pública.</p>
+      <p className="page-subtitle">{id ? form.title || '\u00a0' : 'Anuncio, precio, fotos y dirección de la casa.'}</p>
 
       {loading ? (
         <DetailSkeleton />

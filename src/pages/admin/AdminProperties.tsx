@@ -70,7 +70,7 @@ function AdminProperties() {
     if (active) {
       const ok = await confirm({
         title: '¿Dejar de publicar esta casa?',
-        message: <p>«{property.title}» dejará de verse en la web. Podrás volver a activarla mientras sigas en esta página.</p>,
+        message: <p>«{property.title}» dejará de verse en la web y en esta lista. Podrás deshacerlo justo después.</p>,
         confirmLabel: 'Desactivar',
         danger: true,
       });
@@ -130,7 +130,7 @@ function AdminProperties() {
         <div>
           <h1 className="page-title">Propiedades</h1>
           <p className="page-subtitle">
-            {result ? `${formatNumber(total)} casas publicadas${status || type || searchParams.get('ciudad') ? ' con estos filtros' : ''}.` : 'Administra el catálogo de casas.'}
+            {result ? `${formatNumber(total)} casas publicadas${status || type || searchParams.get('ciudad') ? ' con estos filtros' : ''}.` : 'Catálogo de casas.'}
           </p>
         </div>
         <Link to="/admin/propiedades/nueva" className="btn">Añadir propiedad</Link>
@@ -143,7 +143,7 @@ function AdminProperties() {
       {deactivated.length > 0 && (
         <section className="admin-block" aria-labelledby="admin-deactivated-title">
           <h2 id="admin-deactivated-title" className="admin-section-title admin-block-title">Desactivadas ahora</h2>
-          <p className="page-subtitle">Las casas desactivadas dejan de aparecer en esta lista al salir de la página. Si te has equivocado, actívalas ahora.</p>
+          <p className="page-subtitle">Ya no se ven en la web. Si alguna ha sido un error, vuelve a activarla desde aquí.</p>
           <div className="table-box">
             <PropertyTable list={deactivated} busy={busy} onToggle={toggleActive} onStatus={changeStatus} />
           </div>
@@ -169,13 +169,13 @@ function AdminProperties() {
                 changeUrl({ ciudad: name, pagina: '' });
               }}
             >
-              <input className="table-search" type="search" aria-label="Filtrar por ciudad" placeholder="Ciudad y Enter" value={city} onChange={(e) => {
+              <input className="table-search" type="search" aria-label="Filtrar por ciudad" placeholder="Ciudad…" value={city} onChange={(e) => {
                 setCity(e.target.value);
                 if (!e.target.value) changeUrl({ ciudad: '', pagina: '' });
               }} />
             </form>
           </div>
-          <input className="table-search" type="search" aria-label="Buscar en esta página" placeholder="Buscar por título o calle…" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <input className="table-search" type="search" aria-label="Buscar en esta página" placeholder="Título o calle…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
         {!result && !error ? (

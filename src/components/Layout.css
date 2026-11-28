@@ -265,7 +265,28 @@
   text-underline-offset: 3px;
 }
 
+.footer-bottom p {
+  margin: 0;
+}
+
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.footer-legal a {
+  display: inline-block;
+  padding: 4px 0;
+  color: #f1dfe3;
+}
+
 .footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
   margin: 0;
   padding: 20px var(--margen) 28px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);

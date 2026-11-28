@@ -157,9 +157,14 @@ function Auth() {
           </form>
 
           <p className="auth-legal">
-            {mode === 'register'
-              ? 'Usamos tus datos solo para responder a tus consultas. Tu cuenta será de cliente.'
-              : '¿Has olvidado la contraseña? Llámanos y te ayudamos a recuperarla.'}
+            {mode === 'register' ? (
+              <>
+                Al crear la cuenta aceptas que usemos tus datos para responder a tus consultas, como explicamos en la{' '}
+                <Link to="/privacidad">política de privacidad</Link>.
+              </>
+            ) : (
+              '¿Has olvidado la contraseña? Llámanos y te ayudamos a recuperarla.'
+            )}
           </p>
         </div>
       </main>

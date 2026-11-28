@@ -136,6 +136,12 @@
   color: var(--pizarra);
 }
 
+.auth-legal a {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 @media (max-width: 860px) {
   .auth {
     grid-template-columns: 1fr;

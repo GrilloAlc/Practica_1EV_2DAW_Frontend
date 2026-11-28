@@ -175,7 +175,7 @@ function Properties() {
 
           {!results && !failed && (
             <>
-              {slow && <p className="notice" role="status">Estamos despertando el servidor. La primera búsqueda del día puede tardar unos segundos.</p>}
+              {slow && <p className="notice" role="status">Estamos buscando las casas. Solo será un momento.</p>}
               <PropertyListSkeleton />
             </>
           )}

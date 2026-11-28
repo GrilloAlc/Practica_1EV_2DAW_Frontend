@@ -116,7 +116,7 @@ function Profile() {
             <Link to="/mis-tickets/nuevo?categoria=CUENTA&asunto=Cambiar%20mi%20contrase%C3%B1a">Pídelo con una consulta</Link> y te responderemos por escrito.
           </p>
         ) : (
-          <p>La contraseña la cambia un administrador desde el panel de usuarios. Pídeselo si la necesitas cambiar.</p>
+          <p>Si necesitas cambiar tu contraseña, pídeselo a un administrador.</p>
         )}
       </section>
 

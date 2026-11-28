@@ -133,10 +133,17 @@ export function PublicLayout() {
             </ul>
           </div>
         </div>
-        <p className="footer-bottom">
-          © {new Date().getFullYear()} CataHome · Fotos de <a href="https://unsplash.com" target="_blank" rel="noreferrer">Unsplash</a> · Mapas de{' '}
-          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>
-        </p>
+        <div className="footer-bottom">
+          <p>
+            © {new Date().getFullYear()} CataHome · Fotos de <a href="https://unsplash.com" target="_blank" rel="noreferrer">Unsplash</a> · Mapas de{' '}
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>
+          </p>
+          <nav className="footer-legal" aria-label="Textos legales">
+            <Link to="/aviso-legal">Aviso legal</Link>
+            <Link to="/privacidad">Privacidad</Link>
+            <Link to="/cookies">Cookies</Link>
+          </nav>
+        </div>
       </footer>
     </>
   );

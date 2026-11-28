@@ -202,7 +202,7 @@ function AdminUsers() {
                 className="table-search"
                 type="search"
                 aria-label="Buscar por nombre o correo"
-                placeholder="Nombre o correo y Enter"
+                placeholder="Buscar por nombre o correo…"
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -319,7 +319,7 @@ function CreateUserDialog({ onClose, onDone }: { onClose: () => void; onDone: (n
   return (
     <FormDialog
       title="Nuevo usuario"
-      intro={<p>Para dar de alta agentes y administradores. Los clientes se registran ellos mismos desde la web.</p>}
+      intro={<p>Alta de agentes y administradores. Los clientes crean su cuenta desde la web.</p>}
       submitLabel="Crear la cuenta"
       busy={busy}
       error={error}
@@ -417,7 +417,7 @@ export function PasswordDialog({ user, own, onClose, onDone }: { user: Pick<User
   return (
     <FormDialog
       title={own ? 'Cambiar tu contraseña' : `Contraseña de ${user.name}`}
-      intro={<p>{own ? 'La próxima vez que entres tendrás que usar la nueva.' : 'La contraseña actual deja de valer al momento. Comunícale la nueva por un canal seguro.'}</p>}
+      intro={<p>{own ? 'La próxima vez que entres tendrás que usar la nueva.' : 'La contraseña actual deja de valer al momento. Comunica la nueva por un canal seguro.'}</p>}
       submitLabel="Cambiar la contraseña"
       busy={busy}
       error={error}

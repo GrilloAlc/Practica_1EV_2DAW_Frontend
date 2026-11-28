@@ -195,7 +195,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
               className="table-search"
               type="search"
               aria-label={isCustomer ? 'Buscar en esta página de consultas' : 'Buscar en esta página de tickets'}
-              placeholder="Buscar en esta página…"
+              placeholder="Código, asunto o nombre…"
               value={search}
               onChange={(e) => changeUrl({ q: e.target.value }, true)}
             />
@@ -252,7 +252,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                       Cliente
                       <input
                         type="search"
-                        placeholder="Escribe y elige un nombre"
+                        placeholder="Nombre del cliente…"
                         list={customersId}
                         autoComplete="off"
                         value={customerText}
