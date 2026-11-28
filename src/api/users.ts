@@ -1,5 +1,4 @@
-import { api, ApiError, getErrorStatus, USE_FAKE_DATA } from './client';
-import { fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
+import { api, ApiError, getErrorStatus } from './client';
 import type { Page, User } from '../types';
 
 export interface UserFilters {
@@ -30,19 +29,6 @@ function duplicateError(err: unknown, action: string) {
 // GET /api/users (ADMIN) → { data, pagesData }, máximo 50 por página
 export async function getUsersPage(params: UserFilters = {}): Promise<Page<User>> {
   const limit = params.limit || 50;
-  if (USE_FAKE_DATA) {
-    let list = fakeUsers;
-    if (params.role) list = list.filter((u) => u.role === params.role);
-    if (params.isActive !== undefined) list = list.filter((u) => u.isActive === params.isActive);
-    if (params.name) list = list.filter((u) => u.name.toLowerCase().includes(params.name!.toLowerCase()));
-    if (params.email) list = list.filter((u) => u.email.toLowerCase().includes(params.email!.toLowerCase()));
-    if (params.order === 'asc') list = [...list].reverse();
-    return {
-      data: pageOf(list, params, limit),
-      pagesData: { page: params.page || 1, limit, total: list.length, totalPages: Math.max(1, Math.ceil(list.length / limit)) },
-    };
-  }
-
   const name = params.name ? escapeRegex(params.name) : undefined;
   const email = params.email ? escapeRegex(params.email) : undefined;
   return api.get('/users', { ...params, name, email, limit });
@@ -50,12 +36,6 @@ export async function getUsersPage(params: UserFilters = {}): Promise<Page<User>
 
 // GET /api/users/:id (ADMIN): un usuario con sus datos actuales
 export async function getUser(id: string): Promise<User> {
-  if (USE_FAKE_DATA) {
-    const user = fakeUsers.find((u) => u._id === id);
-    if (!user) throw new ApiError('Usuario no encontrado', 404);
-    return user;
-  }
-
   return api.get('/users/' + id);
 }
 
@@ -63,10 +43,6 @@ export async function getUser(id: string): Promise<User> {
 // Para las sugerencias mientras se escribe
 export async function searchUsers(role: string, text: string, limit = 5): Promise<Pick<User, '_id' | 'name' | 'email' | 'role'>[]> {
   if (!text.trim()) return [];
-  if (USE_FAKE_DATA) {
-    return fakeUsers.filter((u) => u.role === role && u.name.toLowerCase().includes(text.trim().toLowerCase())).slice(0, limit);
-  }
-
   return api.get('/users/search', { role, q: escapeRegex(text.trim()), limit });
 }
 
@@ -81,14 +57,6 @@ export interface NewUser {
 // POST /api/users (ADMIN): crea una cuenta con el rol que se elija (agentes y otros administradores).
 // El backend responde con un texto, no con el usuario
 export async function createUser(data: NewUser): Promise<void> {
-  if (USE_FAKE_DATA) {
-    if (fakeUsers.some((u) => u.email === data.email || u.name === data.name)) {
-      throw new ApiError('No se ha podido crear la cuenta. Puede que ese correo o ese nombre ya los use otra cuenta.', 500);
-    }
-    fakeUsers.unshift({ _id: 'u' + Date.now(), name: data.name, email: data.email, phone: data.phone, role: data.role, isActive: true, password: data.password });
-    return;
-  }
-
   try {
     await api.post('/users', { ...data, isActive: true });
   } catch (err) {
@@ -98,12 +66,6 @@ export async function createUser(data: NewUser): Promise<void> {
 
 // PUT /api/users/:id (ADMIN) → { name, phone }. El correo y el rol no se cambian aquí
 export async function updateUser(id: string, data: { name: string; phone: string }): Promise<User> {
-  if (USE_FAKE_DATA) {
-    const user = fakeUsers.find((u) => u._id === id)!;
-    Object.assign(user, data);
-    return user;
-  }
-
   try {
     return await api.put('/users/' + id, data);
   } catch (err) {
@@ -114,11 +76,6 @@ export async function updateUser(id: string, data: { name: string; phone: string
 // PUT /api/users/:id/password (ADMIN) → { password }. Solo el administrador puede cambiar contraseñas,
 // también la suya (con su propio id): el backend no tiene ruta para que cada usuario cambie la suya
 export async function setUserPassword(id: string, password: string): Promise<void> {
-  if (USE_FAKE_DATA) {
-    fakeUsers.find((u) => u._id === id)!.password = password;
-    return;
-  }
-
   await api.put('/users/' + id + '/password', { password });
 }
 
@@ -132,12 +89,6 @@ export async function getAllUsers(params: Omit<UserFilters, 'page' | 'limit'> = 
 
 // PUT /api/users/me → { name, phone }
 export async function updateMe(data: { name: string; phone: string }): Promise<User> {
-  if (USE_FAKE_DATA) {
-    const user = fakeUsers.find((u) => u._id === getLoggedUser()._id)!;
-    Object.assign(user, data);
-    return user;
-  }
-
   try {
     return await api.put('/users/me', data);
   } catch (err) {
@@ -158,22 +109,10 @@ export function passwordProblem(password: string, repeat: string) {
 
 // PUT /api/users/:id/role (ADMIN)
 export async function changeRole(id: string, role: string): Promise<User> {
-  if (USE_FAKE_DATA) {
-    const user = fakeUsers.find((u) => u._id === id)!;
-    user.role = role;
-    return user;
-  }
-
   return api.put('/users/' + id + '/role', { role });
 }
 
 // PUT /api/users/:id/activate y /deactivate (ADMIN)
 export async function setUserActive(id: string, active: boolean): Promise<User> {
-  if (USE_FAKE_DATA) {
-    const user = fakeUsers.find((u) => u._id === id)!;
-    user.isActive = active;
-    return user;
-  }
-
   return api.put('/users/' + id + (active ? '/activate' : '/deactivate'));
 }

@@ -109,31 +109,17 @@ La web está en Vercel, conectada al repositorio de GitHub: cada push a `main` s
 2. Cualquier otra ruta (por ejemplo `/propiedades/123`) devuelve `index.html`, porque es una aplicación
    de una sola página.
 
-## Modo de prueba sin backend
-
-`USE_FAKE_DATA` en `src/api/client.ts` está en `false`: la web usa la API real. Si se pone en `true`, usa
-los datos de `src/data/fakeData.ts`, útil para probar sin backend. Cuando todo funcione contra la API se
-borran `fakeData.ts` y las ramas `if (USE_FAKE_DATA)` de `src/api/`.
-
 ## Usuarios de prueba
 
 Todos los datos son ficticios.
 
-**Con la API real** (deben existir en la base de datos del backend desplegado):
+Deben existir en la base de datos del backend desplegado. Todo lo que muestra la web se lee y se guarda en la API: no hay datos simulados en el frontend.
 
 | Rol | Correo | Contraseña |
 |---|---|---|
 | Cliente | _pendiente_ | _pendiente_ |
 | Agente | _pendiente_ | _pendiente_ |
 | Administrador | _pendiente_ | _pendiente_ |
-
-**En modo de prueba** (`USE_FAKE_DATA = true`):
-
-| Rol | Correo | Contraseña |
-|---|---|---|
-| Cliente | maria@correo.com | maria1234 |
-| Agente | ana@inmobiliaria.es | ana12345 |
-| Administrador | admin@inmobiliaria.es | admin1234 |
 
 ## Estructura
 
@@ -142,7 +128,6 @@ src/
   api/          fetch a la API (client.ts) y una función por endpoint
   components/   piezas compartidas: menú y pie, tarjetas de casas, carrusel, esqueletos de carga…
   context/      sesión del usuario (AuthProvider)
-  data/         datos de prueba (solo mientras USE_FAKE_DATA = true)
   pages/        una página por ruta; pages/admin para el panel de administración
   utils/        textos de estados y prioridades, formato de precios y fechas
   App.tsx       rutas de la web

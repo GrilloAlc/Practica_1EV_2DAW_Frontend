@@ -1,5 +1,3 @@
-// true: usa los datos falsos de data/fakeData.ts. false: usa el backend real
-export const USE_FAKE_DATA = false;
 
 const DEFAULT_ERROR = 'Ha ocurrido un error, inténtalo de nuevo.';
 const NETWORK_ERROR = 'No hay conexión con el servidor. Comprueba tu conexión e inténtalo de nuevo.';

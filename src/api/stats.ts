@@ -1,5 +1,4 @@
-import { api, USE_FAKE_DATA } from './client';
-import { fakeProperties, fakeTickets, fakeUsers } from '../data/fakeData';
+import { api } from './client';
 import type { Page } from '../types';
 
 // GET /api/stats/dashboard (ADMIN): usuarios y casas activos e inactivos, y la actividad reciente
@@ -61,26 +60,10 @@ export interface UserStats {
 }
 
 export async function getPropertyStats(range: StatsRange = {}): Promise<PropertyStats> {
-  if (USE_FAKE_DATA) {
-    const count = (status: string) => fakeProperties.filter((p) => p.status === status).length;
-    return {
-      active: fakeProperties.filter((p) => p.isActive).length,
-      inactive: fakeProperties.filter((p) => !p.isActive).length,
-      vendidas: count('Vendida'),
-      alquiladas: count('Alquilada'),
-      reservadas: count('Reservada'),
-    };
-  }
-
   return api.get('/stats/properties', rangeParams(range));
 }
 
 export async function getUserStats(): Promise<UserStats> {
-  if (USE_FAKE_DATA) {
-    const roles = ['CLIENTE', 'AGENTE', 'ADMIN'].map((r) => ({ _id: r, total: fakeUsers.filter((u) => u.role === r).length }));
-    return { roles, active: fakeUsers.filter((u) => u.isActive).length, inactive: fakeUsers.filter((u) => !u.isActive).length };
-  }
-
   return api.get('/stats/users');
 }
 
@@ -97,28 +80,13 @@ export interface ActivityEntry {
 }
 
 export async function getActivityPage(page = 1, limit = 25): Promise<Page<ActivityEntry>> {
-  if (USE_FAKE_DATA) {
-    return { data: [], pagesData: { page: 1, limit, total: 0, totalPages: 1 } };
-  }
-
   return api.get('/ticket-history', { page, limit });
 }
 
 export async function getDashboard(range: StatsRange = {}): Promise<Dashboard> {
-  if (USE_FAKE_DATA) {
-    return {
-      users: { active: fakeUsers.filter((u) => u.isActive).length, inactive: fakeUsers.filter((u) => !u.isActive).length },
-      properties: { active: fakeProperties.filter((p) => p.isActive).length, inactive: fakeProperties.filter((p) => !p.isActive).length },
-      sinAsignar: fakeTickets.filter((t) => !t.agent).length,
-      recentActivity: { messages: [] },
-    };
-  }
-
   return api.get('/stats/dashboard', rangeParams(range));
 }
 
 export async function getTicketsByAgent(range: StatsRange = {}): Promise<AgentLoad[]> {
-  if (USE_FAKE_DATA) return [];
-
   return api.get('/stats/tickets/by-agent', rangeParams(range));
 }
