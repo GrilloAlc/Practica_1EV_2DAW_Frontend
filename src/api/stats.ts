@@ -101,7 +101,7 @@ export async function getActivityPage(page = 1, limit = 25): Promise<Page<Activi
     return { data: [], pagesData: { page: 1, limit, total: 0, totalPages: 1 } };
   }
 
-  return api.page('/ticket-history', { page, limit });
+  return api.get('/ticket-history', { page, limit });
 }
 
 export async function getDashboard(range: StatsRange = {}): Promise<Dashboard> {
@@ -120,6 +120,5 @@ export async function getDashboard(range: StatsRange = {}): Promise<Dashboard> {
 export async function getTicketsByAgent(range: StatsRange = {}): Promise<AgentLoad[]> {
   if (USE_FAKE_DATA) return [];
 
-  const list = await api.get('/stats/tickets/by-agent', rangeParams(range));
-  return Array.isArray(list) ? list : [];
+  return api.get('/stats/tickets/by-agent', rangeParams(range));
 }

@@ -79,7 +79,7 @@ export interface TicketStats {
   pendienteCliente: number;
   resueltos: number;
   cerrados: number;
-  sinAsignar?: number;
+  sinAsignar: number;
 }
 
 // Respuesta paginada de los listados: { data, pagesData }

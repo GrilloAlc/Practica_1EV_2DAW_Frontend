@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, SyntheticEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { createProperty, getPropertyForAdmin, updateProperty } from '../../api/properties';
+import { createProperty, getProperty, updateProperty } from '../../api/properties';
 import AddressSearch from '../../components/AddressSearch';
 import Photo from '../../components/Photo';
 import { DetailSkeleton } from '../../components/Skeleton';
@@ -58,7 +58,7 @@ function PropertyForm({ id }: { id?: string }) {
   useEffect(() => {
     if (!id) return;
     let current = true;
-    getPropertyForAdmin(id).then(
+    getProperty(id).then(
       (p) => {
         if (!current) return;
         setForm({

@@ -21,12 +21,12 @@ export interface PropertyFilters {
   limit?: number;
 }
 
-// El backend devuelve 50 propiedades por página como máximo
+// Se piden 50 por página, el máximo que permite el backend (si se pide más, él mismo lo deja en 50)
 export const PROPERTIES_PER_PAGE = 50;
 
 // GET /api/properties → { data, pagesData }. Solo devuelve las casas activas
 export async function getPropertiesPage(filters: PropertyFilters = {}): Promise<Page<Property>> {
-  const limit = Math.min(filters.limit || PROPERTIES_PER_PAGE, PROPERTIES_PER_PAGE);
+  const limit = filters.limit || PROPERTIES_PER_PAGE;
 
   if (USE_FAKE_DATA) {
     let list = fakeProperties.filter((p) => p.isActive);
@@ -48,7 +48,7 @@ export async function getPropertiesPage(filters: PropertyFilters = {}): Promise<
     };
   }
 
-  return api.page('/properties', { ...filters, limit });
+  return api.get('/properties', { ...filters, limit });
 }
 
 // Solo la lista de casas
@@ -56,7 +56,8 @@ export async function getProperties(filters: PropertyFilters = {}): Promise<Prop
   return (await getPropertiesPage(filters)).data;
 }
 
-// GET /api/properties/:id. 404 si no existe o está desactivada
+// GET /api/properties/:id. 404 si no existe o está desactivada. La usa también el formulario de edición
+// del admin: el backend no tiene ruta para las desactivadas, así que se reactivan antes de editarlas
 export async function getProperty(id: string): Promise<Property> {
   if (USE_FAKE_DATA) {
     const property = fakeProperties.find((p) => p._id === id);
@@ -118,16 +119,4 @@ export async function reactivateProperty(id: string) {
   }
 
   await api.put('/properties/' + id + '/reactivate');
-}
-
-// Para el formulario de edición del admin. El backend no tiene ruta para ver las desactivadas,
-// así que solo se pueden editar las activas (reactívala primero desde la lista)
-export async function getPropertyForAdmin(id: string): Promise<Property> {
-  if (USE_FAKE_DATA) {
-    const property = fakeProperties.find((p) => p._id === id);
-    if (!property) throw new ApiError('Propiedad no encontrada', 404);
-    return property;
-  }
-
-  return api.get('/properties/' + encodeURIComponent(id));
 }

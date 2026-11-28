@@ -45,7 +45,7 @@ export async function getUsersPage(params: UserFilters = {}): Promise<Page<User>
 
   const name = params.name ? escapeRegex(params.name) : undefined;
   const email = params.email ? escapeRegex(params.email) : undefined;
-  return api.page('/users', { ...params, name, email, limit });
+  return api.get('/users', { ...params, name, email, limit });
 }
 
 // GET /api/users/:id (ADMIN): un usuario con sus datos actuales
@@ -67,8 +67,7 @@ export async function searchUsers(role: string, text: string, limit = 5): Promis
     return fakeUsers.filter((u) => u.role === role && u.name.toLowerCase().includes(text.trim().toLowerCase())).slice(0, limit);
   }
 
-  const list = await api.get('/users/search', { role, q: escapeRegex(text.trim()), limit });
-  return Array.isArray(list) ? list : [];
+  return api.get('/users/search', { role, q: escapeRegex(text.trim()), limit });
 }
 
 export interface NewUser {
@@ -123,15 +122,11 @@ export async function setUserPassword(id: string, password: string): Promise<voi
   await api.put('/users/' + id + '/password', { password });
 }
 
-export async function getUsers(params: UserFilters = {}): Promise<User[]> {
-  return (await getUsersPage(params)).data;
-}
-
 // Todos los usuarios de un rol, pidiendo las páginas que haga falta (para las listas de los filtros)
 export async function getAllUsers(params: Omit<UserFilters, 'page' | 'limit'> = {}): Promise<User[]> {
   const first = await getUsersPage({ ...params, page: 1, limit: 50 });
   const pages = Math.min(first.pagesData.totalPages || 1, 20);
-  const rest = await Promise.all(Array.from({ length: pages - 1 }, (_, i) => getUsers({ ...params, page: i + 2, limit: 50 })));
+  const rest = await Promise.all(Array.from({ length: pages - 1 }, (_, i) => getUsersPage({ ...params, page: i + 2, limit: 50 }).then((p) => p.data)));
   return [...first.data, ...rest.flat()];
 }
 

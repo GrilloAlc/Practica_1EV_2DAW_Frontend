@@ -11,12 +11,10 @@ import { TableSkeleton } from '../components/Skeleton';
 
 const PER_PAGE = 20;
 
-// Orden elegido en pantalla → sortBy y order del backend
-const SORTS: Record<string, Pick<TicketFilters, 'sortBy' | 'order'>> = {
-  recientes: { order: 'desc' },
-  antiguos: { order: 'asc' },
-  'prioridad-alta': { sortBy: 'prioridad', order: 'desc' },
-  'prioridad-baja': { sortBy: 'prioridad', order: 'asc' },
+// El backend ordena por prioridad (y, dentro de cada una, lo más nuevo primero): solo se elige el sentido
+const SORTS: Record<string, Pick<TicketFilters, 'order'>> = {
+  'prioridad-alta': { order: 'desc' },
+  'prioridad-baja': { order: 'asc' },
 };
 
 // Lista compartida por cliente, agente y admin. Las columnas cambian según el rol.
@@ -37,7 +35,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const agentName = isAdmin ? searchParams.get('agente') || '' : '';
   // Solo admin: los resueltos cuyo cliente ha pedido reabrir
   const reopenOnly = isAdmin && searchParams.get('reabrir') === '1';
-  const sort = SORTS[searchParams.get('orden') || ''] ? searchParams.get('orden')! : 'recientes';
+  const sort = SORTS[searchParams.get('orden') || ''] ? searchParams.get('orden')! : 'prioridad-alta';
   const search = searchParams.get('q') || '';
   const page = Math.max(1, Math.floor(Number(searchParams.get('pagina'))) || 1);
   const key = [status, priority, category, customerName, agentName, reopenOnly, sort, page].join('|');
@@ -226,9 +224,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                 </label>
               </>
             )}
-            <select className="table-search" aria-label="Ordenar" value={sort} onChange={(e) => changeUrl({ orden: e.target.value === 'recientes' ? '' : e.target.value })}>
-              <option value="recientes">Más recientes</option>
-              <option value="antiguos">Más antiguos</option>
+            <select className="table-search" aria-label="Ordenar" value={sort} onChange={(e) => changeUrl({ orden: e.target.value === 'prioridad-alta' ? '' : e.target.value })}>
               <option value="prioridad-alta">Prioridad alta primero</option>
               <option value="prioridad-baja">Prioridad baja primero</option>
             </select>

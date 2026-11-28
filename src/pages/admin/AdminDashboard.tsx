@@ -30,12 +30,13 @@ function AdminDashboard() {
 
   // Lo que espera agente o reapertura no depende de las fechas: se pide una vez
   useEffect(() => {
-    Promise.all([getTicketsPage({ unassigned: true, limit: 10 }), getTicketsPage({ reopenRequested: true, limit: 10 })]).then(
+    // El backend filtra los resueltos con petición de reapertura y los tickets sin agente
+    Promise.all([getTicketsPage({ unassigned: true, limit: 10 }), getTicketsPage({ status: 'RESUELTO', reopenRequested: true, limit: 10 })]).then(
       ([unassignedPage, reopenPage]) => {
-        // Los cerrados sin agente ya no esperan a nadie
+        // Los cerrados sin agente ya no esperan a nadie (el backend no permite excluir un estado)
         setUnassigned(unassignedPage.data.filter((t) => t.status !== 'CERRADO'));
         setUnassignedTotal(unassignedPage.pagesData.total);
-        setReopen(reopenPage.data.filter((t) => t.status === 'RESUELTO'));
+        setReopen(reopenPage.data);
       },
       (err) => setError(getErrorMessage(err)),
     );
@@ -164,7 +165,7 @@ function AdminDashboard() {
             {!agentId && (
               <div>
                 <dt>Sin agente</dt>
-                <dd>{formatNumber(stats.sinAsignar ?? unassignedTotal)}</dd>
+                <dd>{formatNumber(stats.sinAsignar)}</dd>
               </div>
             )}
           </dl>
@@ -173,7 +174,7 @@ function AdminDashboard() {
             <>
               <div className="page-header">
                 <h2 className="admin-section-title">Piden reabrir ({reopen.length})</h2>
-                <Link to="/admin/tickets?reabrir=1" className="btn btn-outline">Ver todas las peticiones</Link>
+                <Link to="/admin/tickets?estado=RESUELTO&reabrir=1" className="btn btn-outline">Ver todas las peticiones</Link>
               </div>
               <div className="table-box admin-block">
                 <TicketTable tickets={reopen} />

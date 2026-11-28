@@ -53,48 +53,34 @@ export interface TicketFilters {
   agentName?: string;
   unassigned?: boolean;
   reopenRequested?: boolean;
-  // Orden: por fecha (lo normal) o por prioridad ('prioridad'), de mayor a menor ('desc') o al revés
-  sortBy?: 'prioridad';
+  // El backend ordena siempre por prioridad (y, dentro de cada una, lo más nuevo primero):
+  // 'desc' alta primero (lo normal) o 'asc' baja primero
   order?: 'asc' | 'desc';
   page?: number;
   limit?: number;
 }
 
-// GET /api/tickets/options: categorías, prioridades y estados válidos según el backend.
-// Se pide una vez; si falla, se usan las listas de utils/labels.ts, que son las mismas
+// GET /api/tickets/options: categorías, prioridades y estados válidos, tal y como los define el backend.
+// Se pide una vez. Mientras llegan (o si falla) se usan las listas de utils/labels.ts
 export interface TicketOptions {
   categories: string[];
   priorities: number[];
   statuses: string[];
 }
 
+const LOCAL_OPTIONS: TicketOptions = { categories: TICKET_CATEGORIES, priorities: TICKET_PRIORITIES, statuses: TICKET_STATUSES };
 let optionsCache: Promise<TicketOptions> | null = null;
 
-export function getTicketOptions(): Promise<TicketOptions> {
-  const fallback = { categories: TICKET_CATEGORIES, priorities: TICKET_PRIORITIES, statuses: TICKET_STATUSES };
-  if (USE_FAKE_DATA) return Promise.resolve(fallback);
-  if (!optionsCache) {
-    optionsCache = api.get('/tickets/options').then(
-      (res: Partial<TicketOptions>) => ({
-        categories: Array.isArray(res?.categories) && res.categories.length ? res.categories : fallback.categories,
-        priorities: Array.isArray(res?.priorities) && res.priorities.length ? res.priorities.map(Number) : fallback.priorities,
-        statuses: Array.isArray(res?.statuses) && res.statuses.length ? res.statuses : fallback.statuses,
-      }),
-      () => {
-        optionsCache = null;
-        return fallback;
-      },
-    );
-  }
-  return optionsCache;
-}
-
-// Las opciones de tickets para una pantalla: empiezan con las de labels.ts y se cambian por las del backend al llegar
 export function useTicketOptions() {
-  const [options, setOptions] = useState<TicketOptions>({ categories: TICKET_CATEGORIES, priorities: TICKET_PRIORITIES, statuses: TICKET_STATUSES });
+  const [options, setOptions] = useState(LOCAL_OPTIONS);
   useEffect(() => {
+    if (USE_FAKE_DATA) return;
+    optionsCache ??= api.get('/tickets/options').catch(() => {
+      optionsCache = null;
+      return LOCAL_OPTIONS;
+    });
     let current = true;
-    getTicketOptions().then((o) => {
+    optionsCache.then((o) => {
       if (current) setOptions(o);
     });
     return () => {
@@ -120,9 +106,7 @@ export async function getTicketsPage(filters: TicketFilters = {}): Promise<Page<
     if (filters.unassigned) list = list.filter((t) => !t.agent);
     if (filters.reopenRequested) list = list.filter((t) => t.reopenRequested);
     const dir = filters.order === 'asc' ? 1 : -1;
-    list = [...list].sort((a, b) =>
-      filters.sortBy === 'prioridad' ? (a.priority - b.priority) * dir : (Date.parse(a.createdAt) - Date.parse(b.createdAt)) * dir,
-    );
+    list = [...list].sort((a, b) => (a.priority - b.priority) * dir);
     const limit = filters.limit || 10;
     return {
       data: pageOf(list, filters, limit),
@@ -131,17 +115,12 @@ export async function getTicketsPage(filters: TicketFilters = {}): Promise<Page<
   }
 
   // El backend espera "true" como texto, y sin el parámetro si no se filtra
-  const res: Page<Ticket> = await api.page('/tickets', {
+  const res: Page<Ticket> = await api.get('/tickets', {
     ...filters,
     unassigned: filters.unassigned ? 'true' : undefined,
     reopenRequested: filters.reopenRequested ? 'true' : undefined,
   });
   return { ...res, data: res.data.map(normalizeTicket) };
-}
-
-// Solo la lista, para pantallas que no necesitan paginar
-export async function getTickets(filters: TicketFilters = {}): Promise<Ticket[]> {
-  return (await getTicketsPage(filters)).data;
 }
 
 // GET /api/tickets/:id → { ticket, messages, history }: el ticket con sus mensajes (con el rol del autor)

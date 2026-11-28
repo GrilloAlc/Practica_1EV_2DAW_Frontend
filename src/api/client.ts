@@ -117,20 +117,10 @@ function toQuery(params?: Record<string, unknown>) {
   return '?' + parts.join('&');
 }
 
+// Los listados (casas, tickets, usuarios, actividad) ya llegan paginados del backend
+// como { data: [...], pagesData: { page, limit, total, totalPages } }: se usan tal cual con api.get
 export const api = {
   get: (url: string, params?: Record<string, unknown>) => request('GET', url + toQuery(params)),
-  // Los listados llegan paginados: { data: [...], pagesData: { page, limit, total, totalPages } }.
-  // Devuelve solo la lista
-  list: async (url: string, params?: Record<string, unknown>) => {
-    const res = await request('GET', url + toQuery(params));
-    return Array.isArray(res) ? res : res.data || [];
-  },
-  // Igual que list, pero devuelve también los datos de la página (total, número de páginas…)
-  page: async (url: string, params?: Record<string, unknown>) => {
-    const res = await request('GET', url + toQuery(params));
-    if (Array.isArray(res)) return { data: res, pagesData: { page: 1, limit: res.length, total: res.length, totalPages: 1 } };
-    return { data: res.data || [], pagesData: res.pagesData || { page: 1, limit: 0, total: 0, totalPages: 1 } };
-  },
   post: (url: string, body?: unknown) => request('POST', url, body),
   put: (url: string, body?: unknown) => request('PUT', url, body),
   delete: (url: string) => request('DELETE', url),
