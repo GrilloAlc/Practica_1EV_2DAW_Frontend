@@ -555,6 +555,24 @@ img {
   outline: none;
 }
 
+/* Casilla junto a los filtros de una tabla ("Piden reabrir") */
+.table-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 15px;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.table-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--acento);
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

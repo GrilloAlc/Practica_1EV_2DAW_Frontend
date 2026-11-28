@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { createTicket } from '../api/tickets';
+import { createTicket, useTicketOptions } from '../api/tickets';
 import { getProperty } from '../api/properties';
 import { getErrorMessage } from '../api/client';
 import { TICKET_CATEGORIES, categoryLabels, formatPrice } from '../utils/labels';
@@ -25,6 +25,8 @@ function NewTicket() {
     TICKET_CATEGORIES.includes(searchParams.get('categoria') || '') ? searchParams.get('categoria')! : 'CONSULTA_PROPIEDAD',
   );
   const [description, setDescription] = useState('');
+  // Categorías válidas según el backend (GET /tickets/options)
+  const { categories } = useTicketOptions();
   const [property, setProperty] = useState<Property | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -107,8 +109,8 @@ function NewTicket() {
           <label className="field">
             Categoría
             <select name="category" value={category} onChange={(e) => setCategory(e.target.value)}>
-              {TICKET_CATEGORIES.map((c) => (
-                <option key={c} value={c}>{categoryLabels[c]}</option>
+              {categories.map((c) => (
+                <option key={c} value={c}>{categoryLabels[c] || c}</option>
               ))}
             </select>
           </label>

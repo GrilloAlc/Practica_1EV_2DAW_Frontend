@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { deactivateProperty, getPropertiesPage, reactivateProperty } from '../../api/properties';
+import { deactivateProperty, getPropertiesPage, reactivateProperty, updatePropertyStatus } from '../../api/properties';
 import { getErrorMessage } from '../../api/client';
 import { PROPERTY_STATUSES, PROPERTY_TYPES, formatNumber, formatPrice } from '../../utils/labels';
 import { coverPhoto, typeImage } from '../../utils/photos';
@@ -19,6 +19,8 @@ function AdminProperties() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [result, setResult] = useState<{ key: string; page: Page<Property> } | null>(null);
   const [deactivated, setDeactivated] = useState<Property[]>([]);
+  // Estados cambiados desde la lista (vendida, reservada…), para no tener que volver a pedirla
+  const [statusChanges, setStatusChanges] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
@@ -90,9 +92,32 @@ function AdminProperties() {
     setBusy(null);
   }
 
+  // PUT /properties/:id/status: cambia solo el estado. Vendida y alquilada piden confirmación
+  async function changeStatus(property: Property, newStatus: string) {
+    if (newStatus === 'Vendida' || newStatus === 'Alquilada') {
+      const ok = await confirm({
+        title: `¿Marcar como ${newStatus.toLowerCase()}?`,
+        message: <p>«{property.title}» seguirá en la web, pero se verá como {newStatus.toLowerCase()} y ya no se podrá preguntar por ella como disponible.</p>,
+        confirmLabel: `Marcar como ${newStatus.toLowerCase()}`,
+      });
+      if (!ok) return;
+    }
+    setBusy(property._id);
+    try {
+      await updatePropertyStatus(property._id, newStatus);
+      setStatusChanges((c) => ({ ...c, [property._id]: newStatus }));
+      setError('');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+    setBusy(null);
+  }
+
   const loading = result?.key !== key && !error;
   const deactivatedIds = new Set(deactivated.map((p) => p._id));
-  const list = (result?.page.data || []).filter((p) => !deactivatedIds.has(p._id));
+  const list = (result?.page.data || [])
+    .filter((p) => !deactivatedIds.has(p._id))
+    .map((p) => (statusChanges[p._id] ? { ...p, status: statusChanges[p._id] } : p));
   const total = result?.page.pagesData.total ?? 0;
   const totalPages = Math.max(1, result?.page.pagesData.totalPages || 1);
   const text = search.trim().toLowerCase();
@@ -120,7 +145,7 @@ function AdminProperties() {
           <h2 id="admin-deactivated-title" className="admin-section-title admin-block-title">Desactivadas ahora</h2>
           <p className="page-subtitle">El backend no deja ver las casas desactivadas: actívalas antes de salir de esta página si te has equivocado.</p>
           <div className="table-box">
-            <PropertyTable list={deactivated} busy={busy} onToggle={toggleActive} />
+            <PropertyTable list={deactivated} busy={busy} onToggle={toggleActive} onStatus={changeStatus} />
           </div>
         </section>
       )}
@@ -159,7 +184,7 @@ function AdminProperties() {
           <div className="empty"><strong>Ninguna propiedad coincide</strong>Cambia los filtros o el texto de búsqueda.</div>
         ) : (
           <div className={loading ? 'admin-loading' : undefined} aria-busy={loading}>
-            <PropertyTable list={visible} busy={busy} onToggle={toggleActive} />
+            <PropertyTable list={visible} busy={busy} onToggle={toggleActive} onStatus={changeStatus} />
           </div>
         )}
       </div>
@@ -177,7 +202,14 @@ function AdminProperties() {
   );
 }
 
-function PropertyTable({ list, busy, onToggle }: { list: Property[]; busy: string | null; onToggle: (p: Property, active: boolean) => void }) {
+interface PropertyTableProps {
+  list: Property[];
+  busy: string | null;
+  onToggle: (p: Property, active: boolean) => void;
+  onStatus: (p: Property, status: string) => void;
+}
+
+function PropertyTable({ list, busy, onToggle, onStatus }: PropertyTableProps) {
   return (
     <table className="table">
       <thead>
@@ -193,7 +225,11 @@ function PropertyTable({ list, busy, onToggle }: { list: Property[]; busy: strin
               </span>
             </td>
             <td data-label="Tipo">{p.type}</td>
-            <td data-label="Estado" className="cell-muted">{p.status}</td>
+            <td data-label="Estado">
+              <select aria-label={`Estado de ${p.title}`} value={p.status} disabled={busy === p._id} onChange={(e) => onStatus(p, e.target.value)}>
+                {PROPERTY_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </td>
             <td data-label="Ciudad">{p.address.city}</td>
             <td data-label="Precio" className="cell-code"><strong>{formatPrice(p)}</strong></td>
             <td data-label="Visible"><span className={p.isActive ? 'status-badge status-on' : 'status-badge status-off'}>{p.isActive ? 'Activa' : 'Inactiva'}</span></td>

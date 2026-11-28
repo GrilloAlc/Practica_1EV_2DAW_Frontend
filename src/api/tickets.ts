@@ -1,6 +1,10 @@
 import { api, ApiError, USE_FAKE_DATA } from './client';
 import { fakeHistory, fakeMessages, fakeTickets, fakeUsers, getLoggedUser, pageOf } from '../data/fakeData';
 import type { Page, Ticket, TicketDetailData, TicketStats } from '../types';
+import { useEffect, useState } from 'react';
+import { TICKET_CATEGORIES, TICKET_PRIORITIES, TICKET_STATUSES } from '../utils/labels';
+import { rangeParams } from './stats';
+import type { StatsRange } from './stats';
 
 // La prioridad siempre como número (1, 2 o 3), aunque llegue como texto ("2")
 // o con el formato antiguo ("BAJA", "MEDIA", "ALTA") de tickets creados antes del cambio
@@ -49,8 +53,55 @@ export interface TicketFilters {
   agentName?: string;
   unassigned?: boolean;
   reopenRequested?: boolean;
+  // Orden: por fecha (lo normal) o por prioridad ('prioridad'), de mayor a menor ('desc') o al revés
+  sortBy?: 'prioridad';
+  order?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+}
+
+// GET /api/tickets/options: categorías, prioridades y estados válidos según el backend.
+// Se pide una vez; si falla, se usan las listas de utils/labels.ts, que son las mismas
+export interface TicketOptions {
+  categories: string[];
+  priorities: number[];
+  statuses: string[];
+}
+
+let optionsCache: Promise<TicketOptions> | null = null;
+
+export function getTicketOptions(): Promise<TicketOptions> {
+  const fallback = { categories: TICKET_CATEGORIES, priorities: TICKET_PRIORITIES, statuses: TICKET_STATUSES };
+  if (USE_FAKE_DATA) return Promise.resolve(fallback);
+  if (!optionsCache) {
+    optionsCache = api.get('/tickets/options').then(
+      (res: Partial<TicketOptions>) => ({
+        categories: Array.isArray(res?.categories) && res.categories.length ? res.categories : fallback.categories,
+        priorities: Array.isArray(res?.priorities) && res.priorities.length ? res.priorities.map(Number) : fallback.priorities,
+        statuses: Array.isArray(res?.statuses) && res.statuses.length ? res.statuses : fallback.statuses,
+      }),
+      () => {
+        optionsCache = null;
+        return fallback;
+      },
+    );
+  }
+  return optionsCache;
+}
+
+// Las opciones de tickets para una pantalla: empiezan con las de labels.ts y se cambian por las del backend al llegar
+export function useTicketOptions() {
+  const [options, setOptions] = useState<TicketOptions>({ categories: TICKET_CATEGORIES, priorities: TICKET_PRIORITIES, statuses: TICKET_STATUSES });
+  useEffect(() => {
+    let current = true;
+    getTicketOptions().then((o) => {
+      if (current) setOptions(o);
+    });
+    return () => {
+      current = false;
+    };
+  }, []);
+  return options;
 }
 
 // GET /api/tickets → { data, pagesData }. El backend ya filtra según el rol:
@@ -68,6 +119,10 @@ export async function getTicketsPage(filters: TicketFilters = {}): Promise<Page<
     if (filters.agentName) list = list.filter((t) => t.agent?.name === filters.agentName);
     if (filters.unassigned) list = list.filter((t) => !t.agent);
     if (filters.reopenRequested) list = list.filter((t) => t.reopenRequested);
+    const dir = filters.order === 'asc' ? 1 : -1;
+    list = [...list].sort((a, b) =>
+      filters.sortBy === 'prioridad' ? (a.priority - b.priority) * dir : (Date.parse(a.createdAt) - Date.parse(b.createdAt)) * dir,
+    );
     const limit = filters.limit || 10;
     return {
       data: pageOf(list, filters, limit),
@@ -209,21 +264,23 @@ export async function denyReopen(id: string) {
 }
 
 // GET /api/stats/tickets (ADMIN)
-export async function getTicketStats(): Promise<TicketStats> {
+// Con agentId, solo los tickets de ese agente; con from/to, solo los creados en esas fechas
+export async function getTicketStats(options: StatsRange & { agentId?: string } = {}): Promise<TicketStats> {
   if (USE_FAKE_DATA) {
+    const list = options.agentId ? fakeTickets.filter((t) => t.agent?._id === options.agentId) : fakeTickets;
     function count(status: string) {
-      return fakeTickets.filter((t) => t.status === status).length;
+      return list.filter((t) => t.status === status).length;
     }
     return {
-      total: fakeTickets.length,
+      total: list.length,
       abiertos: count('ABIERTO'),
       enCurso: count('EN_CURSO'),
       pendienteCliente: count('PENDIENTE_CLIENTE'),
       resueltos: count('RESUELTO'),
       cerrados: count('CERRADO'),
-      sinAsignar: fakeTickets.filter((t) => !t.agent).length,
+      sinAsignar: list.filter((t) => !t.agent).length,
     };
   }
 
-  return api.get('/stats/tickets');
+  return api.get('/stats/tickets', { ...rangeParams(options), agentId: options.agentId });
 }

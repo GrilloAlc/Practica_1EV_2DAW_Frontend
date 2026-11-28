@@ -9,6 +9,12 @@ export interface PropertyFilters {
   priceMin?: string;
   priceMax?: string;
   city?: string;
+  // Metros cuadrados mínimos y máximos
+  areaMin?: string;
+  areaMax?: string;
+  // Coinciden exactos con la dirección guardada (provincia como sale del código postal)
+  province?: string;
+  postalCode?: string;
   orderBy?: 'createdAt' | 'price' | 'area';
   orden?: 'asc' | 'desc';
   page?: number;
@@ -29,6 +35,10 @@ export async function getPropertiesPage(filters: PropertyFilters = {}): Promise<
     if (filters.city) list = list.filter((p) => p.address.city === filters.city);
     if (filters.priceMin) list = list.filter((p) => p.price >= Number(filters.priceMin));
     if (filters.priceMax) list = list.filter((p) => p.price <= Number(filters.priceMax));
+    if (filters.areaMin) list = list.filter((p) => (p.area || 0) >= Number(filters.areaMin));
+    if (filters.areaMax) list = list.filter((p) => (p.area || 0) <= Number(filters.areaMax));
+    if (filters.province) list = list.filter((p) => p.address.province === filters.province);
+    if (filters.postalCode) list = list.filter((p) => p.address.postalCode === filters.postalCode);
     const dir = filters.orden === 'asc' ? 1 : -1;
     if (filters.orderBy === 'price') list.sort((a, b) => (a.price - b.price) * dir);
     if (filters.orderBy === 'area') list.sort((a, b) => ((a.area || 0) - (b.area || 0)) * dir);
@@ -87,6 +97,17 @@ export async function deactivateProperty(id: string) {
   }
 
   await api.delete('/properties/' + id);
+}
+
+// PUT /api/properties/:id/status (ADMIN) → { status }: solo cambia el estado (vendida, reservada…)
+export async function updatePropertyStatus(id: string, status: string): Promise<Property> {
+  if (USE_FAKE_DATA) {
+    const property = fakeProperties.find((p) => p._id === id)!;
+    property.status = status;
+    return property;
+  }
+
+  return api.put('/properties/' + id + '/status', { status });
 }
 
 // PUT /api/properties/:id/reactivate (ADMIN)

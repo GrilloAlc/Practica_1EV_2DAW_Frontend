@@ -27,6 +27,9 @@ const PROVINCES: Record<string, string> = {
   '48': 'Bizkaia', '49': 'Zamora', '50': 'Zaragoza', '51': 'Ceuta', '52': 'Melilla',
 };
 
+// Las provincias en orden alfabético, para el filtro del listado
+export const PROVINCE_NAMES = Object.values(PROVINCES).sort((a, b) => a.localeCompare(b, 'es'));
+
 export function provinceFromPostalCode(postalCode: string) {
   return PROVINCES[postalCode.slice(0, 2)] || '';
 }

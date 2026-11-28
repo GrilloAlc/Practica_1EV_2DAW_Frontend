@@ -164,6 +164,7 @@ export function AdminLayout() {
           <NavLink to="/admin/tickets">Tickets</NavLink>
           <NavLink to="/admin/usuarios">Usuarios</NavLink>
           <NavLink to="/admin/propiedades">Propiedades</NavLink>
+          <NavLink to="/admin/actividad">Actividad</NavLink>
         </nav>
         <div className="admin-sidebar-foot">
           <Link to="/" className="admin-sidebar-back">Ver la web</Link>

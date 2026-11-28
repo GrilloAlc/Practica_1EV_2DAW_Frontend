@@ -6,6 +6,7 @@ import { updateMe } from '../api/users';
 import { getErrorMessage } from '../api/client';
 import { roleLabels } from '../utils/labels';
 import { homeForRole } from '../utils/redirect';
+import { PasswordDialog } from './admin/AdminUsers';
 import './Profile.css';
 
 function Profile() {
@@ -22,6 +23,8 @@ function Profile() {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordChanged, setPasswordChanged] = useState(false);
 
   const changed = name.trim() !== user!.name || phone.trim() !== (user!.phone || '');
 
@@ -85,6 +88,37 @@ function Profile() {
           {saved && <p className="form-ok" role="status">Cambios guardados</p>}
         </div>
       </form>
+
+      {/* Contraseña: el backend solo deja cambiarla al administrador (PUT /users/:id/password).
+          Clientes y agentes la piden por una consulta o al administrador */}
+      <section className="profile-session" aria-labelledby="profile-password-title">
+        <h2 id="profile-password-title" className="form-box-title">Contraseña</h2>
+        {user!.role === 'ADMIN' ? (
+          <>
+            <p>Puedes cambiar tu contraseña cuando quieras. La sesión actual sigue abierta.</p>
+            {passwordChanged && <p className="form-ok" role="status">Contraseña cambiada</p>}
+            <button type="button" className="btn btn-outline" onClick={() => setChangingPassword(true)}>Cambiar la contraseña</button>
+            {changingPassword && (
+              <PasswordDialog
+                user={user!}
+                own
+                onClose={() => setChangingPassword(false)}
+                onDone={() => {
+                  setChangingPassword(false);
+                  setPasswordChanged(true);
+                }}
+              />
+            )}
+          </>
+        ) : user!.role === 'CLIENTE' ? (
+          <p>
+            Por seguridad, la contraseña la cambia nuestro equipo.{' '}
+            <Link to="/mis-tickets/nuevo?categoria=CUENTA&asunto=Cambiar%20mi%20contrase%C3%B1a">Pídelo con una consulta</Link> y te responderemos por escrito.
+          </p>
+        ) : (
+          <p>La contraseña la cambia un administrador desde el panel de usuarios. Pídeselo si la necesitas cambiar.</p>
+        )}
+      </section>
 
       {/* En el teléfono "Salir" no cabe en el menú: está aquí (y también en el ordenador) */}
       <section className="profile-session" aria-labelledby="profile-session-title">

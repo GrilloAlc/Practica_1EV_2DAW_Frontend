@@ -10,6 +10,7 @@ import type { PropertyFilters } from '../api/properties';
 import { getErrorMessage } from '../api/client';
 import { PROPERTY_TYPES, formatNumber, typePlurals } from '../utils/labels';
 import { CITIES, canonicalCity } from '../utils/cities';
+import { PROVINCE_NAMES } from '../utils/address';
 import { useSlowLoading } from '../utils/useSlowLoading';
 import type { Page, Property } from '../types';
 
@@ -65,6 +66,10 @@ function Properties() {
       city: canonicalCity(searchParams.get('city') || '') || undefined,
       priceMin: searchParams.get('priceMin') || undefined,
       priceMax: searchParams.get('priceMax') || undefined,
+      areaMin: searchParams.get('areaMin') || undefined,
+      areaMax: searchParams.get('areaMax') || undefined,
+      province: searchParams.get('province') || undefined,
+      postalCode: searchParams.get('postalCode') || undefined,
       ...(SORTS[searchParams.get('sort') || ''] || SORTS.newest),
       page: pageFromUrl(searchParams.get('page')),
     }).then(
@@ -112,6 +117,7 @@ function Properties() {
   const operationText = status === 'En venta' ? ' en venta' : status === 'Disponible para alquilar' ? ' en alquiler' : '';
   let heading = (typePlurals[type] || 'Casas') + (operationText || ' en venta y alquiler');
   if (appliedCity) heading += ' en ' + appliedCity;
+  else if (searchParams.get('province')) heading += ' en ' + searchParams.get('province');
 
   return (
     <main className="page">
@@ -219,7 +225,7 @@ function Properties() {
 
 interface FiltersFormProps {
   open: boolean;
-  onApply: (filters: { status: string; type: string; city: string; priceMin: string; priceMax: string }) => void;
+  onApply: (filters: Record<'status' | 'type' | 'city' | 'province' | 'postalCode' | 'priceMin' | 'priceMax' | 'areaMin' | 'areaMax', string>) => void;
   onClear: () => void;
 }
 
@@ -233,22 +239,47 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
   const [city, setCity] = useState(canonicalCity(searchParams.get('city') || ''));
   const [priceMin, setPriceMin] = useState(searchParams.get('priceMin') || '');
   const [priceMax, setPriceMax] = useState(searchParams.get('priceMax') || '');
+  const [areaMin, setAreaMin] = useState(searchParams.get('areaMin') || '');
+  const [areaMax, setAreaMax] = useState(searchParams.get('areaMax') || '');
+  const [province, setProvince] = useState(searchParams.get('province') || '');
+  const [postalCode, setPostalCode] = useState(searchParams.get('postalCode') || '');
   const [error, setError] = useState('');
+
+  // Comprueba un rango "desde/hasta": números positivos y el primero no mayor que el segundo
+  function rangeProblem(from: string, to: string, what: string) {
+    const min = from ? Number(from) : null;
+    const max = to ? Number(to) : null;
+    if ((min !== null && (!Number.isFinite(min) || min < 0)) || (max !== null && (!Number.isFinite(max) || max < 0))) {
+      return `${what} tienen que ser números positivos.`;
+    }
+    if (min !== null && max !== null && min > max) return `En ${what.toLowerCase()}, el "desde" no puede ser mayor que el "hasta".`;
+    return '';
+  }
 
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
-    const min = priceMin ? Number(priceMin) : null;
-    const max = priceMax ? Number(priceMax) : null;
-    if ((min !== null && (!Number.isFinite(min) || min < 0)) || (max !== null && (!Number.isFinite(max) || max < 0))) {
-      setError('Los precios tienen que ser números positivos.');
+    const problem = rangeProblem(priceMin, priceMax, 'Los precios') || rangeProblem(areaMin, areaMax, 'Los metros');
+    if (problem) {
+      setError(problem);
       return;
     }
-    if (min !== null && max !== null && min > max) {
-      setError('El precio "desde" no puede ser mayor que el precio "hasta".');
+    if (postalCode.trim() && !/^\d{5}$/.test(postalCode.trim())) {
+      setError('El código postal tiene 5 números, por ejemplo 28013.');
       return;
     }
     setError('');
-    onApply({ status, type, city: canonicalCity(city), priceMin: min !== null ? String(min) : '', priceMax: max !== null ? String(max) : '' });
+    const clean = (v: string) => (v ? String(Number(v)) : '');
+    onApply({
+      status,
+      type,
+      city: canonicalCity(city),
+      province,
+      postalCode: postalCode.trim(),
+      priceMin: clean(priceMin),
+      priceMax: clean(priceMax),
+      areaMin: clean(areaMin),
+      areaMax: clean(areaMax),
+    });
   }
 
   return (
@@ -292,6 +323,27 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
           <input type="number" min="0" step={rent ? 100 : 1000} inputMode="numeric" placeholder="Sin límite" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} />
         </label>
       </div>
+      <div className="form-row">
+        <label className="field">
+          Metros desde
+          <input type="number" min="0" step="10" inputMode="numeric" placeholder="0 m²" value={areaMin} onChange={(e) => setAreaMin(e.target.value)} />
+        </label>
+        <label className="field">
+          Metros hasta
+          <input type="number" min="0" step="10" inputMode="numeric" placeholder="Sin límite" value={areaMax} onChange={(e) => setAreaMax(e.target.value)} />
+        </label>
+      </div>
+      <label className="field">
+        Provincia
+        <select value={province} onChange={(e) => setProvince(e.target.value)}>
+          <option value="">Todas</option>
+          {PROVINCE_NAMES.map((p) => <option key={p} value={p}>{p}</option>)}
+        </select>
+      </label>
+      <label className="field">
+        Código postal
+        <input inputMode="numeric" maxLength={5} placeholder="Por ejemplo: 28013" value={postalCode} onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ''))} />
+      </label>
       {error && <p className="field-error" role="alert">{error}</p>}
       <button type="submit" className="btn properties-apply">Ver resultados</button>
     </form>
