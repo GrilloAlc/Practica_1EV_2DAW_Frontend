@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './About.css';
 import { useAuth } from '../context/useAuth';
@@ -34,6 +35,25 @@ function About() {
   const { user } = useAuth();
   const canAsk = !user || user.role === 'CLIENTE';
 
+  // La foto se marca como visible cuando entra en pantalla (una sola vez) y el CSS la hace aparecer
+  const photoRef = useRef<HTMLDivElement>(null);
+  const [photoVisible, setPhotoVisible] = useState(false);
+  useEffect(() => {
+    const el = photoRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPhotoVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <main className="about">
       <title>Nosotros y preguntas frecuentes · CataHome</title>
@@ -45,19 +65,6 @@ function About() {
           nunca tienes que preguntar dos veces lo mismo.
         </p>
       </section>
-
-      <div className="about-photo">
-        <Photo
-          src="https://images.unsplash.com/photo-1493809842364-78817add7ffb"
-          fallback={typeImage('Piso')}
-          pixels={1600}
-          alt="Salón con ventanales y luz de mañana"
-          width={1600}
-          height={900}
-          sizes="100vw"
-          fetchPriority="high"
-        />
-      </div>
 
       <section className="about-inner about-manifesto" aria-labelledby="about-manifesto-title">
         <h2 id="about-manifesto-title" className="about-visually-hidden">Lo que prometemos</h2>
@@ -71,6 +78,19 @@ function About() {
           Cómo funciona: buscas la casa, preguntas o pides visita desde su ficha y sigues la respuesta en «Mis consultas».
         </p>
       </section>
+
+      {/* La foto va después de las promesas para que no se vea al entrar, y aparece al llegar a ella */}
+      <div ref={photoRef} className={photoVisible ? 'about-photo is-visible' : 'about-photo'}>
+        <Photo
+          src="https://images.unsplash.com/photo-1493809842364-78817add7ffb"
+          fallback={typeImage('Piso')}
+          pixels={1600}
+          alt="Salón con ventanales y luz de mañana"
+          width={1600}
+          height={900}
+          sizes="100vw"
+        />
+      </div>
 
       <div className="about-inner about-columns">
         <section aria-labelledby="about-faq-title">

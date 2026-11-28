@@ -1,4 +1,4 @@
-/* Listado de casas: pestañas en serif, filtros sin caja y casas en filas de revista */
+/* Listado de casas: total y orden en una fila sin línea, filtros sin caja y casas en filas de revista */
 
 .properties-bar {
   display: flex;
@@ -6,35 +6,6 @@
   align-items: flex-end;
   gap: 16px 32px;
   margin: 8px 0 40px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--tinta);
-}
-
-.properties-ops {
-  display: flex;
-  gap: 28px;
-}
-
-.properties-op {
-  padding: 0 0 6px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  font-family: var(--font-serif);
-  font-size: 24px;
-  font-weight: 600;
-  font-variation-settings: var(--opsz);
-  color: var(--pizarra);
-  cursor: pointer;
-}
-
-.properties-op:hover {
-  color: var(--acento);
-}
-
-.properties-op.is-active {
-  border-bottom-color: var(--acento);
-  color: var(--tinta);
 }
 
 .properties-count {
@@ -151,9 +122,6 @@
 }
 
 @media (max-width: 560px) {
-  .properties-op {
-    font-size: 21px;
-  }
   .properties-sort {
     margin-left: 0;
   }

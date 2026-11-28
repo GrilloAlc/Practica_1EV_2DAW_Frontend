@@ -120,21 +120,8 @@ function Properties() {
 
       <h1 className="page-title">{heading}</h1>
 
+      {/* Comprar, Alquilar y Todas ya están en el menú de arriba; aquí se cambia desde el filtro "Operación" */}
       <div className="properties-bar">
-        <div className="properties-ops" role="radiogroup" aria-label="Operación">
-          {OPERATIONS.map((op) => (
-            <button
-              key={op.label}
-              type="button"
-              role="radio"
-              aria-checked={status === op.value}
-              className={status === op.value ? 'properties-op is-active' : 'properties-op'}
-              onClick={() => changeUrl({ status: op.value, page: '', priceMin: '', priceMax: '' })}
-            >
-              {op.label}
-            </button>
-          ))}
-        </div>
         <button
           type="button"
           className="btn btn-outline properties-filters-toggle"
@@ -163,7 +150,6 @@ function Properties() {
         <FiltersForm
           key={cacheKey}
           open={showFilters}
-          rent={status === 'Disponible para alquilar'}
           onApply={(filters) => {
             changeUrl({ ...filters, page: '' });
             setShowFilters(false);
@@ -233,15 +219,16 @@ function Properties() {
 
 interface FiltersFormProps {
   open: boolean;
-  rent: boolean;
-  onApply: (filters: { type: string; city: string; priceMin: string; priceMax: string }) => void;
+  onApply: (filters: { status: string; type: string; city: string; priceMin: string; priceMax: string }) => void;
   onClear: () => void;
 }
 
 // Filtros del listado. Empiezan con lo que hay en la URL y se aplican al pulsar "Ver resultados"
-function FiltersForm({ open, rent, onApply, onClear }: FiltersFormProps) {
+function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
   const [searchParams] = useSearchParams();
   const citiesId = useId();
+  const [status, setStatus] = useState(searchParams.get('status') || '');
+  const rent = status === 'Disponible para alquilar';
   const [type, setType] = useState(searchParams.get('type') || '');
   const [city, setCity] = useState(canonicalCity(searchParams.get('city') || ''));
   const [priceMin, setPriceMin] = useState(searchParams.get('priceMin') || '');
@@ -261,7 +248,7 @@ function FiltersForm({ open, rent, onApply, onClear }: FiltersFormProps) {
       return;
     }
     setError('');
-    onApply({ type, city: canonicalCity(city), priceMin: min !== null ? String(min) : '', priceMax: max !== null ? String(max) : '' });
+    onApply({ status, type, city: canonicalCity(city), priceMin: min !== null ? String(min) : '', priceMax: max !== null ? String(max) : '' });
   }
 
   return (
@@ -271,6 +258,14 @@ function FiltersForm({ open, rent, onApply, onClear }: FiltersFormProps) {
         <button type="button" className="link-button" onClick={onClear}>Quitar filtros</button>
       </div>
 
+      <label className="field">
+        Operación
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          {OPERATIONS.map((op) => (
+            <option key={op.label} value={op.value}>{op.label}</option>
+          ))}
+        </select>
+      </label>
       <label className="field">
         Ciudad
         <input placeholder="Por ejemplo: Madrid" value={city} onChange={(e) => setCity(e.target.value)} list={citiesId} autoComplete="off" />
