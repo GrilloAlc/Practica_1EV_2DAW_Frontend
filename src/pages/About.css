@@ -86,10 +86,6 @@
   border-top: 1px solid var(--linea);
 }
 
-.about-promise:first-of-type {
-  border-top-color: var(--tinta);
-}
-
 .about-promise-title {
   margin: 0;
   font-family: var(--font-serif);

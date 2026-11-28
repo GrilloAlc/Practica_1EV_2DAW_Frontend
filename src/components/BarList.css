@@ -1,0 +1,133 @@
+/* Barras horizontales del panel: una sola serie en vino sobre una pista gris clara.
+   Marca fina (10 px), extremo de datos redondeado y anclado a la izquierda, cifras en tinta */
+
+.bar-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bar-list-item {
+  display: grid;
+  grid-template-columns: minmax(96px, 34%) 1fr auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 32px;
+}
+
+.bar-list-name {
+  display: grid;
+  min-width: 0;
+  font-size: 15px;
+  color: var(--tinta);
+}
+
+.bar-list-name a {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--linea-fuerte);
+  text-underline-offset: 4px;
+}
+
+.bar-list-name a:hover {
+  color: var(--acento);
+  text-decoration-color: var(--acento);
+}
+
+.bar-list-name small {
+  font-size: 12px;
+  color: var(--pizarra);
+}
+
+.bar-list-track {
+  position: relative;
+  height: 10px;
+  background: var(--niebla);
+}
+
+.bar-list-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+  background: var(--acento);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bar-list-item:hover .bar-list-bar {
+  background: var(--acento-oscuro);
+}
+
+.bar-list-value {
+  display: grid;
+  justify-items: end;
+  min-width: 48px;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--tinta);
+}
+
+.bar-list-value small {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 450;
+  color: var(--pizarra);
+}
+
+/* En columnas estrechas (lateral del panel, móvil): nombre y cifra arriba, barra debajo a todo lo ancho */
+.admin-col-side .bar-list-item {
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'name value'
+    'bar bar';
+  gap: 6px 12px;
+}
+
+.admin-col-side .bar-list-name {
+  grid-area: name;
+}
+
+.admin-col-side .bar-list-value {
+  grid-area: value;
+  grid-auto-flow: column;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.admin-col-side .bar-list-track {
+  grid-area: bar;
+}
+
+@media (max-width: 600px) {
+  .bar-list-item {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'name value'
+      'bar bar';
+    gap: 6px 12px;
+  }
+  .bar-list-name {
+    grid-area: name;
+  }
+  .bar-list-value {
+    grid-area: value;
+    grid-auto-flow: column;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .bar-list-track {
+    grid-area: bar;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-list-bar {
+    transition: none;
+  }
+}

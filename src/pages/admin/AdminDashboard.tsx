@@ -5,9 +5,11 @@ import { getDashboard, getPropertyStats, getTicketsByAgent, getUserStats } from 
 import type { AgentLoad, Dashboard, PropertyStats, UserStats } from '../../api/stats';
 import { getAllUsers } from '../../api/users';
 import { getErrorMessage } from '../../api/client';
-import { formatDateTime, formatNumber, priorityClass, priorityLabels, roleLabels, statusLabels } from '../../utils/labels';
+import { formatDate, formatDateTime, formatNumber, priorityClass, priorityLabels, roleLabels, statusLabels } from '../../utils/labels';
 import type { Ticket, TicketStats, User } from '../../types';
 import { TableSkeleton } from '../../components/Skeleton';
+import BarList from '../../components/BarList';
+import type { BarItem } from '../../components/BarList';
 
 function AdminDashboard() {
   // Fechas y agente en la URL (?desde=2026-11-01&hasta=2026-11-30&agente=<id>): así se puede volver o compartir
@@ -98,188 +100,202 @@ function AdminDashboard() {
   const agentName = agentList.find((a) => a._id === agentId)?.name;
   const roleTotal = (role: string) => userStats?.roles.find((r) => r._id === role)?.total ?? 0;
 
+  // Tickets por estado, en el orden del ciclo de vida, enlazados a la lista filtrada
+  const statusBars: BarItem[] = stats
+    ? [
+        { label: 'Abiertos', value: stats.abiertos, to: '/admin/tickets?estado=ABIERTO' },
+        { label: 'En curso', value: stats.enCurso, to: '/admin/tickets?estado=EN_CURSO' },
+        { label: 'Pendientes del cliente', value: stats.pendienteCliente, to: '/admin/tickets?estado=PENDIENTE_CLIENTE' },
+        { label: 'Resueltos', value: stats.resueltos, to: '/admin/tickets?estado=RESUELTO' },
+        { label: 'Cerrados', value: stats.cerrados, to: '/admin/tickets?estado=CERRADO' },
+      ]
+    : [];
+  const agentBars: BarItem[] = [...agents]
+    .sort((a, b) => b.total - a.total)
+    .map((a) => ({
+      label: a.name,
+      value: a.total,
+      detail: `${formatNumber(a.abiertos)} ${a.abiertos === 1 ? 'abierto' : 'abiertos'} · ${formatNumber(a.resueltos + a.cerrados)} resueltos o cerrados`,
+      to: '/admin/tickets?agente=' + encodeURIComponent(a.name),
+    }));
+  const propertyBars: BarItem[] = propertyStats
+    ? [
+        { label: 'Publicadas', value: propertyStats.active, to: '/admin/propiedades' },
+        { label: 'Reservadas', value: propertyStats.reservadas, to: '/admin/propiedades?estado=Reservada' },
+        { label: 'Vendidas', value: propertyStats.vendidas, to: '/admin/propiedades?estado=Vendida' },
+        { label: 'Alquiladas', value: propertyStats.alquiladas, to: '/admin/propiedades?estado=Alquilada' },
+        { label: 'Desactivadas', value: propertyStats.inactive },
+      ]
+    : [];
+  const userBars: BarItem[] = userStats
+    ? [
+        { label: 'Clientes', value: roleTotal('CLIENTE'), to: '/admin/usuarios?rol=CLIENTE' },
+        { label: 'Agentes', value: roleTotal('AGENTE'), to: '/admin/usuarios?rol=AGENTE' },
+        { label: 'Administradores', value: roleTotal('ADMIN'), to: '/admin/usuarios?rol=ADMIN' },
+      ]
+    : [];
+
   return (
-    <main className="page">
+    <main className="page admin-dashboard">
       <title>Resumen · Administración · CataHome</title>
-      <h1 className="page-title">Resumen</h1>
-      <p className="page-subtitle">Estado de las consultas, lo que espera agente, la carga de cada agente y el catálogo.</p>
 
-      <form className="admin-filters admin-range" onSubmit={(e) => e.preventDefault()} aria-label="Filtrar el resumen">
-        <label>
-          Desde
-          <input type="date" value={from} max={to || undefined} onChange={(e) => changeUrl({ desde: e.target.value })} />
-        </label>
-        <label>
-          Hasta
-          <input type="date" value={to} min={from || undefined} onChange={(e) => changeUrl({ hasta: e.target.value })} />
-        </label>
-        <label>
-          Agente
-          <select value={agentId} onChange={(e) => changeUrl({ agente: e.target.value })}>
-            <option value="">Todos</option>
-            {agentList.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
-          </select>
-        </label>
-        {filtered && <button type="button" className="link-button" onClick={() => setSearchParams({}, { replace: true })}>Quitar filtros</button>}
-      </form>
+      <header className="admin-head">
+        <div>
+          <h1 className="page-title">Resumen</h1>
+          <p className="page-subtitle">
+            {filtered
+              ? `Tickets${agentName ? ` de ${agentName}` : ''}${from ? ` creados desde el ${formatDay(from)}` : ''}${to ? `${from ? '' : ' creados'} hasta el ${formatDay(to)}` : ''}.`
+              : 'Cómo van las consultas, quién las atiende y cómo está el catálogo.'}
+          </p>
+        </div>
+        <form className="admin-toolbar" onSubmit={(e) => e.preventDefault()} aria-label="Filtrar el resumen">
+          <label>
+            Desde
+            <input type="date" value={from} max={to || undefined} onChange={(e) => changeUrl({ desde: e.target.value })} />
+          </label>
+          <label>
+            Hasta
+            <input type="date" value={to} min={from || undefined} onChange={(e) => changeUrl({ hasta: e.target.value })} />
+          </label>
+          <label>
+            Agente
+            <select value={agentId} onChange={(e) => changeUrl({ agente: e.target.value })}>
+              <option value="">Todos</option>
+              {agentList.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
+            </select>
+          </label>
+          {filtered && <button type="button" className="link-button" onClick={() => setSearchParams({}, { replace: true })}>Quitar filtros</button>}
+        </form>
+      </header>
       {rangeError && <p className="field-error" role="alert">{rangeError}</p>}
-      {filtered && (
-        <p className="admin-range-note">
-          Tickets{agentName ? ` de ${agentName}` : ''}{from ? ` creados desde el ${formatDay(from)}` : ''}{to ? `${from ? '' : ' creados'} hasta el ${formatDay(to)}` : ''}.
-        </p>
-      )}
-
       {error && <p className="field-error" role="alert">{error}</p>}
       {!stats && !error && <TableSkeleton rows={4} />}
 
       {stats && (
         <>
-          <div className="admin-stats">
-            <div className="stat-card stat-card-main">
-              <p className="stat-card-label">Tickets en total</p>
-              <p className="stat-card-value">{formatNumber(stats.total)}</p>
-            </div>
-            <div className="stat-card">
-              <p className="stat-card-label">Abiertos</p>
-              <p className="stat-card-value">{formatNumber(stats.abiertos)}</p>
-            </div>
-            <div className="stat-card">
-              <p className="stat-card-label">En curso</p>
-              <p className="stat-card-value">{formatNumber(stats.enCurso)}</p>
-            </div>
-            <div className="stat-card">
-              <p className="stat-card-label">Resueltos / cerrados</p>
-              <p className="stat-card-value">{formatNumber(stats.resueltos + stats.cerrados)}</p>
-            </div>
-          </div>
-
-          <dl className="admin-figures">
-            <div>
-              <dt>Pendientes de respuesta</dt>
-              <dd>{formatNumber(pending)}</dd>
-            </div>
-            <div>
-              <dt>Esperando al cliente</dt>
-              <dd>{formatNumber(stats.pendienteCliente)}</dd>
-            </div>
+          {/* Cifras clave ordenadas por urgencia. El bloque en vino es lo que hay que hacer ya:
+              tickets sin agente (o, si se filtra por agente, sus pendientes). Cada cifra lleva a su lista */}
+          <section className="admin-kpis" aria-label="Cifras clave">
             {!agentId && (
-              <div>
-                <dt>Sin agente</dt>
-                <dd>{formatNumber(stats.sinAsignar)}</dd>
-              </div>
+              <Link to="/admin/tickets?agente=sin-asignar" className="admin-kpi admin-kpi-main">
+                <span className="admin-kpi-label">Esperan agente</span>
+                <span className="admin-kpi-value">{formatNumber(stats.sinAsignar)}</span>
+                <span className="admin-kpi-note">{stats.sinAsignar > 0 ? 'Asígnalos para que alguien responda' : 'Todos tienen agente'}</span>
+              </Link>
             )}
-          </dl>
+            <Link to="/admin/tickets?estado=RESUELTO&reabrir=1" className="admin-kpi">
+              <span className="admin-kpi-label">Piden reabrir</span>
+              <span className="admin-kpi-value">{formatNumber(reopen.length)}</span>
+              <span className="admin-kpi-note">{reopen.length > 0 ? 'Acepta o rechaza la petición' : 'Ninguna petición'}</span>
+            </Link>
+            <Link to="/admin/tickets?estado=ABIERTO" className={agentId ? 'admin-kpi admin-kpi-main' : 'admin-kpi'}>
+              <span className="admin-kpi-label">Pendientes de respuesta</span>
+              <span className="admin-kpi-value">{formatNumber(pending)}</span>
+              <span className="admin-kpi-note">{formatNumber(stats.abiertos)} abiertos · {formatNumber(stats.enCurso)} en curso</span>
+            </Link>
+            <Link to="/admin/tickets?estado=PENDIENTE_CLIENTE" className="admin-kpi">
+              <span className="admin-kpi-label">Esperando al cliente</span>
+              <span className="admin-kpi-value">{formatNumber(stats.pendienteCliente)}</span>
+              <span className="admin-kpi-note">Ya respondidos por el equipo</span>
+            </Link>
+          </section>
 
-          {reopen.length > 0 && (
-            <>
-              <div className="page-header">
-                <h2 className="admin-section-title">Piden reabrir ({reopen.length})</h2>
-                <Link to="/admin/tickets?estado=RESUELTO&reabrir=1" className="btn btn-outline">Ver todas las peticiones</Link>
-              </div>
-              <div className="table-box admin-block">
-                <TicketTable tickets={reopen} />
-              </div>
-            </>
-          )}
+          <div className="admin-grid">
+            {/* Columna principal: lo que hay que hacer hoy */}
+            <div className="admin-col">
+              <section className="admin-panel" aria-labelledby="admin-status-title">
+                <div className="admin-panel-head">
+                  <h2 id="admin-status-title">Tickets por estado</h2>
+                  <Link to="/admin/tickets">Ver todos</Link>
+                </div>
+                <BarList items={statusBars} total={stats.total} label="Tickets por estado" />
+                <p className="admin-panel-foot">
+                  {formatNumber(stats.total)} tickets en total · {formatNumber(stats.resueltos + stats.cerrados)} resueltos o cerrados
+                </p>
+              </section>
 
-          <div className="page-header">
-            <h2 className="admin-section-title">Esperan agente{unassignedTotal <= 10 ? ` (${unassigned.length})` : ''}</h2>
-            <Link to="/admin/tickets?agente=sin-asignar" className="btn btn-outline">Ver todos los tickets sin agente</Link>
-          </div>
-          <div className="table-box admin-block">
-            {unassigned.length === 0 ? (
-              <div className="empty"><strong>Todos los tickets tienen agente</strong>No hay nada pendiente de asignar.</div>
-            ) : (
-              <TicketTable tickets={unassigned} />
-            )}
-          </div>
-
-          {agents.length > 0 && (
-            <>
-              <h2 className="admin-section-title admin-block-title">Carga de cada agente</h2>
-              <div className="table-box admin-block">
-                <table className="table">
-                  <thead>
-                    <tr><th>Agente</th><th>Asignados</th><th>Abiertos</th><th>Resueltos</th><th>Cerrados</th></tr>
-                  </thead>
-                  <tbody>
-                    {agents.map((a) => (
-                      <tr key={a.agentId}>
-                        <td className="cell-title">
-                          <Link to={'/admin/tickets?agente=' + encodeURIComponent(a.name)}>{a.name}</Link>
-                        </td>
-                        <td data-label="Asignados" className="cell-code">{a.total}</td>
-                        <td data-label="Abiertos" className="cell-code">{a.abiertos}</td>
-                        <td data-label="Resueltos" className="cell-code">{a.resueltos}</td>
-                        <td data-label="Cerrados" className="cell-code">{a.cerrados}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-
-          {(propertyStats || userStats) && (
-            <div className="admin-catalog admin-block">
-              {propertyStats && (
-                <section aria-labelledby="admin-props-title">
-                  <div className="page-header">
-                    <h2 id="admin-props-title" className="admin-section-title">Casas</h2>
-                    <Link to="/admin/propiedades" className="btn btn-outline">Ver las casas</Link>
+              {reopen.length > 0 && (
+                <section className="admin-panel admin-panel-attention" aria-labelledby="admin-reopen-title">
+                  <div className="admin-panel-head">
+                    <h2 id="admin-reopen-title">Piden reabrir <span className="admin-count">{reopen.length}</span></h2>
+                    <Link to="/admin/tickets?estado=RESUELTO&reabrir=1">Ver todas las peticiones</Link>
                   </div>
-                  <dl className="admin-figures admin-figures-flat">
-                    <div><dt>Publicadas</dt><dd>{formatNumber(propertyStats.active)}</dd></div>
-                    <div><dt>Desactivadas</dt><dd>{formatNumber(propertyStats.inactive)}</dd></div>
-                    <div><dt>Vendidas</dt><dd>{formatNumber(propertyStats.vendidas)}</dd></div>
-                    <div><dt>Alquiladas</dt><dd>{formatNumber(propertyStats.alquiladas)}</dd></div>
-                    <div><dt>Reservadas</dt><dd>{formatNumber(propertyStats.reservadas)}</dd></div>
-                  </dl>
+                  <TicketTable tickets={reopen} />
+                </section>
+              )}
+
+              <section className="admin-panel" aria-labelledby="admin-unassigned-title">
+                <div className="admin-panel-head">
+                  <h2 id="admin-unassigned-title">Esperan agente {unassigned.length > 0 && <span className="admin-count">{unassignedTotal <= 10 ? unassigned.length : `${unassigned.length}+`}</span>}</h2>
+                  <Link to="/admin/tickets?agente=sin-asignar">Ver todos sin agente</Link>
+                </div>
+                {unassigned.length === 0 ? (
+                  <div className="empty"><strong>Todos los tickets tienen agente</strong>No hay nada pendiente de asignar.</div>
+                ) : (
+                  <TicketTable tickets={unassigned} />
+                )}
+              </section>
+
+              {dashboard && dashboard.recentActivity.messages.length > 0 && (
+                <section className="admin-panel" aria-labelledby="admin-messages-title">
+                  <div className="admin-panel-head">
+                    <h2 id="admin-messages-title">Últimos mensajes</h2>
+                    <Link to="/admin/actividad">Ver la actividad</Link>
+                  </div>
+                  <ul className="admin-activity">
+                    {dashboard.recentActivity.messages.map((m) => (
+                      <li key={m._id}>
+                        <p className="admin-activity-head">
+                          <strong>{m.author?.name || 'Usuario eliminado'}</strong>
+                          {m.author?.role && <span>{roleLabels[m.author.role]}</span>}
+                          <span>{formatDateTime(m.createdAt)}</span>
+                        </p>
+                        <p className="admin-activity-body">{m.body}</p>
+                        {m.ticket && (
+                          <Link to={`/admin/tickets/${m.ticket._id}`} className="admin-activity-link">
+                            {m.ticket.code} · {m.ticket.subject}
+                          </Link>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+
+            {/* Columna lateral: equipo y catálogo, en bloques de piedra */}
+            <aside className="admin-col admin-col-side" aria-label="Equipo y catálogo">
+              {agentBars.length > 0 && (
+                <section className="admin-panel admin-panel-tint" aria-labelledby="admin-agents-title">
+                  <div className="admin-panel-head">
+                    <h2 id="admin-agents-title">Carga por agente</h2>
+                  </div>
+                  <BarList items={agentBars} label="Tickets asignados a cada agente" />
+                </section>
+              )}
+              {propertyStats && (
+                <section className="admin-panel admin-panel-tint" aria-labelledby="admin-props-title">
+                  <div className="admin-panel-head">
+                    <h2 id="admin-props-title">Casas</h2>
+                    <Link to="/admin/propiedades">Gestionar</Link>
+                  </div>
+                  <BarList items={propertyBars} total={propertyStats.active + propertyStats.inactive} label="Casas por estado" />
                 </section>
               )}
               {userStats && (
-                <section aria-labelledby="admin-users-title">
-                  <div className="page-header">
-                    <h2 id="admin-users-title" className="admin-section-title">Usuarios</h2>
-                    <Link to="/admin/usuarios" className="btn btn-outline">Ver los usuarios</Link>
+                <section className="admin-panel admin-panel-tint" aria-labelledby="admin-users-title">
+                  <div className="admin-panel-head">
+                    <h2 id="admin-users-title">Usuarios</h2>
+                    <Link to="/admin/usuarios">Gestionar</Link>
                   </div>
-                  <dl className="admin-figures admin-figures-flat">
-                    <div><dt>{roleLabels.CLIENTE}s</dt><dd>{formatNumber(roleTotal('CLIENTE'))}</dd></div>
-                    <div><dt>{roleLabels.AGENTE}s</dt><dd>{formatNumber(roleTotal('AGENTE'))}</dd></div>
-                    <div><dt>Administradores</dt><dd>{formatNumber(roleTotal('ADMIN'))}</dd></div>
-                    <div><dt>Cuentas activas</dt><dd>{formatNumber(userStats.active)}</dd></div>
-                    <div><dt>Desactivadas</dt><dd>{formatNumber(userStats.inactive)}</dd></div>
-                  </dl>
+                  <BarList items={userBars} label="Usuarios por rol" />
+                  <p className="admin-panel-foot">
+                    {formatNumber(userStats.active)} cuentas activas · {formatNumber(userStats.inactive)} desactivadas
+                  </p>
                 </section>
               )}
-            </div>
-          )}
-
-          {dashboard && dashboard.recentActivity.messages.length > 0 && (
-            <>
-              <div className="page-header">
-                <h2 className="admin-section-title">Últimos mensajes</h2>
-                <Link to="/admin/actividad" className="btn btn-outline">Ver los cambios de estado</Link>
-              </div>
-              <ul className="admin-activity">
-                {dashboard.recentActivity.messages.map((m) => (
-                  <li key={m._id}>
-                    <p className="admin-activity-head">
-                      <strong>{m.author?.name || 'Usuario eliminado'}</strong>
-                      {m.author?.role && <span>{roleLabels[m.author.role]}</span>}
-                      <span>{formatDateTime(m.createdAt)}</span>
-                    </p>
-                    <p className="admin-activity-body">{m.body}</p>
-                    {m.ticket && (
-                      <Link to={`/admin/tickets/${m.ticket._id}`} className="admin-activity-link">
-                        {m.ticket.code} · {m.ticket.subject}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+            </aside>
+          </div>
         </>
       )}
     </main>
@@ -292,25 +308,29 @@ function formatDay(day: string) {
   return `${Number(d)}/${Number(m)}/${y}`;
 }
 
+// Tabla compacta para los bloques del resumen: código, asunto con su cliente debajo, prioridad y fecha
 function TicketTable({ tickets }: { tickets: Ticket[] }) {
   return (
-    <table className="table table-linked">
-      <thead>
-        <tr><th>Código</th><th>Asunto</th><th>Cliente</th><th>Prioridad</th><th>Estado</th><th>Fecha</th></tr>
-      </thead>
-      <tbody>
-        {tickets.map((t) => (
-          <tr key={t._id}>
-            <td className="cell-code"><Link to={`/admin/tickets/${t._id}`}>{t.code}</Link></td>
-            <td className="cell-title">{t.subject}</td>
-            <td data-label="Cliente">{t.customer.name}</td>
-            <td data-label="Prioridad"><span className={priorityClass(t.priority)}>{priorityLabels[t.priority]}</span></td>
-            <td data-label="Estado"><span className={'status-badge status-' + t.status.toLowerCase()}>{statusLabels[t.status]}</span></td>
-            <td data-label="Fecha" className="cell-muted cell-code">{formatDateTime(t.createdAt)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="admin-table-wrap">
+      <table className="table table-linked admin-table-compact">
+        <thead>
+          <tr><th>Código</th><th>Asunto</th><th>Prioridad</th><th>Creado</th></tr>
+        </thead>
+        <tbody>
+          {tickets.map((t) => (
+            <tr key={t._id}>
+              <td className="cell-code"><Link to={`/admin/tickets/${t._id}`}>{t.code}</Link></td>
+              <td className="cell-title">
+                {t.subject}
+                <span className="admin-table-sub">{t.customer.name} · {statusLabels[t.status]}</span>
+              </td>
+              <td data-label="Prioridad"><span className={priorityClass(t.priority)}>{priorityLabels[t.priority]}</span></td>
+              <td data-label="Creado" className="cell-muted cell-code">{formatDate(t.createdAt)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

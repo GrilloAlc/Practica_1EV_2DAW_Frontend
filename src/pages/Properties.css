@@ -50,6 +50,12 @@
 .properties-filters {
   position: sticky;
   top: 108px;
+  max-height: calc(100vh - 132px);
+  margin-right: -12px;
+  padding-right: 12px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--linea-fuerte) transparent;
 }
 
 .properties-filters-head {
@@ -109,6 +115,9 @@
   }
   .properties-filters {
     position: static;
+    max-height: none;
+    margin-right: 0;
+    overflow: visible;
     display: none;
     padding: 24px;
     background: var(--niebla);

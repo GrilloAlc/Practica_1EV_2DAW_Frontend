@@ -143,7 +143,7 @@ function AdminProperties() {
       {deactivated.length > 0 && (
         <section className="admin-block" aria-labelledby="admin-deactivated-title">
           <h2 id="admin-deactivated-title" className="admin-section-title admin-block-title">Desactivadas ahora</h2>
-          <p className="page-subtitle">El backend no deja ver las casas desactivadas: actívalas antes de salir de esta página si te has equivocado.</p>
+          <p className="page-subtitle">Las casas desactivadas dejan de aparecer en esta lista al salir de la página. Si te has equivocado, actívalas ahora.</p>
           <div className="table-box">
             <PropertyTable list={deactivated} busy={busy} onToggle={toggleActive} onStatus={changeStatus} />
           </div>

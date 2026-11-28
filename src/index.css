@@ -373,8 +373,6 @@ img {
 /* El formulario no va en caja: una raya de tinta arriba y aire */
 .form-box {
   max-width: 720px;
-  padding-top: 32px;
-  border-top: 1px solid var(--linea);
 }
 
 .form-box-title {

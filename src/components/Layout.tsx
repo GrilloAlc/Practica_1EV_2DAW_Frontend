@@ -159,12 +159,16 @@ export function AdminLayout() {
           <Logo light />
         </Link>
         <p className="admin-sidebar-sub">Panel de administración</p>
+        {/* Tres grupos: el trabajo diario, el catálogo y las cuentas */}
         <nav className="admin-sidebar-links" aria-label="Administración">
+          <p className="admin-sidebar-group">Atención</p>
           <NavLink to="/admin" end>Resumen</NavLink>
           <NavLink to="/admin/tickets">Tickets</NavLink>
-          <NavLink to="/admin/usuarios">Usuarios</NavLink>
-          <NavLink to="/admin/propiedades">Propiedades</NavLink>
           <NavLink to="/admin/actividad">Actividad</NavLink>
+          <p className="admin-sidebar-group">Catálogo</p>
+          <NavLink to="/admin/propiedades">Propiedades</NavLink>
+          <p className="admin-sidebar-group">Cuentas</p>
+          <NavLink to="/admin/usuarios">Usuarios</NavLink>
         </nav>
         <div className="admin-sidebar-foot">
           <Link to="/" className="admin-sidebar-back">Ver la web</Link>

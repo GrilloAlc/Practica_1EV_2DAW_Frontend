@@ -17,87 +17,280 @@
   padding: 48px clamp(20px, 4vw, 56px) 96px;
 }
 
-/* ---------- Resumen ---------- */
+/* ---------- Títulos del panel: más contenidos que en la web pública (es una herramienta) ---------- */
 
-.admin-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin-bottom: 64px;
-  border-top: 1px solid var(--linea);
+.admin-main .page-title {
+  font-size: clamp(34px, 3.6vw, 46px);
+  letter-spacing: -0.02em;
 }
 
-.stat-card {
-  padding: 24px 24px 28px 0;
-}
-
-.stat-card + .stat-card {
-  padding-left: 24px;
-  border-left: 1px solid var(--linea);
-}
-
-.stat-card-main {
-  padding-left: 24px;
-  background: var(--acento);
-  color: #fff;
-}
-
-.stat-card-label {
-  margin: 0;
-  font-size: 14px;
-  color: var(--pizarra);
-}
-
-.stat-card-main .stat-card-label {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.stat-card-value {
-  margin: 10px 0 0;
-  font-family: var(--font-serif);
-  font-size: clamp(44px, 5vw, 64px);
-  font-weight: 600;
-  font-variation-settings: var(--opsz);
-  line-height: 1;
-}
-
-.stat-card-main .stat-card-value {
-  color: #fff;
+.admin-main .page-subtitle {
+  margin-bottom: 40px;
+  font-size: 16px;
 }
 
 .admin-section-title {
   margin: 0;
-  font-size: clamp(28px, 3vw, 40px);
+  font-size: clamp(24px, 2.4vw, 30px);
 }
 
-/* Cifras secundarias del resumen: en fila, separadas por rayas */
-.admin-figures {
+/* ---------- Resumen ---------- */
+
+/* Cabecera: título a la izquierda, filtros de fecha y agente a la derecha */
+.admin-head {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px 0;
-  margin: -32px 0 64px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 40px;
+  margin-bottom: 32px;
 }
 
-.admin-figures div {
-  padding: 0 28px;
-  border-left: 1px solid var(--linea);
+.admin-head .page-subtitle {
+  margin: 0;
 }
 
-.admin-figures div:first-child {
-  padding-left: 0;
-  border-left: none;
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 20px;
 }
 
-.admin-figures dt {
+.admin-toolbar label {
+  display: grid;
+  gap: 2px;
   font-size: 13px;
   color: var(--pizarra);
 }
 
-.admin-figures dd {
-  margin: 2px 0 0;
+.admin-toolbar input[type='date'],
+.admin-toolbar select {
+  height: 40px;
+  min-width: 150px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--tinta);
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--tinta);
+}
+
+.admin-toolbar input[type='date']:focus,
+.admin-toolbar select:focus {
+  border-bottom: 2px solid var(--acento);
+  outline: none;
+}
+
+.admin-toolbar .link-button {
+  min-height: 40px;
+}
+
+/* Cifras clave: cuatro bloques. El de vino es lo urgente; el resto, piedra. Cada bloque es un enlace */
+.admin-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.admin-kpi {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 22px 24px 24px;
+  background: var(--niebla);
+  color: var(--tinta);
+  text-decoration: none;
+  transition: background-color 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.admin-kpi:hover {
+  background: #ecebe7;
+}
+
+.admin-kpi:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 3px;
+}
+
+.admin-kpi-label {
+  font-size: 14px;
+  color: var(--pizarra);
+}
+
+.admin-kpi-value {
   font-family: var(--font-serif);
-  font-size: 28px;
+  font-size: clamp(40px, 4vw, 54px);
   font-weight: 600;
   font-variation-settings: var(--opsz);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.admin-kpi-note {
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.admin-kpi-main {
+  background: var(--acento);
+  color: #fff;
+}
+
+.admin-kpi-main:hover {
+  background: var(--acento-oscuro);
+}
+
+.admin-kpi-main .admin-kpi-label,
+.admin-kpi-main .admin-kpi-note {
+  color: #f1dfe3;
+}
+
+/* Dos columnas: trabajo del día a la izquierda, equipo y catálogo a la derecha */
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.admin-col {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* Cada bloque: papel blanco con borde fino; los de la columna lateral, en piedra */
+.admin-panel {
+  min-width: 0;
+  padding: 24px 24px 20px;
+  border: 1px solid var(--linea);
+  background: var(--fondo);
+}
+
+.admin-panel-tint {
+  border-color: transparent;
+  background: var(--niebla);
+}
+
+.admin-panel-tint .bar-list-track {
+  background: #e9e7e2;
+}
+
+/* Aviso (piden reabrir): rosado, sin rayas */
+.admin-panel-attention {
+  border-color: #ecd6db;
+  background: var(--acento-suave);
+}
+
+.admin-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 20px;
+}
+
+.admin-panel-head h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 24px;
+}
+
+.admin-panel-head a {
+  font-size: 14px;
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--acento);
+  text-underline-offset: 4px;
+}
+
+.admin-panel-head a:hover {
+  color: var(--acento);
+}
+
+/* Número junto al título del bloque */
+.admin-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 13px;
+  background: var(--acento);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.admin-panel-foot {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--linea);
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.admin-panel-tint .admin-panel-foot {
+  border-top-color: #e1ded8;
+}
+
+/* Tablas de los bloques del resumen: compactas y con scroll propio si no caben */
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table-compact .cell-title {
+  font-weight: 450;
+}
+
+.admin-table-sub {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 450;
+  color: var(--pizarra);
+}
+
+/* Las tablas dentro de un bloque empiezan pegadas al borde del bloque */
+.admin-panel .table th:first-child,
+.admin-panel .table td:first-child {
+  padding-left: 0;
+}
+
+.admin-panel .empty {
+  padding: 32px 16px;
+}
+
+@media (max-width: 1100px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-kpi {
+    padding: 16px;
+  }
+  .admin-panel {
+    padding: 20px 16px 16px;
+  }
+  .admin-toolbar,
+  .admin-toolbar label {
+    width: 100%;
+  }
 }
 
 .admin-block {
@@ -113,12 +306,20 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--linea);
 }
 
 .admin-activity li {
-  padding: 18px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--linea);
+}
+
+.admin-activity li:first-child {
+  padding-top: 0;
+}
+
+.admin-activity li:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .admin-activity-head {
@@ -178,57 +379,6 @@
 .admin-filters select:focus {
   border-bottom: 2px solid var(--acento);
   outline: none;
-}
-
-/* Fechas y agente del resumen: cada campo con su etiqueta encima */
-.admin-range {
-  align-items: flex-end;
-  margin: 0 0 32px;
-}
-
-.admin-range label {
-  display: grid;
-  gap: 2px;
-  font-size: 13px;
-  color: var(--pizarra);
-}
-
-.admin-range input[type='date'] {
-  height: 40px;
-  padding: 0;
-  border: none;
-  border-bottom: 1px solid var(--tinta);
-  border-radius: 0;
-  background: transparent;
-  font: inherit;
-  font-size: 15px;
-  color: var(--tinta);
-}
-
-.admin-range input[type='date']:focus {
-  border-bottom: 2px solid var(--acento);
-  outline: none;
-}
-
-.admin-range .link-button {
-  min-height: 40px;
-}
-
-.admin-range-note {
-  margin: -16px 0 32px;
-  font-size: 14px;
-  color: var(--pizarra);
-}
-
-/* Casas y usuarios del resumen, uno al lado del otro */
-.admin-catalog {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 32px clamp(32px, 5vw, 72px);
-}
-
-.admin-figures-flat {
-  margin: 20px 0 0;
 }
 
 /* Cambios de estado de todos los tickets */

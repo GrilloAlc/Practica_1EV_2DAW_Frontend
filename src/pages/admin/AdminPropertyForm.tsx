@@ -83,7 +83,7 @@ function PropertyForm({ id }: { id?: string }) {
         if (!current) return;
         setLoadError(
           getErrorStatus(err) === 404
-            ? 'Esta casa no existe o está desactivada. El backend no deja abrir las desactivadas: actívala desde la lista y vuelve a intentarlo.'
+            ? 'Esta casa no existe o está desactivada. Las desactivadas no se pueden editar: actívala desde la lista y vuelve a intentarlo.'
             : getErrorMessage(err),
         );
         setLoading(false);
@@ -239,7 +239,7 @@ function PropertyForm({ id }: { id?: string }) {
       <title>{`${id ? 'Editar propiedad' : 'Nueva propiedad'} · Administración · CataHome`}</title>
       <p className="breadcrumb"><Link to="/admin/propiedades">Propiedades</Link> / {id ? 'Editar' : 'Nueva'}</p>
       <h1 className="page-title">{id ? 'Editar propiedad' : 'Nueva propiedad'}</h1>
-      <p className="page-subtitle">Así se verá la ficha en la web pública.</p>
+      <p className="page-subtitle">Lo que escribas aquí es lo que se ve en la ficha de la web pública.</p>
 
       {loading ? (
         <DetailSkeleton />
@@ -362,7 +362,7 @@ function PropertyForm({ id }: { id?: string }) {
           )}
           {error && <p className="field-error" role="alert">{error}</p>}
           <div className="form-actions">
-            <button type="submit" className="btn" disabled={saving}>{saving ? 'Guardando…' : id ? 'Guardar cambios' : 'Publicar propiedad'}</button>
+            <button type="submit" className="btn btn-acento" disabled={saving}>{saving ? 'Guardando…' : id ? 'Guardar cambios' : 'Publicar propiedad'}</button>
             <Link to="/admin/propiedades" className="link-button">Cancelar</Link>
           </div>
         </form>
