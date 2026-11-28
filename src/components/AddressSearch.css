@@ -58,6 +58,8 @@
 
 .address-search-credit a {
   color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* Dirección elegida */

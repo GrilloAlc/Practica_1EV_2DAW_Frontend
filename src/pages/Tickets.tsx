@@ -337,7 +337,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
             )}
           </div>
         ) : (
-          <table className={loading ? 'table table-linked admin-loading' : 'table table-linked'} aria-busy={loading}>
+          <table className={loading ? 'table table-linked admin-loading' : 'table table-linked'} aria-busy={loading} aria-label={title}>
             <thead>
               <tr>
                 <th>Código</th>

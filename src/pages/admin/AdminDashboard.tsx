@@ -220,7 +220,7 @@ function AdminDashboard() {
                     <h2 id="admin-reopen-title">Piden reabrir <span className="admin-count">{reopen.length}</span></h2>
                     <Link to="/admin/tickets?estado=RESUELTO&reabrir=1">Ver todas las peticiones</Link>
                   </div>
-                  <TicketTable tickets={reopen} />
+                  <TicketTable tickets={reopen} label="Tickets cuyo cliente pide reabrirlos" />
                 </section>
               )}
 
@@ -232,7 +232,7 @@ function AdminDashboard() {
                 {unassigned.length === 0 ? (
                   <div className="empty"><strong>Todos los tickets tienen agente</strong>No hay nada pendiente de asignar.</div>
                 ) : (
-                  <TicketTable tickets={unassigned} />
+                  <TicketTable tickets={unassigned} label="Tickets que esperan agente" />
                 )}
               </section>
 
@@ -309,10 +309,10 @@ function formatDay(day: string) {
 }
 
 // Tabla compacta para los bloques del resumen: código, asunto con su cliente debajo, prioridad y fecha
-function TicketTable({ tickets }: { tickets: Ticket[] }) {
+function TicketTable({ tickets, label }: { tickets: Ticket[]; label: string }) {
   return (
     <div className="admin-table-wrap">
-      <table className="table table-linked admin-table-compact">
+      <table className="table table-linked admin-table-compact" aria-label={label}>
         <thead>
           <tr><th>Código</th><th>Asunto</th><th>Prioridad</th><th>Creado</th></tr>
         </thead>

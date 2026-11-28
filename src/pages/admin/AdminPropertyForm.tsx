@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { createProperty, getProperty, updateProperty } from '../../api/properties';
 import AddressSearch from '../../components/AddressSearch';
 import Photo from '../../components/Photo';
+import UnsavedChangesGuard from '../../components/UnsavedChangesGuard';
 import { DetailSkeleton } from '../../components/Skeleton';
 import { findHouse, formatAddress, provinceFromPostalCode } from '../../utils/address';
 import type { FoundAddress } from '../../utils/address';
@@ -58,6 +59,8 @@ function PropertyForm({ id }: { id?: string }) {
   const [error, setError] = useState('');
   // Errores de cada campo, todos a la vez, debajo de su campo
   const [errors, setErrors] = useState<FieldErrors>({});
+  // Si se ha tocado algo, avisa antes de salir sin guardar
+  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -132,6 +135,7 @@ function PropertyForm({ id }: { id?: string }) {
 
   function chooseAddress(a: FoundAddress) {
     setAddress(a);
+    setTouched(true);
     setErrors((e) => ({ ...e, address: undefined }));
     streetPin.current = { lat: a.lat, lng: a.lng, postalCode: a.postalCode, province: a.province };
     setPin(a.number ? 'portal' : 'calle');
@@ -139,6 +143,7 @@ function PropertyForm({ id }: { id?: string }) {
 
   function changeNumber(number: string) {
     if (!address) return;
+    setTouched(true);
     const next = { ...address, number };
     setAddress(next);
     if (number.trim()) {
@@ -154,6 +159,7 @@ function PropertyForm({ id }: { id?: string }) {
   // Actualiza el campo según el name del input
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setTouched(true);
     // Al corregir un campo desaparece su error
     if (errors[e.target.name as keyof FieldErrors]) setErrors({ ...errors, [e.target.name]: undefined });
   }
@@ -161,10 +167,12 @@ function PropertyForm({ id }: { id?: string }) {
   const photos = parsePhotos(photosText);
 
   function movePhotoFirst(url: string) {
+    setTouched(true);
     setPhotosText([url, ...photos.filter((p) => p !== url)].join('\n'));
   }
 
   function removePhoto(url: string) {
+    setTouched(true);
     setPhotosText(photos.filter((p) => p !== url).join('\n'));
   }
 
@@ -270,11 +278,12 @@ function PropertyForm({ id }: { id?: string }) {
         </div>
       ) : (
         <div className="admin-form-layout">
+        <UnsavedChangesGuard when={touched && !saving} />
         <form className="form-box admin-form" onSubmit={handleSubmit} noValidate>
           <h2 className="form-box-title">Anuncio</h2>
           <label className="field">
             Título
-            <input name="title" required maxLength={120} value={form.title} onChange={handleChange} id={fieldId('title')} aria-invalid={Boolean(errors.title)} aria-describedby={errors.title ? fieldId('title') + '-error' : undefined} />
+            <input name="title" autoComplete="off" required maxLength={120} value={form.title} onChange={handleChange} id={fieldId('title')} aria-invalid={Boolean(errors.title)} aria-describedby={errors.title ? fieldId('title') + '-error' : undefined} />
             <FieldError name="title" errors={errors} />
           </label>
           <label className="field">
@@ -335,6 +344,7 @@ function PropertyForm({ id }: { id?: string }) {
               value={photosText}
               onChange={(e) => {
                 setPhotosText(e.target.value);
+                setTouched(true);
                 if (errors.photos) setErrors({ ...errors, photos: undefined });
               }}
               spellCheck={false}
@@ -384,11 +394,11 @@ function PropertyForm({ id }: { id?: string }) {
             <div className="form-row">
               <label className="field">
                 Número
-                <input value={address.number} onChange={(e) => changeNumber(e.target.value)} />
+                <input name="number" autoComplete="off" value={address.number} onChange={(e) => changeNumber(e.target.value)} />
               </label>
               <label className="field">
                 Código postal
-                <input inputMode="numeric" pattern="[0-9]{5}" title="5 dígitos" required value={address.postalCode} onChange={(e) => setAddress({ ...address, postalCode: e.target.value, province: provinceFromPostalCode(e.target.value) || address.province })} id={fieldId('postalCode')} aria-invalid={Boolean(errors.postalCode)} aria-describedby={errors.postalCode ? fieldId('postalCode') + '-error' : undefined} />
+                <input name="postalCode" autoComplete="off" inputMode="numeric" pattern="[0-9]{5}" title="5 dígitos" required value={address.postalCode} onChange={(e) => setAddress({ ...address, postalCode: e.target.value, province: provinceFromPostalCode(e.target.value) || address.province })} id={fieldId('postalCode')} aria-invalid={Boolean(errors.postalCode)} aria-describedby={errors.postalCode ? fieldId('postalCode') + '-error' : undefined} />
                 <FieldError name="postalCode" errors={errors} />
               </label>
             </div>

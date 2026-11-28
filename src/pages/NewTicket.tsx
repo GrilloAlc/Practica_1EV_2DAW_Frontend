@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { createTicket, useTicketOptions } from '../api/tickets';
+import UnsavedChangesGuard from '../components/UnsavedChangesGuard';
 import { getProperty } from '../api/properties';
 import { getErrorMessage } from '../api/client';
 import { TICKET_CATEGORIES, categoryLabels, formatPrice } from '../utils/labels';
@@ -92,6 +93,7 @@ function NewTicket() {
 
       <div className="new-ticket">
         <form className="form-box" onSubmit={handleSubmit}>
+          <UnsavedChangesGuard when={description.trim() !== '' && !sending} />
           {property && (
             <Link to={`/propiedades/${property._id}`} className="new-ticket-property">
               <Photo src={coverPhoto(property)} fallback={typeImage(property.type)} pixels={240} alt="" width={96} height={72} sizes="96px" />
@@ -104,7 +106,7 @@ function NewTicket() {
           )}
           <label className="field">
             Asunto
-            <input name="subject" required maxLength={200} placeholder="Por ejemplo: visita al piso de la calle Mayor" value={subject} onChange={(e) => setSubject(e.target.value)} />
+            <input name="subject" autoComplete="off" required maxLength={200} placeholder="Por ejemplo: visita al piso de la calle Mayor" value={subject} onChange={(e) => setSubject(e.target.value)} />
           </label>
           <label className="field">
             Categoría

@@ -65,7 +65,7 @@ function AdminActivity() {
           ) : entries.length === 0 ? (
             <div className="empty"><strong>Todavía no hay cambios de estado</strong>Aparecerán aquí en cuanto un agente o un cliente mueva un ticket.</div>
           ) : (
-            <table className={loading ? 'table admin-loading' : 'table'} aria-busy={loading}>
+            <table className={loading ? 'table admin-loading' : 'table'} aria-busy={loading} aria-label="Cambios de estado de los tickets">
               <thead>
                 <tr><th>Fecha</th><th>Ticket</th><th>Cambio</th><th>Hecho por</th></tr>
               </thead>

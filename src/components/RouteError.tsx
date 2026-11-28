@@ -14,7 +14,7 @@ function RouteError() {
   return (
     <div className="route-error">
       <title>{notFound ? 'Página no encontrada · CataHome' : 'Algo no ha ido bien · CataHome'}</title>
-      <a href="/" className="route-error-logo" aria-label="CataHome, ir al inicio"><Logo /></a>
+      <a href="/" className="route-error-logo"><Logo /></a>
       <main className="page not-found">
         <div className="not-found-text">
           <h1 className="page-title">{notFound ? 'Aquí no hay ninguna casa.' : 'Algo no ha ido bien.'}</h1>

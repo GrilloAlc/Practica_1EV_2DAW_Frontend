@@ -211,7 +211,7 @@ interface PropertyTableProps {
 
 function PropertyTable({ list, busy, onToggle, onStatus }: PropertyTableProps) {
   return (
-    <table className="table">
+    <table className="table" aria-label="Casas del catálogo">
       <thead>
         <tr><th>Propiedad</th><th>Tipo</th><th>Estado</th><th>Ciudad</th><th>Precio</th><th>Visible</th><th>Acciones</th></tr>
       </thead>

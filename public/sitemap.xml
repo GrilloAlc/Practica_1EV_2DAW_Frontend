@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Páginas públicas principales de CataHome. Las fichas de cada casa se descubren desde el listado -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://catahome.vercel.app/</loc></url>
+  <url><loc>https://catahome.vercel.app/propiedades</loc></url>
+  <url><loc>https://catahome.vercel.app/propiedades?status=En+venta</loc></url>
+  <url><loc>https://catahome.vercel.app/propiedades?status=Disponible+para+alquilar</loc></url>
+  <url><loc>https://catahome.vercel.app/sobre-nosotros</loc></url>
+</urlset>

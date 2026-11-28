@@ -225,7 +225,7 @@ function AdminUsers() {
             {searching ? 'Revisa el nombre o el correo que buscas.' : 'Cambia el rol que filtras.'}
           </div>
         ) : (
-          <table className={loading ? 'table admin-loading' : 'table'} aria-busy={loading}>
+          <table className={loading ? 'table admin-loading' : 'table'} aria-busy={loading} aria-label="Usuarios">
             <thead>
               <tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
             </thead>
@@ -332,7 +332,7 @@ function CreateUserDialog({ onClose, onDone }: { onClose: () => void; onDone: (n
       </label>
       <label className="field">
         Correo electrónico
-        <input type="email" required autoComplete="off" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="email" required autoComplete="off" spellCheck={false} autoCapitalize="none" value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <div className="form-row">
         <label className="field">

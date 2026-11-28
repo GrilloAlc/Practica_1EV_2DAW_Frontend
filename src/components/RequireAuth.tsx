@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { homeForRole } from '../utils/redirect';
@@ -24,7 +25,20 @@ function RequireAuth({ roles }: { roles?: string[] }) {
     );
   }
 
-  return <Outlet />;
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <Outlet />
+    </Suspense>
+  );
+}
+
+// Mientras se descarga una página con sesión: un esqueleto discreto, sin saltos
+export function PageLoading() {
+  return (
+    <main className="page" aria-busy="true">
+      <p className="loading">Cargando…</p>
+    </main>
+  );
 }
 
 export default RequireAuth;

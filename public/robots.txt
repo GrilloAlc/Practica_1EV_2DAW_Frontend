@@ -1,0 +1,9 @@
+# CataHome: los buscadores pueden leer la web pública; las zonas con sesión no se indexan
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /agente
+Disallow: /mis-tickets
+Disallow: /perfil
+
+Sitemap: https://catahome.vercel.app/sitemap.xml

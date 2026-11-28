@@ -259,6 +259,12 @@
   text-underline-offset: 4px;
 }
 
+.footer-bottom a {
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.45);
+  text-underline-offset: 3px;
+}
+
 .footer-bottom {
   margin: 0;
   padding: 20px var(--margen) 28px;

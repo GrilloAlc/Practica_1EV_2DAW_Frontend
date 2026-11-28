@@ -41,9 +41,9 @@ function PropertyCard({ property, priority = false }: { property: Property; prio
 
       <div className="property-card-body">
         <p className="property-card-price">{formatPrice(property)}</p>
-        <h3 className="property-card-title">
+        <h2 className="property-card-title">
           <Link to={detailUrl} state={linkState}>{property.title}</Link>
-        </h3>
+        </h2>
         <p className="property-card-place">
           {property.address.street}, {property.address.city}
         </p>

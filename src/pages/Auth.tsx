@@ -79,7 +79,7 @@ function Auth() {
     <div className="auth">
       <title>{mode === 'login' ? 'Entrar · CataHome' : 'Crear cuenta · CataHome'}</title>
       <div className="auth-side">
-        <Link to="/" className="auth-logo" aria-label="CataHome, ir al inicio">
+        <Link to="/" className="auth-logo">
           <Logo light />
         </Link>
         <div className="auth-side-text">

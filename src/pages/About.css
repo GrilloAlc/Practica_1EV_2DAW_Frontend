@@ -14,9 +14,9 @@
 }
 
 .about-hero h1 {
-  max-width: 14ch;
+  max-width: 16ch;
   margin: 0 0 28px;
-  font-size: clamp(48px, 7.5vw, 112px);
+  font-size: clamp(44px, 5.4vw, 80px);
   line-height: 0.98;
   letter-spacing: -0.035em;
 }

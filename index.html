@@ -19,7 +19,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Las fotos de las casas se sirven desde Unsplash -->
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet" />
+    <!-- Fuentes: se cargan sin bloquear el primer pintado (display=swap). Sin cursivas: no se usan -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Onest:wght@400..700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Onest:wght@400..700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Onest:wght@400..700&display=swap" /></noscript>
   </head>
   <body>
     <div id="root"></div>

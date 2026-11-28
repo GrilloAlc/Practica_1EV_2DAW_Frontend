@@ -1,8 +1,10 @@
+import { Suspense } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import './Layout.css';
 import BrandSymbol from './BrandSymbol';
 import '../pages/admin/Admin.css';
 import { useAuth } from '../context/useAuth';
+import { PageLoading } from './RequireAuth';
 import { EMAIL, PHONE, PHONE_HREF } from '../utils/contact';
 
 // Logotipo: el símbolo (la C con tejado) hace de primera letra de "CataHome".
@@ -42,7 +44,7 @@ export function PublicLayout() {
       <a href="#contenido" className="skip-link">Saltar al contenido</a>
       <header className="navbar">
         <div className="navbar-inner">
-          <Link to="/" className="navbar-logo" aria-label="CataHome, ir al inicio">
+          <Link to="/" className="navbar-logo">
             <Logo />
           </Link>
           <nav className="navbar-links" aria-label="Principal">
@@ -155,7 +157,7 @@ export function AdminLayout() {
     <div className="admin-layout">
       <a href="#contenido" className="skip-link">Saltar al contenido</a>
       <aside className="admin-sidebar">
-        <Link to="/" className="admin-sidebar-logo" aria-label="CataHome, ir al inicio">
+        <Link to="/" className="admin-sidebar-logo">
           <Logo light />
         </Link>
         <p className="admin-sidebar-sub">Panel de administración</p>
@@ -178,7 +180,9 @@ export function AdminLayout() {
       </aside>
 
       <div className="admin-main" id="contenido" tabIndex={-1}>
-        <Outlet />
+        <Suspense fallback={<PageLoading />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   );

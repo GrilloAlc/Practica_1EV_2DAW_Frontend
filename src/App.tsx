@@ -7,16 +7,8 @@ import Properties from './pages/Properties';
 import PropertyDetail from './pages/PropertyDetail';
 import Auth from './pages/Auth';
 import About from './pages/About';
-import Profile from './pages/Profile';
-import Tickets from './pages/Tickets';
-import NewTicket from './pages/NewTicket';
-import TicketDetail from './pages/TicketDetail';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminActivity from './pages/admin/AdminActivity';
-import AdminProperties from './pages/admin/AdminProperties';
-import AdminPropertyForm from './pages/admin/AdminPropertyForm';
 import NotFound from './pages/NotFound';
+import { AdminActivity, AdminDashboard, AdminProperties, AdminPropertyForm, AdminUsers, NewTicket, Profile, TicketDetail, Tickets } from './pages/lazyPages';
 import RouteError from './components/RouteError';
 
 // Se usa createBrowserRouter (y no <BrowserRouter>) para poder controlar cuándo cambia de página

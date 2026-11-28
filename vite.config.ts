@@ -16,4 +16,10 @@ export default defineConfig({
       '/api': { target: BACKEND_URL, changeOrigin: true },
     },
   },
+  // Lo mismo para `npm run preview` (la versión compilada), así se puede probar como en producción
+  preview: {
+    proxy: {
+      '/api': { target: BACKEND_URL, changeOrigin: true },
+    },
+  },
 })
