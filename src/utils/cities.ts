@@ -1,3 +1,5 @@
+import { PROVINCE_NAMES } from './address';
+
 // Ciudades para las sugerencias del buscador.
 // El backend filtra por ciudad exacta ("Málaga" no es "malaga"), así que lo que se escribe se convierte al
 // nombre con el que se guardan las casas: sin importar mayúsculas ni tildes y con algunos nombres alternativos.
@@ -74,4 +76,33 @@ export function canonicalCity(input: string) {
       return lower.charAt(0).toUpperCase() + lower.slice(1);
     })
     .join(' ');
+}
+
+// ---------- Campo "Zona" del listado: una ciudad, una provincia o un código postal en el mismo campo ----------
+
+const PROVINCE_SUFFIX = ' (provincia)';
+
+// Sugerencias del campo: las ciudades y, después, las provincias marcadas como tales
+export function zoneSuggestions() {
+  return [...CITIES, ...PROVINCE_NAMES.map((p) => p + PROVINCE_SUFFIX)];
+}
+
+// Texto escrito → filtros del backend. 5 números = código postal; "X (provincia)" o una provincia que no es
+// ciudad = provincia; lo demás, ciudad
+export function parseZone(input: string): { city: string; province: string; postalCode: string } {
+  const text = input.trim();
+  const none = { city: '', province: '', postalCode: '' };
+  if (!text) return none;
+  if (/^\d{5}$/.test(text)) return { ...none, postalCode: text };
+  const withoutSuffix = text.endsWith(PROVINCE_SUFFIX) ? text.slice(0, -PROVINCE_SUFFIX.length) : null;
+  const province = PROVINCE_NAMES.find((p) => simplify(p) === simplify(withoutSuffix ?? text));
+  if (province && (withoutSuffix !== null || !BY_NAME.has(simplify(text)))) return { ...none, province };
+  return { ...none, city: canonicalCity(text) };
+}
+
+// Filtros de la URL → texto del campo
+export function zoneText(city: string | null, province: string | null, postalCode: string | null) {
+  if (city) return canonicalCity(city);
+  if (province) return province + PROVINCE_SUFFIX;
+  return postalCode || '';
 }

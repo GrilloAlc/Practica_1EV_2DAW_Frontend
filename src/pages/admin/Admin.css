@@ -504,13 +504,105 @@
   max-width: 760px;
 }
 
-.admin-form-preview {
+/* Formulario de casas: el formulario a la izquierda y la vista previa del anuncio a la derecha, fija al bajar */
+.admin-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 720px) minmax(280px, 360px);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+
+.admin-preview {
+  position: sticky;
+  top: 32px;
+  padding: 20px;
+  background: var(--niebla);
+}
+
+.admin-preview-label {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.admin-preview-photo {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  margin-bottom: 16px;
+  overflow: hidden;
+  background: var(--linea);
+}
+
+.admin-preview-photo img {
   display: block;
   width: 100%;
-  max-height: 320px;
-  margin-bottom: 20px;
+  height: 100%;
   object-fit: cover;
-  background: var(--niebla);
+}
+
+.admin-preview-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  background: var(--fondo);
+  font-size: 13px;
+  color: var(--tinta);
+}
+
+.admin-preview-price {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-preview-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.admin-preview-place {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--acento);
+}
+
+.admin-preview-facts {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: var(--tinta);
+}
+
+.admin-preview-text {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--pizarra);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  white-space: pre-line;
+}
+
+.admin-address-search:focus {
+  outline: none;
+}
+
+@media (max-width: 1100px) {
+  .admin-form-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-preview {
+    position: static;
+    max-width: 480px;
+    order: -1;
+  }
 }
 
 @media (max-width: 1100px) {

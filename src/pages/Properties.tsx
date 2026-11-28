@@ -9,8 +9,7 @@ import { getPropertiesPage } from '../api/properties';
 import type { PropertyFilters } from '../api/properties';
 import { getErrorMessage } from '../api/client';
 import { PROPERTY_TYPES, formatNumber, typePlurals } from '../utils/labels';
-import { CITIES, canonicalCity } from '../utils/cities';
-import { PROVINCE_NAMES } from '../utils/address';
+import { canonicalCity, parseZone, zoneSuggestions, zoneText } from '../utils/cities';
 import RangeSlider from '../components/RangeSlider';
 import { useSlowLoading } from '../utils/useSlowLoading';
 import type { Page, Property } from '../types';
@@ -119,6 +118,7 @@ function Properties() {
   let heading = (typePlurals[type] || 'Casas') + (operationText || ' en venta y alquiler');
   if (appliedCity) heading += ' en ' + appliedCity;
   else if (searchParams.get('province')) heading += ' en ' + searchParams.get('province');
+  else if (searchParams.get('postalCode')) heading += ' en el código postal ' + searchParams.get('postalCode');
 
   return (
     <main className="page">
@@ -264,17 +264,17 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
   const [status, setStatus] = useState(searchParams.get('status') || '');
   const rent = status === 'Disponible para alquilar';
   const [type, setType] = useState(searchParams.get('type') || '');
-  const [city, setCity] = useState(canonicalCity(searchParams.get('city') || ''));
+  // Zona: ciudad, provincia o código postal en un solo campo
+  const [zone, setZone] = useState(zoneText(searchParams.get('city'), searchParams.get('province'), searchParams.get('postalCode')));
   const prices = rent ? RENT_SCALE : SALE_SCALE;
   const [price, setPrice] = useState(() => rangeFromUrl(searchParams.get('priceMin'), searchParams.get('priceMax'), rent ? RENT_SCALE : SALE_SCALE));
   const [area, setArea] = useState(() => rangeFromUrl(searchParams.get('areaMin'), searchParams.get('areaMax'), AREA_SCALE));
-  const [province, setProvince] = useState(searchParams.get('province') || '');
-  const [postalCode, setPostalCode] = useState(searchParams.get('postalCode') || '');
   const [error, setError] = useState('');
 
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
-    if (postalCode.trim() && !/^\d{5}$/.test(postalCode.trim())) {
+    // Solo números pero no 5: parece un código postal mal escrito
+    if (/^\d+$/.test(zone.trim()) && !/^\d{5}$/.test(zone.trim())) {
       setError('El código postal tiene 5 números, por ejemplo 28013.');
       return;
     }
@@ -282,9 +282,7 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
     onApply({
       status,
       type,
-      city: canonicalCity(city),
-      province,
-      postalCode: postalCode.trim(),
+      ...parseZone(zone),
       ...rangeToUrl(price, prices, 'price'),
       ...rangeToUrl(area, AREA_SCALE, 'area'),
     });
@@ -315,11 +313,19 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
         </select>
       </label>
       <label className="field">
-        Ciudad
-        <input placeholder="Por ejemplo: Madrid" value={city} onChange={(e) => setCity(e.target.value)} list={citiesId} autoComplete="off" />
+        Zona
+        <input
+          placeholder="Ciudad, provincia o código postal"
+          value={zone}
+          onChange={(e) => setZone(e.target.value)}
+          list={citiesId}
+          autoComplete="off"
+          aria-describedby="zona-ayuda"
+        />
         <datalist id={citiesId}>
-          {CITIES.map((c) => <option key={c} value={c} />)}
+          {zoneSuggestions().map((z) => <option key={z} value={z} />)}
         </datalist>
+        <span id="zona-ayuda" className="field-help">Por ejemplo: Málaga, Madrid (provincia) o 28013.</span>
       </label>
       <label className="field">
         Tipo de inmueble
@@ -348,17 +354,6 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
         onChange={setArea}
         format={(n) => formatNumber(n) + ' m²'}
       />
-      <label className="field">
-        Provincia
-        <select value={province} onChange={(e) => setProvince(e.target.value)}>
-          <option value="">Todas</option>
-          {PROVINCE_NAMES.map((p) => <option key={p} value={p}>{p}</option>)}
-        </select>
-      </label>
-      <label className="field">
-        Código postal
-        <input inputMode="numeric" maxLength={5} placeholder="Por ejemplo: 28013" value={postalCode} onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ''))} />
-      </label>
       {error && <p className="field-error" role="alert">{error}</p>}
       <button type="submit" className="btn properties-apply">Ver resultados</button>
     </form>

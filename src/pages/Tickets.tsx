@@ -49,6 +49,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
   const [customerText, setCustomerText] = useState(customerName);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const customersId = useId();
+  const [showMore, setShowMore] = useState(false);
 
   // Se vuelve a pedir la lista cada vez que cambia un filtro o la página
   useEffect(() => {
@@ -139,6 +140,24 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
     visible = visible.filter((t) => (t.code + ' ' + t.subject + ' ' + t.customer.name + ' ' + (t.agent?.name || '')).toLowerCase().includes(text));
   }
   const filtering = Boolean(status || priority || category || customerName || agentName || reopenOnly || search);
+
+  // Filtros de "Más filtros" que están puestos, para enseñarlos como etiquetas que se quitan con un clic
+  const chips: { key: string; label: string }[] = [];
+  if (!isCustomer && priority) chips.push({ key: 'prioridad', label: `Prioridad: ${priorityLabels[Number(priority)]}` });
+  if (category) chips.push({ key: 'categoria', label: `Categoría: ${categoryLabels[category] || category}` });
+  if (customerName) chips.push({ key: 'cliente', label: `Cliente: ${customerName}` });
+  if (agentName) chips.push({ key: 'agente', label: agentName === 'sin-asignar' ? 'Sin agente' : `Agente: ${agentName}` });
+  if (reopenOnly) chips.push({ key: 'reabrir', label: 'Piden reabrir' });
+
+  function removeChip(key: string) {
+    if (key === 'cliente') setCustomerText('');
+    changeUrl({ [key]: '' });
+  }
+
+  function clearAll() {
+    setCustomerText('');
+    setSearchParams({}, { replace: true });
+  }
   const noun = (n: number) => (isCustomer ? (n === 1 ? 'consulta' : 'consultas') : n === 1 ? 'ticket' : 'tickets');
 
   return (
@@ -159,7 +178,8 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
       )}
 
       <div className="table-box">
-        <div className="table-tools">
+        <div className="table-tools ticket-tools">
+          {/* Fila 1: el estado, que es el filtro de todos los días */}
           <div className="tabs" role="group" aria-label="Filtrar por estado">
             <button className={status === '' ? 'tab tab-active' : 'tab'} aria-pressed={status === ''} onClick={() => changeUrl({ estado: '' })}>Todos</button>
             {options.statuses.map((s) => (
@@ -168,75 +188,123 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
               </button>
             ))}
           </div>
-          <div className="tabs">
-            <select className="table-search" aria-label="Filtrar por prioridad" value={priority} onChange={(e) => changeUrl({ prioridad: e.target.value })}>
-              <option value="">Toda prioridad</option>
-              {options.priorities.map((p) => (
-                <option key={p} value={p}>{priorityLabels[p]}</option>
-              ))}
-            </select>
-            {/* Las categorías son los tipos de consulta (las mismas que elige el cliente al escribir) */}
-            {!isCustomer && (
-              <select className="table-search" aria-label="Filtrar por categoría" value={category} onChange={(e) => changeUrl({ categoria: e.target.value })}>
-                <option value="">Todas las categorías</option>
-                {options.categories.map((c) => (
-                  <option key={c} value={c}>{categoryLabels[c] || c}</option>
-                ))}
-              </select>
-            )}
-            {isAdmin && (
-              <>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    changeUrl({ cliente: customerText.trim() });
-                  }}
-                >
-                  <input
-                    className="table-search"
-                    type="search"
-                    aria-label="Filtrar por cliente (nombre completo)"
-                    placeholder="Cliente y Enter"
-                    list={customersId}
-                    autoComplete="off"
-                    value={customerText}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setCustomerText(value);
-                      // Vaciar el campo quita el filtro; elegir una sugerencia lo aplica al momento
-                      if (!value) changeUrl({ cliente: '' });
-                      else if (suggestions.includes(value)) changeUrl({ cliente: value });
-                    }}
-                  />
-                  <datalist id={customersId}>
-                    {suggestions.map((name) => <option key={name} value={name} />)}
-                  </datalist>
-                </form>
-                <select className="table-search" aria-label="Filtrar por agente" value={agentName} onChange={(e) => changeUrl({ agente: e.target.value })}>
-                  <option value="">Todos los agentes</option>
-                  <option value="sin-asignar">Sin asignar</option>
-                  {agentName && agentName !== 'sin-asignar' && !agents.some((a) => a.name === agentName) && <option value={agentName}>{agentName}</option>}
-                  {agents.map((a) => <option key={a._id} value={a.name}>{a.name}</option>)}
-                </select>
-                <label className="table-check">
-                  <input type="checkbox" checked={reopenOnly} onChange={(e) => changeUrl({ reabrir: e.target.checked ? '1' : '' })} />
-                  Piden reabrir
-                </label>
-              </>
-            )}
-            <select className="table-search" aria-label="Ordenar" value={sort} onChange={(e) => changeUrl({ orden: e.target.value === 'prioridad-alta' ? '' : e.target.value })}>
-              <option value="prioridad-alta">Prioridad alta primero</option>
-              <option value="prioridad-baja">Prioridad baja primero</option>
-            </select>
+
+          {/* Fila 2: buscar, el resto de filtros plegados y el orden */}
+          <div className="ticket-tools-row">
             <input
               className="table-search"
               type="search"
-              aria-label={isCustomer ? 'Buscar consulta' : 'Buscar ticket'}
-              placeholder="Código, asunto o nombre…"
+              aria-label={isCustomer ? 'Buscar en esta página de consultas' : 'Buscar en esta página de tickets'}
+              placeholder="Buscar en esta página…"
               value={search}
               onChange={(e) => changeUrl({ q: e.target.value }, true)}
             />
+            {isCustomer ? (
+              <select className="table-search ticket-tools-select" aria-label="Filtrar por prioridad" value={priority} onChange={(e) => changeUrl({ prioridad: e.target.value })}>
+                <option value="">Toda prioridad</option>
+                {options.priorities.map((p) => <option key={p} value={p}>{priorityLabels[p]}</option>)}
+              </select>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-outline ticket-tools-more"
+                aria-expanded={showMore}
+                aria-controls="ticket-more-filters"
+                onClick={() => setShowMore(!showMore)}
+              >
+                {showMore ? 'Menos filtros' : 'Más filtros'}
+                {chips.length > 0 && <span className="ticket-tools-count">{chips.length}</span>}
+              </button>
+            )}
+            <select className="table-search ticket-tools-select ticket-tools-sort" aria-label="Ordenar" value={sort} onChange={(e) => changeUrl({ orden: e.target.value === 'prioridad-alta' ? '' : e.target.value })}>
+              <option value="prioridad-alta">Prioridad alta primero</option>
+              <option value="prioridad-baja">Prioridad baja primero</option>
+            </select>
           </div>
+
+          {/* Filtros plegados (agente y admin) */}
+          {!isCustomer && showMore && (
+            <div id="ticket-more-filters" className="ticket-more">
+              <label>
+                Prioridad
+                <select value={priority} onChange={(e) => changeUrl({ prioridad: e.target.value })}>
+                  <option value="">Toda prioridad</option>
+                  {options.priorities.map((p) => <option key={p} value={p}>{priorityLabels[p]}</option>)}
+                </select>
+              </label>
+              {/* Las categorías son los tipos de consulta (las mismas que elige el cliente al escribir) */}
+              <label>
+                Categoría
+                <select value={category} onChange={(e) => changeUrl({ categoria: e.target.value })}>
+                  <option value="">Todas</option>
+                  {options.categories.map((c) => <option key={c} value={c}>{categoryLabels[c] || c}</option>)}
+                </select>
+              </label>
+              {isAdmin && (
+                <>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      changeUrl({ cliente: customerText.trim() });
+                    }}
+                  >
+                    <label>
+                      Cliente
+                      <input
+                        type="search"
+                        placeholder="Escribe y elige un nombre"
+                        list={customersId}
+                        autoComplete="off"
+                        value={customerText}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setCustomerText(value);
+                          // Vaciar el campo quita el filtro; elegir una sugerencia lo aplica al momento
+                          if (!value) changeUrl({ cliente: '' });
+                          else if (suggestions.includes(value)) changeUrl({ cliente: value });
+                        }}
+                      />
+                    </label>
+                    <datalist id={customersId}>
+                      {suggestions.map((name) => <option key={name} value={name} />)}
+                    </datalist>
+                  </form>
+                  <label>
+                    Agente
+                    <select value={agentName} onChange={(e) => changeUrl({ agente: e.target.value })}>
+                      <option value="">Todos</option>
+                      <option value="sin-asignar">Sin asignar</option>
+                      {agentName && agentName !== 'sin-asignar' && !agents.some((a) => a.name === agentName) && <option value={agentName}>{agentName}</option>}
+                      {agents.map((a) => <option key={a._id} value={a.name}>{a.name}</option>)}
+                    </select>
+                  </label>
+                  <label className="table-check">
+                    <input type="checkbox" checked={reopenOnly} onChange={(e) => changeUrl({ reabrir: e.target.checked ? '1' : '' })} />
+                    Solo los que piden reabrir
+                  </label>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Filtros aplicados, cada uno se quita con un clic */}
+          {chips.length > 0 && (
+            <ul className="filter-chips" aria-label="Filtros aplicados">
+              {chips.map((c) => (
+                <li key={c.key}>
+                  <button type="button" className="filter-chip" onClick={() => removeChip(c.key)} aria-label={`Quitar el filtro ${c.label}`}>
+                    {c.label}
+                    <span className="filter-chip-remove">quitar</span>
+                  </button>
+                </li>
+              ))}
+              {chips.length > 1 && (
+                <li>
+                  <button type="button" className="link-button" onClick={clearAll}>Quitar todos</button>
+                </li>
+              )}
+            </ul>
+          )}
         </div>
 
         {failed ? (
@@ -264,16 +332,7 @@ function Tickets({ title, subtitle }: { title: string; subtitle: string }) {
                   : isCustomer
                     ? 'Cambia el estado, la prioridad o el texto de búsqueda.'
                     : 'Cambia el estado, la prioridad, la categoría o el texto de búsqueda.'}{' '}
-                <button
-                  type="button"
-                  className="link-button"
-                  onClick={() => {
-                    setCustomerText('');
-                    setSearchParams({}, { replace: true });
-                  }}
-                >
-                  Quitar filtros
-                </button>
+                <button type="button" className="link-button" onClick={clearAll}>Quitar filtros</button>
               </>
             )}
           </div>

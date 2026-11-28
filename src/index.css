@@ -362,6 +362,24 @@ img {
   color: var(--pizarra);
 }
 
+/* Error de un campo concreto, justo debajo de él */
+.field-message {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--error);
+}
+
+p.field-message {
+  margin: -8px 0 20px;
+}
+
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'],
+.field textarea[aria-invalid='true'] {
+  border-color: var(--error);
+}
+
 .form-ok {
   margin: 0;
   font-family: var(--font-serif);
@@ -504,6 +522,134 @@ img {
   gap: 16px 24px;
   padding: 18px 0;
   border-bottom: 1px solid var(--linea);
+}
+
+/* Barra de la lista de tickets: estado arriba; debajo, buscar, "Más filtros" y orden */
+.ticket-tools {
+  display: grid;
+  justify-content: stretch;
+  gap: 16px;
+}
+
+.ticket-tools-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+.ticket-tools-row .table-search[type='search'] {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.ticket-tools-select {
+  min-width: 0;
+}
+
+.ticket-tools-sort {
+  margin-left: auto;
+}
+
+.ticket-tools-more {
+  gap: 8px;
+}
+
+.ticket-tools-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--acento);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Filtros plegados: en piedra, cada campo con su etiqueta encima */
+.ticket-more {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  align-items: end;
+  gap: 16px 24px;
+  padding: 20px;
+  background: var(--niebla);
+}
+
+.ticket-more label:not(.table-check) {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--pizarra);
+}
+
+.ticket-more select,
+.ticket-more input[type='search'] {
+  width: 100%;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--tinta);
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--tinta);
+}
+
+.ticket-more select:focus,
+.ticket-more input[type='search']:focus {
+  border-bottom: 2px solid var(--acento);
+  outline: none;
+}
+
+/* Filtros aplicados: etiquetas en rosado que se quitan al pulsarlas */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #ecd6db;
+  border-radius: 18px;
+  background: var(--acento-suave);
+  font: inherit;
+  font-size: 14px;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.filter-chip:hover {
+  border-color: var(--acento);
+}
+
+.filter-chip-remove {
+  font-size: 12px;
+  color: var(--acento);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .ticket-tools-row .table-search[type='search'] {
+    max-width: none;
+  }
+  .ticket-tools-sort {
+    margin-left: 0;
+  }
 }
 
 /* Pestañas: texto con raya vino debajo de la elegida */
