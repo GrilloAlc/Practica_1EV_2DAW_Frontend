@@ -1,0 +1,117 @@
+/* Barra de rango con dos tiradores (precio, metros): pista fina en línea, tramo elegido en vino */
+
+.range {
+  min-width: 0;
+  margin: 0 0 24px;
+  padding: 0;
+  border: none;
+}
+
+.range-label {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--pizarra);
+}
+
+.range-values {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 600;
+  font-variation-settings: var(--opsz);
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+}
+
+.range-track {
+  position: relative;
+  height: 44px;
+}
+
+/* Pista y tramo elegido, dibujados detrás de los dos inputs */
+.range-track::before,
+.range-track::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.range-track::before {
+  left: 0;
+  right: 0;
+  background: var(--linea);
+}
+
+.range-track::after {
+  left: var(--from);
+  right: calc(100% - var(--to));
+  background: var(--acento);
+}
+
+.range-track input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: none;
+  appearance: none;
+  pointer-events: none;
+}
+
+.range-track input:focus {
+  outline: none;
+}
+
+/* Solo los tiradores reciben el ratón o el dedo, así los dos inputs superpuestos no se estorban */
+.range-track input::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--acento);
+  border-radius: 50%;
+  background: var(--fondo);
+  box-shadow: 0 1px 3px rgba(38, 36, 31, 0.25);
+  cursor: grab;
+  appearance: none;
+  pointer-events: auto;
+}
+
+.range-track input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--acento);
+  border-radius: 50%;
+  background: var(--fondo);
+  box-shadow: 0 1px 3px rgba(38, 36, 31, 0.25);
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.range-track input::-webkit-slider-runnable-track {
+  background: none;
+}
+
+.range-track input::-moz-range-track {
+  background: none;
+}
+
+.range-track input:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+.range-track input:focus-visible::-webkit-slider-thumb {
+  background: var(--acento);
+  box-shadow: 0 0 0 4px var(--acento-suave);
+}
+
+.range-track input:focus-visible::-moz-range-thumb {
+  background: var(--acento);
+  box-shadow: 0 0 0 4px var(--acento-suave);
+}

@@ -132,7 +132,7 @@
 .about-columns h2 {
   margin: 0 0 12px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--linea);
   font-size: clamp(32px, 4vw, 52px);
 }
 
@@ -183,12 +183,7 @@
   color: var(--pizarra);
 }
 
-/* Contacto: tipográfico, con el teléfono en grande */
-.about-contact {
-  position: sticky;
-  top: 108px;
-}
-
+/* Contacto: tipográfico, con el teléfono en grande. Se queda en su sitio al bajar (sin sticky) */
 .about-contact > p {
   margin: 8px 0 24px;
   color: var(--pizarra);
@@ -232,9 +227,6 @@
   }
   .about-columns {
     grid-template-columns: 1fr;
-  }
-  .about-contact {
-    position: static;
   }
 }
 

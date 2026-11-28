@@ -7,7 +7,7 @@
   gap: 24px;
   margin-bottom: 40px;
   padding-bottom: 28px;
-  border-bottom: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--linea);
 }
 
 .ticket-head .page-title {
@@ -135,7 +135,7 @@
 .ticket-box form {
   margin-top: 16px;
   padding-top: 28px;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
 
 .ticket-box form textarea {

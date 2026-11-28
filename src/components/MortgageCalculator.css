@@ -16,7 +16,7 @@
 .mortgage-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
 
 .mortgage-inputs {

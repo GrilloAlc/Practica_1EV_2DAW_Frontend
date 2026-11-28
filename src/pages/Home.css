@@ -151,7 +151,7 @@
   justify-content: space-between;
   gap: 8px 32px;
   padding-top: 28px;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
 
 .home-places-head h2 {
@@ -250,7 +250,7 @@ a.home-places-row:hover .home-places-dots {
   gap: 24px 48px;
   margin: clamp(56px, 8vw, 104px) var(--margen) clamp(80px, 11vw, 150px);
   padding-top: 28px;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
 
 .home-talk h2 {

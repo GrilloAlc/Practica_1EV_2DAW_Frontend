@@ -11,6 +11,7 @@ import { getErrorMessage } from '../api/client';
 import { PROPERTY_TYPES, formatNumber, typePlurals } from '../utils/labels';
 import { CITIES, canonicalCity } from '../utils/cities';
 import { PROVINCE_NAMES } from '../utils/address';
+import RangeSlider from '../components/RangeSlider';
 import { useSlowLoading } from '../utils/useSlowLoading';
 import type { Page, Property } from '../types';
 
@@ -223,6 +224,33 @@ function Properties() {
   );
 }
 
+// Escalas de las barras de precio y superficie. En el extremo derecho no hay límite
+interface Scale {
+  min: number;
+  max: number;
+  step: number;
+}
+const SALE_SCALE: Scale = { min: 0, max: 3_000_000, step: 25_000 };
+const RENT_SCALE: Scale = { min: 0, max: 6_000, step: 100 };
+const AREA_SCALE: Scale = { min: 0, max: 600, step: 10 };
+
+// Valores de la URL → posición de los tiradores (dentro de la escala)
+function rangeFromUrl(from: string | null, to: string | null, scale: Scale): [number, number] {
+  const clamp = (v: string | null, fallback: number) => {
+    const n = Number(v);
+    return v && Number.isFinite(n) ? Math.min(Math.max(n, scale.min), scale.max) : fallback;
+  };
+  return [clamp(from, scale.min), clamp(to, scale.max)];
+}
+
+// Posición de los tiradores → parámetros de la URL. En los extremos no se filtra
+function rangeToUrl([low, high]: [number, number], scale: Scale, name: 'price' | 'area') {
+  return {
+    [name + 'Min']: low > scale.min ? String(low) : '',
+    [name + 'Max']: high < scale.max ? String(high) : '',
+  } as Record<'priceMin' | 'priceMax' | 'areaMin' | 'areaMax', string>;
+}
+
 interface FiltersFormProps {
   open: boolean;
   onApply: (filters: Record<'status' | 'type' | 'city' | 'province' | 'postalCode' | 'priceMin' | 'priceMax' | 'areaMin' | 'areaMax', string>) => void;
@@ -237,48 +265,28 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
   const rent = status === 'Disponible para alquilar';
   const [type, setType] = useState(searchParams.get('type') || '');
   const [city, setCity] = useState(canonicalCity(searchParams.get('city') || ''));
-  const [priceMin, setPriceMin] = useState(searchParams.get('priceMin') || '');
-  const [priceMax, setPriceMax] = useState(searchParams.get('priceMax') || '');
-  const [areaMin, setAreaMin] = useState(searchParams.get('areaMin') || '');
-  const [areaMax, setAreaMax] = useState(searchParams.get('areaMax') || '');
+  const prices = rent ? RENT_SCALE : SALE_SCALE;
+  const [price, setPrice] = useState(() => rangeFromUrl(searchParams.get('priceMin'), searchParams.get('priceMax'), rent ? RENT_SCALE : SALE_SCALE));
+  const [area, setArea] = useState(() => rangeFromUrl(searchParams.get('areaMin'), searchParams.get('areaMax'), AREA_SCALE));
   const [province, setProvince] = useState(searchParams.get('province') || '');
   const [postalCode, setPostalCode] = useState(searchParams.get('postalCode') || '');
   const [error, setError] = useState('');
 
-  // Comprueba un rango "desde/hasta": números positivos y el primero no mayor que el segundo
-  function rangeProblem(from: string, to: string, what: string) {
-    const min = from ? Number(from) : null;
-    const max = to ? Number(to) : null;
-    if ((min !== null && (!Number.isFinite(min) || min < 0)) || (max !== null && (!Number.isFinite(max) || max < 0))) {
-      return `${what} tienen que ser números positivos.`;
-    }
-    if (min !== null && max !== null && min > max) return `En ${what.toLowerCase()}, el "desde" no puede ser mayor que el "hasta".`;
-    return '';
-  }
-
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
-    const problem = rangeProblem(priceMin, priceMax, 'Los precios') || rangeProblem(areaMin, areaMax, 'Los metros');
-    if (problem) {
-      setError(problem);
-      return;
-    }
     if (postalCode.trim() && !/^\d{5}$/.test(postalCode.trim())) {
       setError('El código postal tiene 5 números, por ejemplo 28013.');
       return;
     }
     setError('');
-    const clean = (v: string) => (v ? String(Number(v)) : '');
     onApply({
       status,
       type,
       city: canonicalCity(city),
       province,
       postalCode: postalCode.trim(),
-      priceMin: clean(priceMin),
-      priceMax: clean(priceMax),
-      areaMin: clean(areaMin),
-      areaMax: clean(areaMax),
+      ...rangeToUrl(price, prices, 'price'),
+      ...rangeToUrl(area, AREA_SCALE, 'area'),
     });
   }
 
@@ -291,7 +299,16 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
 
       <label className="field">
         Operación
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <select
+          value={status}
+          onChange={(e) => {
+            // Venta y alquiler tienen escalas de precio distintas: al cambiar, el precio vuelve a "cualquiera"
+            const next = e.target.value;
+            setStatus(next);
+            const scale = next === 'Disponible para alquilar' ? RENT_SCALE : SALE_SCALE;
+            setPrice([scale.min, scale.max]);
+          }}
+        >
           {OPERATIONS.map((op) => (
             <option key={op.label} value={op.value}>{op.label}</option>
           ))}
@@ -313,26 +330,24 @@ function FiltersForm({ open, onApply, onClear }: FiltersFormProps) {
           ))}
         </select>
       </label>
-      <div className="form-row">
-        <label className="field">
-          {rent ? 'Al mes desde' : 'Precio desde'}
-          <input type="number" min="0" step={rent ? 100 : 1000} inputMode="numeric" placeholder="0 €" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} />
-        </label>
-        <label className="field">
-          {rent ? 'Al mes hasta' : 'Precio hasta'}
-          <input type="number" min="0" step={rent ? 100 : 1000} inputMode="numeric" placeholder="Sin límite" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} />
-        </label>
-      </div>
-      <div className="form-row">
-        <label className="field">
-          Metros desde
-          <input type="number" min="0" step="10" inputMode="numeric" placeholder="0 m²" value={areaMin} onChange={(e) => setAreaMin(e.target.value)} />
-        </label>
-        <label className="field">
-          Metros hasta
-          <input type="number" min="0" step="10" inputMode="numeric" placeholder="Sin límite" value={areaMax} onChange={(e) => setAreaMax(e.target.value)} />
-        </label>
-      </div>
+      <RangeSlider
+        label={rent ? 'Precio al mes' : 'Precio'}
+        min={prices.min}
+        max={prices.max}
+        step={prices.step}
+        value={price}
+        onChange={setPrice}
+        format={(n) => formatNumber(n) + ' €'}
+      />
+      <RangeSlider
+        label="Superficie"
+        min={AREA_SCALE.min}
+        max={AREA_SCALE.max}
+        step={AREA_SCALE.step}
+        value={area}
+        onChange={setArea}
+        format={(n) => formatNumber(n) + ' m²'}
+      />
       <label className="field">
         Provincia
         <select value={province} onChange={(e) => setProvince(e.target.value)}>

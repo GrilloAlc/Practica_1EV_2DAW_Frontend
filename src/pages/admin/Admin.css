@@ -23,7 +23,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   margin-bottom: 64px;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
 
 .stat-card {
@@ -113,7 +113,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
 
 .admin-activity li {

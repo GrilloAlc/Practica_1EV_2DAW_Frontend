@@ -190,7 +190,7 @@ img {
 .section-title {
   margin: 0 0 24px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--linea);
   font-size: clamp(26px, 3vw, 36px);
 }
 
@@ -374,7 +374,7 @@ img {
 .form-box {
   max-width: 720px;
   padding-top: 32px;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
 
 .form-box-title {
@@ -494,7 +494,7 @@ img {
 /* ---------- Tablas: sin cajas, solo rayas ---------- */
 
 .table-box {
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
   overflow-x: auto;
 }
 
